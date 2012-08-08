@@ -8,4 +8,31 @@
   	<module>evo</module>
   	<module>mas</module>
   </modules>
+  <dependencies>
+  	<dependency>
+  		<groupId>rinsim</groupId>
+  		<artifactId>core</artifactId>
+  		<version>2.0.1-SNAPSHOT</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>com.google.guava</groupId>
+  		<artifactId>guava</artifactId>
+  		<version>12.0</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>edu.gmu.cs</groupId>
+  		<artifactId>ecj</artifactId>
+  		<version>20.0</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>rinsim</groupId>
+  		<artifactId>problem</artifactId>
+  		<version>2.0.1-SNAPSHOT</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>rinsim</groupId>
+  		<artifactId>ui</artifactId>
+  		<version>2.0.1-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
 </project>

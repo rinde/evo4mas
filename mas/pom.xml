@@ -7,4 +7,11 @@
     <relativePath>..</relativePath>
   </parent>
   <artifactId>mas</artifactId>
+  <dependencies>
+  	<dependency>
+  		<groupId>evo4mas</groupId>
+  		<artifactId>evo</artifactId>
+  		<version>0.0.1-SNAPSHOT</version>
+  	</dependency>
+  </dependencies>
 </project>
