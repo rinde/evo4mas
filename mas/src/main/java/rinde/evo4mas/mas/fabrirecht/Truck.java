@@ -1,6 +1,6 @@
 package rinde.evo4mas.mas.fabrirecht;
 
-import rinde.evo4mas.evo.gp.GPTree;
+import rinde.evo4mas.evo.gp.GPProgram;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.road.RoadModels;
@@ -13,12 +13,12 @@ import com.google.common.base.Predicate;
 
 class Truck extends FRVehicle {
 
-	protected final GPTree<FRContext> program;
+	protected final GPProgram<FRContext> program;
 
 	/**
 	 * @param pDto
 	 */
-	public Truck(VehicleDTO pDto, GPTree<FRContext> p) {
+	public Truck(VehicleDTO pDto, GPProgram<FRContext> p) {
 		super(pDto);
 		program = p;
 	}

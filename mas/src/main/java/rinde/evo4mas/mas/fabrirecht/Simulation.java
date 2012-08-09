@@ -3,14 +3,12 @@
  */
 package rinde.evo4mas.mas.fabrirecht;
 
-import java.io.IOException;
-
+import rinde.evo4mas.evo.gp.GPProgram;
 import rinde.sim.problem.fabrirecht.AddVehicleEvent;
 import rinde.sim.problem.fabrirecht.FRDepot;
 import rinde.sim.problem.fabrirecht.FRParcel;
-import rinde.sim.problem.fabrirecht.FabriRechtParser;
 import rinde.sim.problem.fabrirecht.FabriRechtProblem;
-import rinde.sim.scenario.ConfigurationException;
+import rinde.sim.problem.fabrirecht.FabriRechtScenario;
 import rinde.sim.ui.View;
 import rinde.sim.ui.renderers.PDPModelRenderer;
 import rinde.sim.ui.renderers.PlaneRoadModelRenderer;
@@ -23,14 +21,22 @@ import rinde.sim.ui.renderers.UiSchema;
  */
 public class Simulation extends FabriRechtProblem {
 
-	public Simulation(String coordinateFile, String ordersFile) throws IOException, ConfigurationException {
-		super(FabriRechtParser.parse(coordinateFile, ordersFile));
-		initialize();
+	// public Simulation(String coordinateFile, String ordersFile) throws
+	// IOException, ConfigurationException {
+	// super(FabriRechtParser.parse(coordinateFile, ordersFile));
+	// initialize();
+	// }
+
+	protected final GPProgram<FRContext> program;
+
+	public Simulation(FabriRechtScenario scenario, GPProgram<FRContext> rootNode) {
+		super(scenario);
+		program = rootNode;
 	}
 
 	@Override
 	protected boolean handleAddVehicle(AddVehicleEvent event) {
-		return getSimulator().register(new Truck(event.vehicleDTO));
+		return getSimulator().register(new Truck(event.vehicleDTO, program));
 	}
 
 	@Override

@@ -8,7 +8,9 @@ import ec.Problem;
 import ec.gp.ADFStack;
 import ec.gp.GPData;
 import ec.gp.GPIndividual;
+import ec.gp.GPInitializer;
 import ec.gp.GPNode;
+import ec.gp.GPNodeConstraints;
 import ec.util.Parameter;
 
 /**
@@ -30,6 +32,27 @@ public abstract class GPFunc<C> extends GPNode {
 
 	public GPFunc(String name) {
 		this(name, 0);
+	}
+
+	@Override
+	public void setup(final EvolutionState state, final Parameter base) {
+		// deliberatly not calling super
+
+		// hack to add constraints (without needing the params file)
+
+		constraints = GPNodeConstraints.constraintsFor("nc" + numChildren, state).constraintNumber;
+
+		// The number of children is determined by the constraints. Though
+		// for some special versions of GPNode, we may have to enforce certain
+		// rules, checked in children versions of setup(...)
+
+		final GPNodeConstraints constraintsObj = constraints(((GPInitializer) state.initializer));
+		final int len = constraintsObj.childtypes.length;
+		if (len == 0) {
+			children = constraintsObj.zeroChildren;
+		} else {
+			children = new GPNode[len];
+		}
 	}
 
 	public GPFunc(String name, int children) {

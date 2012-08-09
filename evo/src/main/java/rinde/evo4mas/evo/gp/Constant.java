@@ -12,7 +12,7 @@ public class Constant<C> extends GPFunc<C> {
 	private final double value;
 
 	public Constant(double val) {
-		super(0);
+		super("" + val, 0);
 		value = val;
 	}
 
@@ -24,6 +24,10 @@ public class Constant<C> extends GPFunc<C> {
 	@Override
 	public GPFunc<C> create() {
 		return new Constant<C>(value);
+	}
+
+	public static <C> Constant<C> newConstant(double v) {
+		return new Constant<C>(v);
 	}
 
 }

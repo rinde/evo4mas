@@ -3,6 +3,7 @@
  */
 package rinde.evo4mas.evo.gp;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -18,10 +19,18 @@ import ec.util.Parameter;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class GPFuncSet extends GPFunctionSet {
+public abstract class GPFuncSet<T> extends GPFunctionSet {
+
+	private final Collection<GPFunc<T>> functions;
+
+	public GPFuncSet() {
+		functions = create();
+	}
+
+	public abstract Collection<GPFunc<T>> create();
 
 	@Override
-	public void setup(final EvolutionState state, final Parameter base) {
+	public final void setup(final EvolutionState state, final Parameter base) {
 		// What's my name?
 		name = state.parameters.getString(base.push(P_NAME), null);
 		if (name == null) {
@@ -36,38 +45,50 @@ public class GPFuncSet extends GPFunctionSet {
 		}
 
 		// How many functions do I have?
-		final int numFuncs = state.parameters.getInt(base.push(P_SIZE), null, 1);
-		if (numFuncs < 1) {
-			state.output.error("The GPFunctionSet \"" + name + "\" has no functions.", base.push(P_SIZE));
-		}
+		// final int numFuncs = state.parameters.getInt(base.push(P_SIZE), null,
+		// 1);
+		// if (numFuncs < 1) {
+		// state.output.error("The GPFunctionSet \"" + name +
+		// "\" has no functions.", base.push(P_SIZE));
+		// }
 
 		nodesByName = new Hashtable();
 
-		// TODO ADD FUNCTIONS HERE!!!!
-
 		final Parameter p = base.push(P_FUNC);
 		final Vector tmp = new Vector();
-		for (int x = 0; x < numFuncs; x++) {
-			// load
-			final Parameter pp = p.push("" + x);
-			final GPNode gpfi = (GPNode) (state.parameters.getInstanceForParameter(pp, null, GPNode.class));
-			gpfi.setup(state, pp);
-
-			// add to my collection
-			tmp.addElement(gpfi);
-
-			// Load into the nodesByName hashtable
-			final GPNode[] nodes = (GPNode[]) (nodesByName.get(gpfi.name()));
-			if (nodes == null) {
-				nodesByName.put(gpfi.name(), new GPNode[] { gpfi });
-			} else {
-				// O(n^2) but uncommon so what the heck.
-				final GPNode[] nodes2 = new GPNode[nodes.length + 1];
-				System.arraycopy(nodes, 0, nodes2, 0, nodes.length);
-				nodes2[nodes2.length - 1] = gpfi;
-				nodesByName.put(gpfi.name(), nodes2);
-			}
+		int j = 0;
+		for (final GPFunc<?> func : functions) {
+			nodesByName.put(func.name(), new GPNode[] { func });
+			final Parameter pp = p.push("" + j);
+			j++;
+			func.setup(state, pp);
+			tmp.addElement(func);
 		}
+
+		// final Parameter p = base.push(P_FUNC);
+
+		// for (int x = 0; x < numFuncs; x++) {
+		// // load
+		// final Parameter pp = p.push("" + x);
+		// final GPNode gpfi = (GPNode)
+		// (state.parameters.getInstanceForParameter(pp, null, GPNode.class));
+		// gpfi.setup(state, pp);
+		//
+		// // add to my collection
+		// tmp.addElement(gpfi);
+		//
+		// // Load into the nodesByName hashtable
+		// final GPNode[] nodes = (GPNode[]) (nodesByName.get(gpfi.name()));
+		// if (nodes == null) {
+		// nodesByName.put(gpfi.name(), new GPNode[] { gpfi });
+		// } else {
+		// // O(n^2) but uncommon so what the heck.
+		// final GPNode[] nodes2 = new GPNode[nodes.length + 1];
+		// System.arraycopy(nodes, 0, nodes2, 0, nodes.length);
+		// nodes2[nodes2.length - 1] = gpfi;
+		// nodesByName.put(gpfi.name(), nodes2);
+		// }
+		// }
 
 		// Make my hash tables
 		nodes_h = new Hashtable();
