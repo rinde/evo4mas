@@ -1,19 +1,25 @@
 package rinde.evo4mas.mas.fabrirecht;
 
+import java.util.Collection;
+
 import rinde.evo4mas.evo.gp.GPProgram;
 import rinde.sim.core.TimeLapse;
+import rinde.sim.core.model.pdp.PDPModel;
+import rinde.sim.core.model.pdp.PDPModel.PDPModelEventType;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
-import rinde.sim.core.model.road.RoadModels;
-import rinde.sim.core.model.road.RoadUser;
-import rinde.sim.problem.fabrirecht.FRParcel;
+import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.event.Event;
+import rinde.sim.event.Listener;
 import rinde.sim.problem.fabrirecht.FRVehicle;
 import rinde.sim.problem.fabrirecht.VehicleDTO;
 
-import com.google.common.base.Predicate;
-
-class Truck extends FRVehicle {
+class Truck extends FRVehicle implements Listener {
 
 	protected final GPProgram<FRContext> program;
+
+	protected boolean hasChanged = true;
+	protected Parcel currentTarget;
 
 	/**
 	 * @param pDto
@@ -25,26 +31,53 @@ class Truck extends FRVehicle {
 
 	@Override
 	protected void tickImpl(TimeLapse time) {
-		// final FRParcel closest =
-		// RoadModels.findClosestObject(roadModel.getPosition(this), roadModel,
-		// FRParcel.class);
 
-		final FRParcel closest = (FRParcel) RoadModels
-				.findClosestObject(roadModel.getPosition(this), roadModel, new Predicate<RoadUser>() {
-					public boolean apply(RoadUser input) {
-						return input instanceof FRParcel
-								&& pdpModel.getParcelState(((FRParcel) input)) == ParcelState.AVAILABLE;
-					}
-				});
+		if ((hasChanged && time.hasTimeLeft()) || (currentTarget == null || !roadModel.containsObject(currentTarget))) {
+			// && !(pdpModel.getParcelState(currentTarget) ==
+			// ParcelState.AVAILABLE || pdpModel
+			// .getParcelState(currentTarget) == ParcelState.ANNOUNCED)) {
+			hasChanged = false;
 
-		if (closest != null) {
-			roadModel.moveTo(this, closest, time);
-			if (roadModel.equalPosition(closest, this)
-					&& pdpModel.getTimeWindowPolicy()
-							.canPickup(closest.getPickupTimeWindow(), time.getTime(), closest.getPickupDuration())) {
-				pdpModel.pickup(this, closest, time);
+			final Collection<Parcel> parcels = pdpModel.getParcels(ParcelState.AVAILABLE, ParcelState.ANNOUNCED);
+			Parcel best = null;
+			double bestValue = Double.POSITIVE_INFINITY;
+			for (final Parcel p : parcels) {
+				final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p));
+				if (curr < bestValue) {
+					bestValue = curr;
+					best = p;
+				}
+			}
+			currentTarget = best;
+		}
+
+		// TODO what about parcels in the truck? they should be delivered as
+		// well. and can be a valid target.
+
+		if (currentTarget != null) {
+			// System.out.println(pdpModel.getParcelState(currentTarget) + " " +
+			// pdpModel.getVehicleState(this));
+			roadModel.moveTo(this, currentTarget, time);
+			// System.out.println(time.getTime() + " move");
+			if (roadModel.equalPosition(currentTarget, this)
+					&& pdpModel
+							.getTimeWindowPolicy()
+							.canPickup(currentTarget.getPickupTimeWindow(), time.getTime(), currentTarget.getPickupDuration())
+					&& getCapacity() >= pdpModel.getContentsSize(this) + currentTarget.getMagnitude()) {
+				pdpModel.pickup(this, currentTarget, time);
 			}
 		}
+
+	}
+
+	@Override
+	public void initRoadPDP(RoadModel pRoadModel, PDPModel pPdpModel) {
+		super.initRoadPDP(pRoadModel, pPdpModel);
+		pdpModel.getEventAPI().addListener(this, PDPModelEventType.NEW_PARCEL, PDPModelEventType.START_PICKUP);
+	}
+
+	public void handleEvent(Event e) {
+		hasChanged = true;
 
 	}
 }

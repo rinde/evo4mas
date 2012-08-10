@@ -80,36 +80,36 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 
 	protected void processResults(EvolutionState state, Multimap<GPNodeHolder, IndividualHolder> mapping,
 			Collection<R> results) {
-		final Multimap<String, Double> gatheredFitnessValues = HashMultimap.create();
+		final Multimap<String, Float> gatheredFitnessValues = HashMultimap.create();
 		for (final R res : results) {
 			final String programString = ((J) res.getComputationJob()).getProgram().root.makeLispTree();
 			gatheredFitnessValues.put(programString, res.getFitness());
 		}
 
-		for (final Entry<String, Collection<Double>> entry : gatheredFitnessValues.asMap().entrySet()) {
-			if (entry.getValue().size() != expectedNumberOfResultsPerComputationJob()) {
+		for (final Entry<String, Collection<Float>> entry : gatheredFitnessValues.asMap().entrySet()) {
+			if (entry.getValue().size() != expectedNumberOfResultsPerGPIndividual()) {
 				throw new IllegalStateException(
 						"Number of received results does not match the number of expected results! received: "
-								+ entry.getValue().size() + " expected: " + expectedNumberOfResultsPerComputationJob());
+								+ entry.getValue().size() + " expected: " + expectedNumberOfResultsPerGPIndividual());
 			}
 
-			double sum = 0;
+			float sum = 0;
 			boolean notGood = false;
-			for (final Double d : entry.getValue()) {
-				if (d.doubleValue() == Double.MAX_VALUE) {
+			for (final Float f : entry.getValue()) {
+				if (f.floatValue() == Float.MAX_VALUE) {
 					notGood = true;
 				}
-				sum += d.doubleValue();
+				sum += f.doubleValue();
 			}
 			if (notGood) {
-				sum = Double.MAX_VALUE;
+				sum = Float.MAX_VALUE;
 			} else {
-				sum /= expectedNumberOfResultsPerComputationJob();
+				sum /= expectedNumberOfResultsPerGPIndividual();
 			}
 			final Collection<IndividualHolder> inds = mapping.get(new GPNodeHolder(entry.getKey()));
 			for (final IndividualHolder ind : inds) {
 
-				((KozaFitness) ind.ind.fitness).setStandardizedFitness(state, (float) sum);
+				((KozaFitness) ind.ind.fitness).setStandardizedFitness(state, sum);
 				ind.ind.evaluated = true;
 			}
 		}
@@ -120,7 +120,7 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 
 	protected abstract Computer<J, R> createComputer();
 
-	protected abstract int expectedNumberOfResultsPerComputationJob();
+	protected abstract int expectedNumberOfResultsPerGPIndividual();
 
 	@Override
 	public boolean runComplete(EvolutionState state) {

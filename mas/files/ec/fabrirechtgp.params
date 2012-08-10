@@ -48,8 +48,8 @@ eval.problem.data = rinde.evo4mas.evo.gp.DummyData
 #eval.host = dnetfs.cs.kuleuven.be
 
 
-pop.subpop.0.size 	= 10
-generations 		= 11
+pop.subpop.0.size 	= 100
+generations 		= 10
 
 # Here we determine what kind of Ant we're doing:
 

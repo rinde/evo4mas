@@ -11,6 +11,6 @@ import rinde.cloud.javainterface.ComputationResult;
  */
 public interface GPComputationResult extends ComputationResult {
 
-	double getFitness();
+	float getFitness();
 
 }

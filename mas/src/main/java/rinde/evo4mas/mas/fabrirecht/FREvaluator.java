@@ -19,7 +19,7 @@ public class FREvaluator extends GPEvaluator<FRSimulationDTO, FRResultDTO, FRCon
 
 	@Override
 	protected Collection<FRSimulationDTO> createComputationJobs(GPProgram<FRContext> program) {
-		return asList(new FRSimulationDTO(program, "../RinSim/problem/data/test/fabri-recht/lc101.scenario"));
+		return asList(new FRSimulationDTO(program, "../../RinSim/problem/data/test/fabri-recht/lc101.scenario"));
 	}
 
 	@Override
@@ -28,7 +28,7 @@ public class FREvaluator extends GPEvaluator<FRSimulationDTO, FRResultDTO, FRCon
 	}
 
 	@Override
-	protected int expectedNumberOfResultsPerComputationJob() {
+	protected int expectedNumberOfResultsPerGPIndividual() {
 		return 1;
 	}
 

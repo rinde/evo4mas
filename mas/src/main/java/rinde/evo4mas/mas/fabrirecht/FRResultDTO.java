@@ -12,14 +12,19 @@ import rinde.evo4mas.evo.gp.GPComputationResult;
  */
 public class FRResultDTO implements GPComputationResult {
 
+	protected final ComputationJob compJob;
+	protected final float fitness;
+
+	public FRResultDTO(ComputationJob cj, float fit) {
+		compJob = cj;
+		fitness = fit;
+	}
+
 	public ComputationJob getComputationJob() {
-		// TODO Auto-generated method stub
-		return null;
+		return compJob;
 	}
 
-	public double getFitness() {
-		// TODO Auto-generated method stub
-		return 0;
+	public float getFitness() {
+		return fitness;
 	}
-
 }
