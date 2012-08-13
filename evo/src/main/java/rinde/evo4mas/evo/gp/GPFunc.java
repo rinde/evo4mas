@@ -34,6 +34,15 @@ public abstract class GPFunc<C> extends GPNode {
 		this(name, 0);
 	}
 
+	public GPFunc(String name, int children) {
+		numChildren = children;
+		if (name == null) {
+			this.name = getClass().getSimpleName().toLowerCase();
+		} else {
+			this.name = name;
+		}
+	}
+
 	@Override
 	public void setup(final EvolutionState state, final Parameter base) {
 		// deliberatly not calling super
@@ -55,15 +64,6 @@ public abstract class GPFunc<C> extends GPNode {
 		}
 	}
 
-	public GPFunc(String name, int children) {
-		numChildren = children;
-		if (name == null) {
-			this.name = getClass().getSimpleName().toLowerCase();
-		} else {
-			this.name = name;
-		}
-	}
-
 	public int getNumChildren() {
 		return numChildren;
 	}
@@ -77,7 +77,9 @@ public abstract class GPFunc<C> extends GPNode {
 		try {
 			return this.getClass().getConstructor().newInstance();
 		} catch (final Exception e) {
-			throw new RuntimeException(e);
+			throw new RuntimeException(
+					"In order for this to work each GPFunc instance must have a publicly accessible zero-arg constructor. Typically the instances are inner public static classes.",
+					e);
 		}
 	}
 

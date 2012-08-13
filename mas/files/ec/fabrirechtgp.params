@@ -49,7 +49,7 @@ eval.problem.data = rinde.evo4mas.evo.gp.DummyData
 
 
 pop.subpop.0.size 	= 100
-generations 		= 10
+generations 		= 5
 
 # Here we determine what kind of Ant we're doing:
 

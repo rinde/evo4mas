@@ -1,6 +1,6 @@
 *.class
 *.stat
-
+mas/target/**
 # Package Files #
 *.jar
 *.war

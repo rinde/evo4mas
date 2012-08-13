@@ -10,6 +10,11 @@ import java.util.Collection;
 import rinde.evo4mas.evo.gp.Constant;
 import rinde.evo4mas.evo.gp.GPFunc;
 import rinde.evo4mas.evo.gp.GPFuncSet;
+import rinde.evo4mas.evo.gp.GenericFunctions.Add;
+import rinde.evo4mas.evo.gp.GenericFunctions.Div;
+import rinde.evo4mas.evo.gp.GenericFunctions.If4;
+import rinde.evo4mas.evo.gp.GenericFunctions.Mul;
+import rinde.evo4mas.evo.gp.GenericFunctions.Sub;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.Parcel;
 
@@ -19,44 +24,27 @@ import rinde.sim.core.model.pdp.Parcel;
  */
 public class GPFunctions extends GPFuncSet<FRContext> {
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<GPFunc<FRContext>> create() {
-		return newArrayList(new If4(), new Add(), new Constant<FRContext>(1), new Constant<FRContext>(0), new Ado());
+		return newArrayList(
+		/* GENERIC FUNCTIONS */
+		new If4<FRContext>(), /* */
+				new Add<FRContext>(), /* */
+				new Sub<FRContext>(), /* */
+				new Div<FRContext>(), /* */
+				new Mul<FRContext>(), /* */
+				/* CONSTANTS */
+				new Constant<FRContext>(1), /* */
+				new Constant<FRContext>(0), /* */
+				/* DOMAIN SPECIFIC FUNCTIONS */
+				new Ado(), /* */
+				new Dist());
 	}
 
-	class If4 extends GPFunc<FRContext> {
-
-		public If4() {
-			super(4);
-		}
-
+	public static class Ado extends GPFunc<FRContext> {
 		@Override
 		public double execute(double[] input, FRContext context) {
-			return input[0] < input[1] ? input[2] : input[3];
-		}
-
-	}
-
-	class Add extends GPFunc<FRContext> {
-		public Add() {
-			super(2);
-		}
-
-		@Override
-		public double execute(double[] input, FRContext context) {
-			return input[0] + input[1];
-		}
-
-	}
-
-	class Ado extends GPFunc<FRContext> {
-		public Ado() {
-			super(0);
-		}
-
-		@Override
-		public double execute(double[] input, FRContext context) {
-
 			final Collection<Parcel> contents = context.pdpModel.getContents(context.truck);
 			double distance = 0d;
 			for (final Parcel p : contents) {
@@ -64,7 +52,18 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 			}
 			return distance / contents.size();
 		}
+	}
 
+	public static class Dist extends GPFunc<FRContext> {
+		@Override
+		public double execute(double[] input, FRContext context) {
+			if (context.isInCargo) {
+				return Point.distance(context.roadModel.getPosition(context.truck), context.parcel.getDestination());
+			} else {
+				return Point.distance(context.roadModel.getPosition(context.truck), context.roadModel
+						.getPosition(context.parcel));
+			}
+		}
 	}
 
 }

@@ -24,5 +24,4 @@ public class Main {
 		System.out.println("total running time: " + TimeFormatter.format(total));
 
 	}
-
 }

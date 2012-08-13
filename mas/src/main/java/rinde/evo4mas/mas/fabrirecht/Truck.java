@@ -31,41 +31,77 @@ class Truck extends FRVehicle implements Listener {
 
 	@Override
 	protected void tickImpl(TimeLapse time) {
+		try {
 
-		if ((hasChanged && time.hasTimeLeft()) || (currentTarget == null || !roadModel.containsObject(currentTarget))) {
-			// && !(pdpModel.getParcelState(currentTarget) ==
-			// ParcelState.AVAILABLE || pdpModel
-			// .getParcelState(currentTarget) == ParcelState.ANNOUNCED)) {
-			hasChanged = false;
+			// TODO allow diversions?
+			if ((hasChanged && time.hasTimeLeft())
+					|| (currentTarget == null || !roadModel.containsObject(currentTarget))) {
+				// && !(pdpModel.getParcelState(currentTarget) ==
+				// ParcelState.AVAILABLE || pdpModel
+				// .getParcelState(currentTarget) == ParcelState.ANNOUNCED)) {
+				hasChanged = false;
 
-			final Collection<Parcel> parcels = pdpModel.getParcels(ParcelState.AVAILABLE, ParcelState.ANNOUNCED);
-			Parcel best = null;
-			double bestValue = Double.POSITIVE_INFINITY;
-			for (final Parcel p : parcels) {
-				final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p));
-				if (curr < bestValue) {
-					bestValue = curr;
-					best = p;
+				// TODO optimize: avoid creating all those objects in a loop
+
+				final Collection<Parcel> parcels = pdpModel.getParcels(ParcelState.AVAILABLE, ParcelState.ANNOUNCED);
+				Parcel best = null;
+				double bestValue = Double.POSITIVE_INFINITY;
+				for (final Parcel p : parcels) {
+					final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, false));
+					if (curr < bestValue) {
+						bestValue = curr;
+						best = p;
+					}
 				}
-			}
-			currentTarget = best;
-		}
 
-		// TODO what about parcels in the truck? they should be delivered as
-		// well. and can be a valid target.
+				final Collection<Parcel> contents = pdpModel.getContents(this);
+				for (final Parcel p : contents) {
+					final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, true));
+					if (curr < bestValue) {
+						bestValue = curr;
+						best = p;
+					}
+				}
 
-		if (currentTarget != null) {
-			// System.out.println(pdpModel.getParcelState(currentTarget) + " " +
-			// pdpModel.getVehicleState(this));
-			roadModel.moveTo(this, currentTarget, time);
-			// System.out.println(time.getTime() + " move");
-			if (roadModel.equalPosition(currentTarget, this)
-					&& pdpModel
-							.getTimeWindowPolicy()
-							.canPickup(currentTarget.getPickupTimeWindow(), time.getTime(), currentTarget.getPickupDuration())
-					&& getCapacity() >= pdpModel.getContentsSize(this) + currentTarget.getMagnitude()) {
-				pdpModel.pickup(this, currentTarget, time);
+				currentTarget = best;
 			}
+
+			if (currentTarget != null && time.hasTimeLeft()) {
+				// System.out.println(pdpModel.getParcelState(currentTarget) +
+				// " " +
+				// pdpModel.getVehicleState(this));
+
+				if (pdpModel.getParcelState(currentTarget) == ParcelState.IN_CARGO) {
+
+					roadModel.moveTo(this, currentTarget.getDestination(), time);
+
+					if (roadModel.getPosition(this).equals(currentTarget.getDestination())
+							&& pdpModel
+									.getTimeWindowPolicy()
+									.canDeliver(currentTarget.getDeliveryTimeWindow(), time.getTime(), currentTarget.getDeliveryDuration())) {
+						pdpModel.deliver(this, currentTarget, time);
+					}
+					currentTarget = null;
+
+				} else {
+					roadModel.moveTo(this, currentTarget, time);
+
+					// System.out.println(time.getTime() + " move");
+					if (roadModel.equalPosition(currentTarget, this)
+							&& pdpModel
+									.getTimeWindowPolicy()
+									.canPickup(currentTarget.getPickupTimeWindow(), time.getTime(), currentTarget.getPickupDuration())
+							&& getCapacity() >= pdpModel.getContentsSize(this) + currentTarget.getMagnitude()
+							&& pdpModel.getParcelState(currentTarget) == ParcelState.AVAILABLE) {
+						pdpModel.pickup(this, currentTarget, time);
+						currentTarget = null;
+					}
+				}
+
+			}
+		} catch (final Exception e) {
+			System.out.println(program.toString());
+			throw new RuntimeException(e);
 		}
 
 	}

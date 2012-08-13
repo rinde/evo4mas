@@ -17,12 +17,14 @@ public class FRContext {
 	public final RoadModel roadModel;
 	public final Truck truck;
 	public final Parcel parcel;
+	public final boolean isInCargo;
 
-	public FRContext(RoadModel rm, PDPModel pm, Truck t, Parcel p) {
+	public FRContext(RoadModel rm, PDPModel pm, Truck t, Parcel p, boolean c) {
 		roadModel = rm;
 		pdpModel = pm;
 		truck = t;
 		parcel = p;
+		isInCargo = c;
 	}
 
 }

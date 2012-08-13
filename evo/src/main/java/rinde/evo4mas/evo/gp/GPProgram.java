@@ -29,4 +29,9 @@ public class GPProgram<C> {
 		}
 		return current.execute(vals, context);
 	}
+
+	@Override
+	public String toString() {
+		return root.makeLispTree();
+	}
 }

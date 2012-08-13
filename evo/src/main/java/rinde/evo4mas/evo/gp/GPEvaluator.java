@@ -50,10 +50,11 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 
 	@Override
 	public void evaluatePopulation(EvolutionState state) {
-		for (final Individual ind : state.population.subpops[0].individuals) {
-			final GPIndividual gpInd = (GPIndividual) ind;
-			System.out.println(gpInd.trees[0].child.makeLispTree());
-		}
+		// for (final Individual ind : state.population.subpops[0].individuals)
+		// {
+		// final GPIndividual gpInd = (GPIndividual) ind;
+		// System.out.println(gpInd.trees[0].child.makeLispTree());
+		// }
 
 		final Multimap<GPNodeHolder, IndividualHolder> mapping = getGPFitnessMapping(state);
 
