@@ -53,8 +53,8 @@ public class Simulation extends FabriRechtProblem {
 				final long perc10 = (long) (0.1 * (scenario.timeWindow.end - scenario.timeWindow.begin));
 				if (timeLapse.getStartTime() - scenario.timeWindow.begin > perc10
 						&& statisticsListener.getTotalPickups() == 0) {
-					stop();
 					shutDownPrematurely = true;
+					stop();
 				}
 			}
 		});

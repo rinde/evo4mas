@@ -10,6 +10,7 @@ import rinde.evo4mas.evo.gp.GPProgram;
  */
 public class FRSimulationDTO implements GPComputationJob<FRContext> {
 
+	private static final long serialVersionUID = 8203533494614545727L;
 	protected final GPProgram<FRContext> program;
 	protected final String scenarioFile;
 

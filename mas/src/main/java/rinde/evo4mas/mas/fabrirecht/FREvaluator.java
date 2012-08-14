@@ -17,9 +17,11 @@ import rinde.evo4mas.evo.gp.GPProgram;
  */
 public class FREvaluator extends GPEvaluator<FRSimulationDTO, FRResultDTO, FRContext> {
 
+	private static final long serialVersionUID = 7755793133305470461L;
+
 	@Override
 	protected Collection<FRSimulationDTO> createComputationJobs(GPProgram<FRContext> program) {
-		return asList(new FRSimulationDTO(program, "../../RinSim/problem/data/test/fabri-recht/lc101.scenario"));
+		return asList(new FRSimulationDTO(program, "files/scenarios/fabri-recht/lc101.scenario"));
 	}
 
 	@Override

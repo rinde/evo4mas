@@ -23,10 +23,11 @@ seed.0 = 123
 # We specify our problem here
 #
 state = ec.simple.SimpleEvolutionState
-stat = ec.simple.SimpleStatistics
+stat = rinde.evo4mas.mas.fabrirecht.EvoStatistics
 eval = rinde.evo4mas.mas.fabrirecht.FREvaluator
 #eval.problem = rinde.evo4mas.evo.gp.DummyProblem
 eval.problem.data = rinde.evo4mas.evo.gp.DummyData
+pop.subpop.0.species.fitness = rinde.evo4mas.evo.gp.GPFitness
 #eval.mode = GP
 #eval.fitness-mode = DISTINCT
 #eval.num-scenarios = 5
@@ -45,11 +46,11 @@ eval.problem.data = rinde.evo4mas.evo.gp.DummyData
 #eval.time-step = 1000
 #eval.graph = files/maps/leuven-simple.dot
 #eval.computation-time-limit = 120000
-#eval.host = dnetfs.cs.kuleuven.be
+eval.host = dnetfs.cs.kuleuven.be
 
 
-pop.subpop.0.size 	= 100
-generations 		= 5
+pop.subpop.0.size 	= 1500
+generations 		= 25
 
 # Here we determine what kind of Ant we're doing:
 

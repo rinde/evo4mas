@@ -3,14 +3,17 @@
  */
 package rinde.evo4mas.evo.gp;
 
+import java.io.Serializable;
+
 import ec.gp.GPNode;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class GPProgram<C> {
+public class GPProgram<C> implements Serializable {
 
+	private static final long serialVersionUID = 2873071674972923971L;
 	protected final GPFunc<C> root;
 
 	public GPProgram(GPFunc<C> rootNode) {

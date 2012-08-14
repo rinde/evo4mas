@@ -9,6 +9,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
+import rinde.cloud.javainterface.Cloud;
+import rinde.cloud.javainterface.CloudInterface;
+import rinde.cloud.javainterface.ComputationJob;
 import rinde.cloud.javainterface.Computer;
 
 import com.google.common.collect.HashMultimap;
@@ -19,7 +22,6 @@ import ec.EvolutionState;
 import ec.Individual;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
-import ec.gp.koza.KozaFitness;
 import ec.util.Parameter;
 
 /**
@@ -29,7 +31,9 @@ import ec.util.Parameter;
 // note: the C here must correspond to the type of the GPFuncSet !
 public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPComputationResult, C> extends Evaluator {
 
+	private static final long serialVersionUID = -8172136113716773085L;
 	public final static String P_HOST = "host";
+	protected transient CloudInterface master;
 
 	enum ComputationStrategy {
 		LOCAL, DISTRIBUTED
@@ -45,6 +49,7 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 			compStrategy = ComputationStrategy.LOCAL;
 		} else {
 			compStrategy = ComputationStrategy.DISTRIBUTED;
+			master = Cloud.getCloud(hostName, 9999, "server-service");
 		}
 	}
 
@@ -72,8 +77,7 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 				results.add(computer.compute(j));
 			}
 		} else {
-			throw new UnsupportedOperationException("not yet implemented!");
-			// compute on rincloud
+			results = (Collection<R>) master.compute((Collection<ComputationJob>) jobs);
 
 		}
 		processResults(state, mapping, results);
@@ -81,13 +85,13 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 
 	protected void processResults(EvolutionState state, Multimap<GPNodeHolder, IndividualHolder> mapping,
 			Collection<R> results) {
-		final Multimap<String, Float> gatheredFitnessValues = HashMultimap.create();
+		final Multimap<String, R> gatheredFitnessValues = HashMultimap.create();
 		for (final R res : results) {
 			final String programString = ((J) res.getComputationJob()).getProgram().root.makeLispTree();
-			gatheredFitnessValues.put(programString, res.getFitness());
+			gatheredFitnessValues.put(programString, res);
 		}
 
-		for (final Entry<String, Collection<Float>> entry : gatheredFitnessValues.asMap().entrySet()) {
+		for (final Entry<String, Collection<R>> entry : gatheredFitnessValues.asMap().entrySet()) {
 			if (entry.getValue().size() != expectedNumberOfResultsPerGPIndividual()) {
 				throw new IllegalStateException(
 						"Number of received results does not match the number of expected results! received: "
@@ -96,11 +100,11 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 
 			float sum = 0;
 			boolean notGood = false;
-			for (final Float f : entry.getValue()) {
-				if (f.floatValue() == Float.MAX_VALUE) {
+			for (final R res : entry.getValue()) {
+				if (res.getFitness() == Float.MAX_VALUE) {
 					notGood = true;
 				}
-				sum += f.doubleValue();
+				sum += res.getFitness();
 			}
 			if (notGood) {
 				sum = Float.MAX_VALUE;
@@ -109,8 +113,8 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 			}
 			final Collection<IndividualHolder> inds = mapping.get(new GPNodeHolder(entry.getKey()));
 			for (final IndividualHolder ind : inds) {
-
-				((KozaFitness) ind.ind.fitness).setStandardizedFitness(state, sum);
+				((GPFitness<R>) ind.ind.fitness).addResults(entry.getValue());
+				((GPFitness<R>) ind.ind.fitness).setStandardizedFitness(state, sum);
 				ind.ind.evaluated = true;
 			}
 		}

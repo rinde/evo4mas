@@ -4,6 +4,8 @@
 package rinde.evo4mas.mas.fabrirecht;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
 
 import java.util.Collection;
 
@@ -24,6 +26,8 @@ import rinde.sim.core.model.pdp.Parcel;
  */
 public class GPFunctions extends GPFuncSet<FRContext> {
 
+	private static final long serialVersionUID = -1347739703291676886L;
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<GPFunc<FRContext>> create() {
@@ -39,13 +43,25 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 				new Constant<FRContext>(0), /* */
 				/* DOMAIN SPECIFIC FUNCTIONS */
 				new Ado(), /* */
-				new Dist());
+				new Mido(), /* */
+				new Mado(), /* */
+				new Dist(), /* */
+				new Urge(), /* */
+				new Est(), /* */
+				new Ttl() /* */
+
+		);
 	}
 
 	public static class Ado extends GPFunc<FRContext> {
+		private static final long serialVersionUID = -4497905419697638750L;
+
 		@Override
 		public double execute(double[] input, FRContext context) {
 			final Collection<Parcel> contents = context.pdpModel.getContents(context.truck);
+			if (contents.isEmpty()) {
+				return 0d;
+			}
 			double distance = 0d;
 			for (final Parcel p : contents) {
 				distance += Point.distance(context.parcel.getDestination(), p.getDestination());
@@ -54,7 +70,43 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		}
 	}
 
+	public static class Mido extends GPFunc<FRContext> {
+		private static final long serialVersionUID = 2314969955830030083L;
+
+		@Override
+		public double execute(double[] input, FRContext context) {
+			final Collection<Parcel> contents = context.pdpModel.getContents(context.truck);
+			if (contents.isEmpty()) {
+				return 0d;
+			}
+			double minDistance = Double.POSITIVE_INFINITY;
+			for (final Parcel p : contents) {
+				minDistance = min(minDistance, Point.distance(context.parcel.getDestination(), p.getDestination()));
+			}
+			return minDistance;
+		}
+	}
+
+	public static class Mado extends GPFunc<FRContext> {
+		private static final long serialVersionUID = -3969582933786406570L;
+
+		@Override
+		public double execute(double[] input, FRContext context) {
+			final Collection<Parcel> contents = context.pdpModel.getContents(context.truck);
+			if (contents.isEmpty()) {
+				return 0d;
+			}
+			double maxDistance = Double.NEGATIVE_INFINITY;
+			for (final Parcel p : contents) {
+				maxDistance = max(maxDistance, Point.distance(context.parcel.getDestination(), p.getDestination()));
+			}
+			return maxDistance;
+		}
+	}
+
 	public static class Dist extends GPFunc<FRContext> {
+		private static final long serialVersionUID = 2713253095353499761L;
+
 		@Override
 		public double execute(double[] input, FRContext context) {
 			if (context.isInCargo) {
@@ -63,6 +115,42 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 				return Point.distance(context.roadModel.getPosition(context.truck), context.roadModel
 						.getPosition(context.parcel));
 			}
+		}
+	}
+
+	public static class Urge extends GPFunc<FRContext> {
+		private static final long serialVersionUID = -1608855921866707712L;
+
+		@Override
+		public double execute(double[] input, FRContext context) {
+			if (context.isInCargo) {
+				return context.parcel.getDeliveryTimeWindow().end - context.time;
+			} else {
+				return context.parcel.getPickupTimeWindow().end - context.time;
+			}
+		}
+	}
+
+	public static class Est extends GPFunc<FRContext> {
+		private static final long serialVersionUID = -3811389876518540528L;
+
+		@Override
+		public double execute(double[] input, FRContext context) {
+			if (context.isInCargo) {
+				return context.parcel.getDeliveryTimeWindow().begin - context.time;
+			} else {
+				return context.parcel.getPickupTimeWindow().begin - context.time;
+			}
+		}
+	}
+
+	// time left until truck is stopped
+	public static class Ttl extends GPFunc<FRContext> {
+		private static final long serialVersionUID = -8186643123286080644L;
+
+		@Override
+		public double execute(double[] input, FRContext context) {
+			return context.truck.getDTO().availabilityTimeWindow.end - context.time;
 		}
 	}
 

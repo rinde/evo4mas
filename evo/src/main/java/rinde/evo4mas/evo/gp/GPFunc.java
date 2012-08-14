@@ -19,6 +19,7 @@ import ec.util.Parameter;
  */
 public abstract class GPFunc<C> extends GPNode {
 
+	private static final long serialVersionUID = -861693143274097130L;
 	private final int numChildren;
 	private final String name;
 

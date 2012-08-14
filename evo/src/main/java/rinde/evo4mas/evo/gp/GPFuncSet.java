@@ -21,6 +21,7 @@ import ec.util.Parameter;
  */
 public abstract class GPFuncSet<T> extends GPFunctionSet {
 
+	private static final long serialVersionUID = 4450863070617016798L;
 	private final Collection<GPFunc<T>> functions;
 
 	public GPFuncSet() {

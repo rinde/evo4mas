@@ -47,7 +47,8 @@ class Truck extends FRVehicle implements Listener {
 				Parcel best = null;
 				double bestValue = Double.POSITIVE_INFINITY;
 				for (final Parcel p : parcels) {
-					final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, false));
+					final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, time.getTime(),
+							false));
 					if (curr < bestValue) {
 						bestValue = curr;
 						best = p;
@@ -56,7 +57,8 @@ class Truck extends FRVehicle implements Listener {
 
 				final Collection<Parcel> contents = pdpModel.getContents(this);
 				for (final Parcel p : contents) {
-					final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, true));
+					final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, time.getTime(),
+							true));
 					if (curr < bestValue) {
 						bestValue = curr;
 						best = p;

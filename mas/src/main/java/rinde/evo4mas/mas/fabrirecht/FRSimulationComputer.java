@@ -19,6 +19,8 @@ import rinde.sim.scenario.ConfigurationException;
  */
 public class FRSimulationComputer implements Computer<FRSimulationDTO, FRResultDTO> {
 
+	public FRSimulationComputer() {}
+
 	public FRResultDTO compute(FRSimulationDTO job) {
 
 		// final BufferedReader reader = ;
@@ -28,16 +30,14 @@ public class FRSimulationComputer implements Computer<FRSimulationDTO, FRResultD
 		try {
 			scen = FabriRechtParser.fromJson(new BufferedReader(new FileReader(job.scenarioFile)));
 		} catch (final FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		Simulation s = null;
 		try {
 			s = new Simulation(scen, job.program);
 			s.start();
 		} catch (final ConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
 		final StatisticsDTO stat = s.getStatistics();
@@ -45,9 +45,14 @@ public class FRSimulationComputer implements Computer<FRSimulationDTO, FRResultD
 		if (s.isShutDownPrematurely()) {
 			fitness = Float.MAX_VALUE;
 		} else {
-			fitness = (float) stat.totalDistance;
+
+			final float pickupFailPenalty = (stat.addedParcels - stat.totalPickups) * 100000f;
+			final float deliveryFailPenalty = (stat.addedParcels - stat.totalDeliveries) * 100000f;
+
+			fitness = pickupFailPenalty + deliveryFailPenalty + stat.pickupTardiness + stat.deliveryTardiness
+					+ (float) stat.totalDistance;
 		}
 
-		return new FRResultDTO(job, fitness);
+		return new FRResultDTO(job, stat, fitness);
 	}
 }

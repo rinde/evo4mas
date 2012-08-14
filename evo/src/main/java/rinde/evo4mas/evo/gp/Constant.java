@@ -9,6 +9,7 @@ package rinde.evo4mas.evo.gp;
  */
 public class Constant<C> extends GPFunc<C> {
 
+	private static final long serialVersionUID = -2428773869358609217L;
 	private final double value;
 
 	public Constant(double val) {
