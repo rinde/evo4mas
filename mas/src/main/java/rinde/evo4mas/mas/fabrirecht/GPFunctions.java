@@ -16,6 +16,7 @@ import rinde.evo4mas.evo.gp.GenericFunctions.Constant;
 import rinde.evo4mas.evo.gp.GenericFunctions.Div;
 import rinde.evo4mas.evo.gp.GenericFunctions.If4;
 import rinde.evo4mas.evo.gp.GenericFunctions.Mul;
+import rinde.evo4mas.evo.gp.GenericFunctions.Pow;
 import rinde.evo4mas.evo.gp.GenericFunctions.Sub;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.Parcel;
@@ -38,6 +39,7 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 				new Sub<FRContext>(), /* */
 				new Div<FRContext>(), /* */
 				new Mul<FRContext>(), /* */
+				new Pow<FRContext>(),
 				/* CONSTANTS */
 				new Constant<FRContext>(1), /* */
 				new Constant<FRContext>(0), /* */

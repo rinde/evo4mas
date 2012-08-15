@@ -16,7 +16,7 @@ gp.fs.0.name = f0
 gp.fs.0 = rinde.evo4mas.mas.fabrirecht.GPFunctions
 
 
-
+breed.elite.0 = 			1
 
 seed.0 = 123
 #
@@ -46,11 +46,11 @@ pop.subpop.0.species.fitness = rinde.evo4mas.evo.gp.GPFitness
 #eval.time-step = 1000
 #eval.graph = files/maps/leuven-simple.dot
 #eval.computation-time-limit = 120000
-eval.host = dnetfs.cs.kuleuven.be
+#eval.host = dnetfs.cs.kuleuven.be
 
 
-pop.subpop.0.size 	= 1500
-generations 		= 25
+pop.subpop.0.size 	= 300
+generations 		= 10
 
 # Here we determine what kind of Ant we're doing:
 
