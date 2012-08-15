@@ -12,10 +12,10 @@ import java.util.Collection;
 import org.junit.Before;
 import org.junit.Test;
 
-import rinde.evo4mas.evo.gp.Constant;
 import rinde.evo4mas.evo.gp.GPFunc;
 import rinde.evo4mas.evo.gp.GPProgram;
 import rinde.evo4mas.evo.gp.GPProgramParser;
+import rinde.evo4mas.evo.gp.GenericFunctions.Constant;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.ConfigurationException;

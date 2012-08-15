@@ -9,10 +9,10 @@ import static java.lang.Math.min;
 
 import java.util.Collection;
 
-import rinde.evo4mas.evo.gp.Constant;
 import rinde.evo4mas.evo.gp.GPFunc;
 import rinde.evo4mas.evo.gp.GPFuncSet;
 import rinde.evo4mas.evo.gp.GenericFunctions.Add;
+import rinde.evo4mas.evo.gp.GenericFunctions.Constant;
 import rinde.evo4mas.evo.gp.GenericFunctions.Div;
 import rinde.evo4mas.evo.gp.GenericFunctions.If4;
 import rinde.evo4mas.evo.gp.GenericFunctions.Mul;

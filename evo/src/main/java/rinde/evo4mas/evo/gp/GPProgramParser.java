@@ -1,5 +1,6 @@
 package rinde.evo4mas.evo.gp;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -101,6 +102,8 @@ public class GPProgramParser {
 
 	private static <T> GPFunc<T> convert(Node n, Map<String, GPFunc<T>> funcMap) {
 		// final GPNode gpnode = new GPFunc(n.name, n.children.size());
+		checkArgument(funcMap.containsKey(n.name), "The function with name: \"" + n.name
+				+ "\" is not known to the parser.");
 		final GPFunc<T> func = funcMap.get(n.name).create();
 		func.children = new GPNode[n.children.size()];
 		checkState(n.children.size() == func.getNumChildren(), "the supplied program is invalid, the number of children does not match the expected number of children");
