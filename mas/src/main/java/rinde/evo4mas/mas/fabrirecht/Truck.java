@@ -14,12 +14,14 @@ import rinde.sim.event.Listener;
 import rinde.sim.problem.fabrirecht.FRVehicle;
 import rinde.sim.problem.fabrirecht.VehicleDTO;
 
-class Truck extends FRVehicle implements Listener {
+class Truck extends FRVehicle implements Listener, CoordAgent {
 
 	protected final GPProgram<FRContext> program;
 
 	protected boolean hasChanged = true;
-	protected Parcel currentTarget;
+	protected Target currentTarget;
+
+	protected CoordModel coordModel;
 
 	/**
 	 * @param pDto
@@ -29,83 +31,78 @@ class Truck extends FRVehicle implements Listener {
 		program = p;
 	}
 
+	protected Target findTarget(long time) {
+		final Collection<Parcel> parcels = pdpModel.getParcels(ParcelState.AVAILABLE, ParcelState.ANNOUNCED);
+		Parcel best = null;
+		double bestValue = Double.POSITIVE_INFINITY;
+		for (final Parcel p : parcels) {
+			// TODO optimize: avoid creating all those objects in a loop
+			final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, time, false));
+			if (curr < bestValue && coordModel.canServe(p, curr)) {
+				bestValue = curr;
+				best = p;
+			}
+		}
+
+		final Collection<Parcel> contents = pdpModel.getContents(this);
+		for (final Parcel p : contents) {
+			final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, time, true));
+			if (curr < bestValue) {
+				bestValue = curr;
+				best = p;
+			}
+		}
+		if (best == null) {
+			return null;
+		}
+		return new Target(best, bestValue);
+	}
+
 	@Override
 	protected void tickImpl(TimeLapse time) {
 		try {
-
 			// TODO allow diversions?
 			if ((hasChanged && time.hasTimeLeft())
-					|| (currentTarget == null || !roadModel.containsObject(currentTarget))) {
-				// && !(pdpModel.getParcelState(currentTarget) ==
-				// ParcelState.AVAILABLE || pdpModel
-				// .getParcelState(currentTarget) == ParcelState.ANNOUNCED)) {
+					|| (currentTarget == null || !roadModel.containsObject(currentTarget.target))) {
 				hasChanged = false;
-
-				// TODO optimize: avoid creating all those objects in a loop
-
-				final Collection<Parcel> parcels = pdpModel.getParcels(ParcelState.AVAILABLE, ParcelState.ANNOUNCED);
-				Parcel best = null;
-				double bestValue = Double.POSITIVE_INFINITY;
-				for (final Parcel p : parcels) {
-					final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, time.getTime(),
-							false));
-					if (curr < bestValue) {
-						bestValue = curr;
-						best = p;
-					}
+				currentTarget = findTarget(time.getTime());
+				if (currentTarget != null) {
+					coordModel.doServe(currentTarget.target, this, currentTarget.heuristicValue);
 				}
-
-				final Collection<Parcel> contents = pdpModel.getContents(this);
-				for (final Parcel p : contents) {
-					final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, time.getTime(),
-							true));
-					if (curr < bestValue) {
-						bestValue = curr;
-						best = p;
-					}
-				}
-
-				currentTarget = best;
 			}
 
 			if (currentTarget != null && time.hasTimeLeft()) {
-				// System.out.println(pdpModel.getParcelState(currentTarget) +
-				// " " +
-				// pdpModel.getVehicleState(this));
-
-				if (pdpModel.getParcelState(currentTarget) == ParcelState.IN_CARGO) {
-
-					roadModel.moveTo(this, currentTarget.getDestination(), time);
-
-					if (roadModel.getPosition(this).equals(currentTarget.getDestination())
+				if (pdpModel.getParcelState(currentTarget.target) == ParcelState.IN_CARGO) {
+					roadModel.moveTo(this, currentTarget.target.getDestination(), time);
+					if (roadModel.getPosition(this).equals(currentTarget.target.getDestination())
 							&& pdpModel
 									.getTimeWindowPolicy()
-									.canDeliver(currentTarget.getDeliveryTimeWindow(), time.getTime(), currentTarget.getDeliveryDuration())) {
-						pdpModel.deliver(this, currentTarget, time);
+									.canDeliver(currentTarget.target.getDeliveryTimeWindow(), time.getTime(), currentTarget.target
+											.getDeliveryDuration())) {
+						pdpModel.deliver(this, currentTarget.target, time);
+						currentTarget = null;
 					}
-					currentTarget = null;
 
 				} else {
-					roadModel.moveTo(this, currentTarget, time);
+					roadModel.moveTo(this, currentTarget.target, time);
 
 					// System.out.println(time.getTime() + " move");
-					if (roadModel.equalPosition(currentTarget, this)
+					if (roadModel.equalPosition(currentTarget.target, this)
 							&& pdpModel
 									.getTimeWindowPolicy()
-									.canPickup(currentTarget.getPickupTimeWindow(), time.getTime(), currentTarget.getPickupDuration())
-							&& getCapacity() >= pdpModel.getContentsSize(this) + currentTarget.getMagnitude()
-							&& pdpModel.getParcelState(currentTarget) == ParcelState.AVAILABLE) {
-						pdpModel.pickup(this, currentTarget, time);
+									.canPickup(currentTarget.target.getPickupTimeWindow(), time.getTime(), currentTarget.target
+											.getPickupDuration())
+							&& getCapacity() >= pdpModel.getContentsSize(this) + currentTarget.target.getMagnitude()
+							&& pdpModel.getParcelState(currentTarget.target) == ParcelState.AVAILABLE) {
+						pdpModel.pickup(this, currentTarget.target, time);
 						currentTarget = null;
 					}
 				}
-
 			}
 		} catch (final Exception e) {
 			System.out.println(program.toString());
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	@Override
@@ -117,5 +114,23 @@ class Truck extends FRVehicle implements Listener {
 	public void handleEvent(Event e) {
 		hasChanged = true;
 
+	}
+
+	class Target {
+		public final Parcel target;
+		public final double heuristicValue;
+
+		public Target(Parcel t, double v) {
+			target = t;
+			heuristicValue = v;
+		}
+	}
+
+	public void setCoordModel(CoordModel model) {
+		coordModel = model;
+	}
+
+	public void notifyServiceChange() {
+		hasChanged = true;
 	}
 }

@@ -49,7 +49,7 @@ pop.subpop.0.species.fitness = rinde.evo4mas.evo.gp.GPFitness
 #eval.host = dnetfs.cs.kuleuven.be
 
 
-pop.subpop.0.size 	= 300
+pop.subpop.0.size 	= 500
 generations 		= 10
 
 # Here we determine what kind of Ant we're doing:

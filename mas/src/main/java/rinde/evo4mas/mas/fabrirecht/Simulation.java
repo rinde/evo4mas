@@ -4,6 +4,7 @@
 package rinde.evo4mas.mas.fabrirecht;
 
 import rinde.evo4mas.evo.gp.GPProgram;
+import rinde.sim.core.Simulator;
 import rinde.sim.core.TickListener;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.problem.fabrirecht.AddVehicleEvent;
@@ -60,6 +61,13 @@ public class Simulation extends FabriRechtProblem {
 		});
 	}
 
+	@Override
+	protected Simulator createSimulator() throws Exception {
+		final Simulator sim = super.createSimulator();
+		sim.register(new CoordModel());
+		return sim;
+	}
+
 	public boolean isShutDownPrematurely() {
 		return shutDownPrematurely;
 	}
@@ -81,7 +89,7 @@ public class Simulation extends FabriRechtProblem {
 			schema.add(Truck.class, "/graphics/perspective/bus-44.png");
 			schema.add(FRDepot.class, "/graphics/flat/warehouse-32.png");
 			schema.add(FRParcel.class, "/graphics/flat/hailing-cab-32.png");
-			View.startGui(getSimulator(), 1, new PlaneRoadModelRenderer(40), new RoadUserRenderer(schema, false), new PDPModelRenderer());
+			View.startGui(getSimulator(), 1, new PlaneRoadModelRenderer(40), new RoadUserRenderer(schema, false), new PDPModelRenderer(), new CoordModelRenderer());
 		}
 		return useGui;
 	}
