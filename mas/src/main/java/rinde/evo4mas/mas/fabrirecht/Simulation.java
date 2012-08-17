@@ -12,6 +12,7 @@ import rinde.sim.problem.fabrirecht.FRDepot;
 import rinde.sim.problem.fabrirecht.FRParcel;
 import rinde.sim.problem.fabrirecht.FabriRechtProblem;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;
+import rinde.sim.problem.fabrirecht.ParcelAssesor;
 import rinde.sim.scenario.ConfigurationException;
 import rinde.sim.ui.View;
 import rinde.sim.ui.renderers.PDPModelRenderer;
@@ -92,6 +93,11 @@ public class Simulation extends FabriRechtProblem {
 			View.startGui(getSimulator(), 1, new PlaneRoadModelRenderer(40), new RoadUserRenderer(schema, false), new PDPModelRenderer(), new CoordModelRenderer());
 		}
 		return useGui;
+	}
+
+	@Override
+	protected ParcelAssesor createParcelAssesor() {
+		return new FRParcelAssesor(roadModel, pdpModel);
 	}
 
 }

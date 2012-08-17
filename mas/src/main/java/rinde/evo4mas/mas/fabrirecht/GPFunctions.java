@@ -66,7 +66,7 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 			}
 			double distance = 0d;
 			for (final Parcel p : contents) {
-				distance += Point.distance(context.parcel.getDestination(), p.getDestination());
+				distance += Point.distance(context.parcel.destinationLocation, p.getDestination());
 			}
 			return distance / contents.size();
 		}
@@ -83,7 +83,7 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 			}
 			double minDistance = Double.POSITIVE_INFINITY;
 			for (final Parcel p : contents) {
-				minDistance = min(minDistance, Point.distance(context.parcel.getDestination(), p.getDestination()));
+				minDistance = min(minDistance, Point.distance(context.parcel.destinationLocation, p.getDestination()));
 			}
 			return minDistance;
 		}
@@ -100,7 +100,7 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 			}
 			double maxDistance = Double.NEGATIVE_INFINITY;
 			for (final Parcel p : contents) {
-				maxDistance = max(maxDistance, Point.distance(context.parcel.getDestination(), p.getDestination()));
+				maxDistance = max(maxDistance, Point.distance(context.parcel.destinationLocation, p.getDestination()));
 			}
 			return maxDistance;
 		}
@@ -112,10 +112,9 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		@Override
 		public double execute(double[] input, FRContext context) {
 			if (context.isInCargo) {
-				return Point.distance(context.roadModel.getPosition(context.truck), context.parcel.getDestination());
+				return Point.distance(context.roadModel.getPosition(context.truck), context.parcel.destinationLocation);
 			} else {
-				return Point.distance(context.roadModel.getPosition(context.truck), context.roadModel
-						.getPosition(context.parcel));
+				return Point.distance(context.roadModel.getPosition(context.truck), context.parcel.pickupLocation);
 			}
 		}
 	}
@@ -126,9 +125,9 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		@Override
 		public double execute(double[] input, FRContext context) {
 			if (context.isInCargo) {
-				return context.parcel.getDeliveryTimeWindow().end - context.time;
+				return context.parcel.deliveryTimeWindow.end - context.time;
 			} else {
-				return context.parcel.getPickupTimeWindow().end - context.time;
+				return context.parcel.pickupTimeWindow.end - context.time;
 			}
 		}
 	}
@@ -139,9 +138,9 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		@Override
 		public double execute(double[] input, FRContext context) {
 			if (context.isInCargo) {
-				return context.parcel.getDeliveryTimeWindow().begin - context.time;
+				return context.parcel.deliveryTimeWindow.begin - context.time;
 			} else {
-				return context.parcel.getPickupTimeWindow().begin - context.time;
+				return context.parcel.pickupTimeWindow.begin - context.time;
 			}
 		}
 	}

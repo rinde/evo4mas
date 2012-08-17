@@ -15,6 +15,10 @@ gp.fs.0.size = 1
 gp.fs.0.name = f0
 gp.fs.0 = rinde.evo4mas.mas.fabrirecht.GPFunctions
 
+gp.fs.1.size = 1
+gp.fs.1.name = f1
+gp.fs.1 = rinde.evo4mas.mas.fabrirecht.GPFunctions
+
 
 breed.elite.0 = 			1
 
@@ -46,11 +50,14 @@ pop.subpop.0.species.fitness = rinde.evo4mas.evo.gp.GPFitness
 #eval.time-step = 1000
 #eval.graph = files/maps/leuven-simple.dot
 #eval.computation-time-limit = 120000
+
+
 #eval.host = dnetfs.cs.kuleuven.be
 
+#0
 
-pop.subpop.0.size 	= 50
-generations 		= 10
+pop.subpop.0.size 	= 10
+generations 		= 3
 
 # Here we determine what kind of Ant we're doing:
 

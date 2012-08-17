@@ -46,11 +46,13 @@ public class FRSimulationComputer implements Computer<FRSimulationDTO, FRResultD
 			fitness = Float.MAX_VALUE;
 		} else {
 
-			final float pickupFailPenalty = (stat.addedParcels - stat.totalPickups) * 100000f;
-			final float deliveryFailPenalty = (stat.addedParcels - stat.totalDeliveries) * 100000f;
+			final float rejectionPenalty = (stat.totalParcels - stat.acceptedParcels) * 100f;
 
-			fitness = pickupFailPenalty + deliveryFailPenalty + stat.pickupTardiness + stat.deliveryTardiness
-					+ (float) stat.totalDistance;
+			final float pickupFailPenalty = (stat.acceptedParcels - stat.totalPickups) * 100000f;
+			final float deliveryFailPenalty = (stat.acceptedParcels - stat.totalDeliveries) * 100000f;
+
+			fitness = rejectionPenalty + pickupFailPenalty + deliveryFailPenalty + stat.pickupTardiness
+					+ stat.deliveryTardiness + (float) stat.totalDistance;
 		}
 
 		return new FRResultDTO(job, stat, fitness);

@@ -21,7 +21,7 @@ public class FREvaluator extends GPEvaluator<FRSimulationDTO, FRResultDTO, FRCon
 
 	@Override
 	protected Collection<FRSimulationDTO> createComputationJobs(GPProgram<FRContext> program) {
-		return asList(new FRSimulationDTO(program, "files/scenarios/fabri-recht/pdp400_mitAnrufzeit/lc1_4_1.scenario"));
+		return asList(new FRSimulationDTO(program, "files/scenarios/fabri-recht/pdp100_mitAnrufzeit/lc101.scenario"));
 	}
 
 	@Override

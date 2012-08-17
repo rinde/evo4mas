@@ -11,7 +11,9 @@ import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.event.Event;
 import rinde.sim.event.Listener;
+import rinde.sim.problem.fabrirecht.FRParcel;
 import rinde.sim.problem.fabrirecht.FRVehicle;
+import rinde.sim.problem.fabrirecht.ParcelDTO;
 import rinde.sim.problem.fabrirecht.VehicleDTO;
 
 class Truck extends FRVehicle implements Listener, CoordAgent {
@@ -37,7 +39,8 @@ class Truck extends FRVehicle implements Listener, CoordAgent {
 		double bestValue = Double.POSITIVE_INFINITY;
 		for (final Parcel p : parcels) {
 			// TODO optimize: avoid creating all those objects in a loop
-			final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, time, false));
+			final double curr = program.execute(new FRContext(roadModel, pdpModel, this, ((FRParcel) p).dto, time,
+					false));
 			if (curr < bestValue && coordModel.canServe(p, curr)) {
 				bestValue = curr;
 				best = p;
@@ -46,7 +49,8 @@ class Truck extends FRVehicle implements Listener, CoordAgent {
 
 		final Collection<Parcel> contents = pdpModel.getContents(this);
 		for (final Parcel p : contents) {
-			final double curr = program.execute(new FRContext(roadModel, pdpModel, this, p, time, true));
+			final double curr = program
+					.execute(new FRContext(roadModel, pdpModel, this, ((FRParcel) p).dto, time, true));
 			if (curr < bestValue) {
 				bestValue = curr;
 				best = p;
@@ -56,6 +60,11 @@ class Truck extends FRVehicle implements Listener, CoordAgent {
 			return null;
 		}
 		return new Target(best, bestValue);
+	}
+
+	public boolean acceptNewParcel(ParcelDTO p) {
+		final double v = program.execute(new FRContext(roadModel, pdpModel, this, p, p.orderArrivalTime, false));
+		return v < 100;
 	}
 
 	@Override
