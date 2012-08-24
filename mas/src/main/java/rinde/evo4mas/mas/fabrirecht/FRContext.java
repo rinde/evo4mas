@@ -3,9 +3,13 @@
  */
 package rinde.evo4mas.mas.fabrirecht;
 
-import rinde.sim.core.model.pdp.PDPModel;
-import rinde.sim.core.model.road.RoadModel;
+import static java.util.Collections.unmodifiableCollection;
+
+import java.util.Collection;
+
+import rinde.sim.core.graph.Point;
 import rinde.sim.problem.fabrirecht.ParcelDTO;
+import rinde.sim.problem.fabrirecht.VehicleDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -13,17 +17,17 @@ import rinde.sim.problem.fabrirecht.ParcelDTO;
  */
 public class FRContext {
 
-	public final PDPModel pdpModel;
-	public final RoadModel roadModel;
-	public final Truck truck;
+	public final VehicleDTO vehicleDTO;
+	public final Point truckPosition;
+	public final Collection<ParcelDTO> truckContents;
 	public final ParcelDTO parcel;
 	public final boolean isInCargo;
 	public final long time;
 
-	public FRContext(RoadModel rm, PDPModel pm, Truck t, ParcelDTO p, long tm, boolean c) {
-		roadModel = rm;
-		pdpModel = pm;
-		truck = t;
+	public FRContext(VehicleDTO v, Point tp, Collection<ParcelDTO> tc, ParcelDTO p, long tm, boolean c) {
+		vehicleDTO = v;
+		truckPosition = tp;
+		truckContents = unmodifiableCollection(tc);
 		parcel = p;
 		time = tm;
 		isInCargo = c;

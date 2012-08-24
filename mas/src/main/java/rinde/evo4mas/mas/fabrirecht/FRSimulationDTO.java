@@ -1,5 +1,9 @@
 package rinde.evo4mas.mas.fabrirecht;
 
+import static java.util.Arrays.asList;
+
+import java.util.List;
+
 import rinde.evo4mas.evo.gp.GPComputationJob;
 import rinde.evo4mas.evo.gp.GPProgram;
 
@@ -11,11 +15,11 @@ import rinde.evo4mas.evo.gp.GPProgram;
 public class FRSimulationDTO implements GPComputationJob<FRContext> {
 
 	private static final long serialVersionUID = 8203533494614545727L;
-	protected final GPProgram<FRContext> program;
+	protected final GPProgram<FRContext> truckHeuristic;
 	protected final String scenarioFile;
 
 	public FRSimulationDTO(GPProgram<FRContext> p, String scenario) {
-		program = p;
+		truckHeuristic = p;
 		scenarioFile = scenario;
 	}
 
@@ -23,8 +27,12 @@ public class FRSimulationDTO implements GPComputationJob<FRContext> {
 		return "rinde.evo4mas.mas.fabrirecht.FRSimulationComputer";
 	}
 
-	public GPProgram<FRContext> getProgram() {
-		return program;
+	public List<GPProgram<FRContext>> getPrograms() {
+		return asList(truckHeuristic);
+	}
+
+	public String getId() {
+		return truckHeuristic.toString();
 	}
 
 }

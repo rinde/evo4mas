@@ -21,7 +21,7 @@ import ec.Evaluator;
 import ec.EvolutionState;
 import ec.Individual;
 import ec.gp.GPIndividual;
-import ec.gp.GPNode;
+import ec.gp.GPTree;
 import ec.util.Parameter;
 
 /**
@@ -62,10 +62,9 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 		// }
 
 		final Multimap<GPNodeHolder, IndividualHolder> mapping = getGPFitnessMapping(state);
-
 		final List<J> jobs = newArrayList();
 		for (final GPNodeHolder key : mapping.keySet()) {
-			jobs.addAll(createComputationJobs(new GPProgram<C>((GPFunc<C>) key.node)));
+			jobs.addAll(createComputationJobs(key.trees));
 		}
 
 		// either use RinCloud or compute locally
@@ -87,7 +86,7 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 			Collection<R> results) {
 		final Multimap<String, R> gatheredFitnessValues = HashMultimap.create();
 		for (final R res : results) {
-			final String programString = ((J) res.getComputationJob()).getProgram().root.makeLispTree();
+			final String programString = ((J) res.getComputationJob()).getId();// res.getComputationJob().((J)
 			gatheredFitnessValues.put(programString, res);
 		}
 
@@ -121,7 +120,7 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 
 	}
 
-	protected abstract Collection<J> createComputationJobs(GPProgram<C> program);
+	protected abstract Collection<J> createComputationJobs(GPTree[] trees);
 
 	protected abstract Computer<J, R> createComputer();
 
@@ -138,7 +137,7 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 		for (int i = 0; i < state.population.subpops.length; i++) {
 			for (int j = 0; j < state.population.subpops[i].individuals.length; j++) {
 				final GPIndividual gpInd = ((GPIndividual) state.population.subpops[i].individuals[j]);
-				mapping.put(new GPNodeHolder(gpInd.trees[0].child), new IndividualHolder(gpInd));
+				mapping.put(new GPNodeHolder(gpInd.trees), new IndividualHolder(gpInd));
 			}
 		}
 		return mapping;
@@ -153,6 +152,14 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 	@Override
 	public void closeContacts(EvolutionState state, int result) {}
 
+	public static String treeToString(GPTree[] t) {
+		final StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < t.length; i++) {
+			sb.append(t[i].child.makeLispTree());
+		}
+		return sb.toString();
+	}
+
 }
 
 class IndividualHolder {
@@ -165,15 +172,15 @@ class IndividualHolder {
 
 class GPNodeHolder {
 	public final String string;
-	public final GPNode node;
+	public final GPTree[] trees;
 
-	public GPNodeHolder(GPNode node, String string) {
-		this.node = node;
-		this.string = string;
+	public GPNodeHolder(GPTree[] t, String s) {
+		trees = t;
+		string = s;
 	}
 
-	public GPNodeHolder(GPNode node) {
-		this(node, node.makeLispTree());
+	public GPNodeHolder(GPTree[] t) {
+		this(t, GPEvaluator.treeToString(t));
 	}
 
 	public GPNodeHolder(String string) {
@@ -185,8 +192,19 @@ class GPNodeHolder {
 		return string.hashCode();
 	}
 
+	// this is NECESSARY!
 	@Override
 	public boolean equals(Object o) {
-		return o.hashCode() == hashCode();
+		return hashCode() == o.hashCode();
 	}
+
+	// @Override
+	// public boolean equals(Object o) {
+	// if (o instanceof GPNodeHolder) {
+	// final GPNodeHolder other = (GPNodeHolder) o;
+	// return other.string.equals(string) && Arrays.deepEquals(trees,
+	// other.trees);
+	// }
+	// return false;
+	// }
 }

@@ -26,6 +26,7 @@ public class FRSimulationComputer implements Computer<FRSimulationDTO, FRResultD
 		// final BufferedReader reader = ;
 		// /reader.
 
+		// TODO scenario caching!
 		FabriRechtScenario scen = null;
 		try {
 			scen = FabriRechtParser.fromJson(new BufferedReader(new FileReader(job.scenarioFile)));
@@ -34,7 +35,7 @@ public class FRSimulationComputer implements Computer<FRSimulationDTO, FRResultD
 		}
 		Simulation s = null;
 		try {
-			s = new Simulation(scen, job.program);
+			s = new Simulation(scen, job.truckHeuristic);
 			s.start();
 		} catch (final ConfigurationException e) {
 			throw new RuntimeException(e);
@@ -42,17 +43,24 @@ public class FRSimulationComputer implements Computer<FRSimulationDTO, FRResultD
 
 		final StatisticsDTO stat = s.getStatistics();
 		float fitness;
-		if (s.isShutDownPrematurely()) {
+		if (s.isShutDownPrematurely() || stat.acceptedParcels != stat.totalDeliveries) {
 			fitness = Float.MAX_VALUE;
 		} else {
 
-			final float rejectionPenalty = (stat.totalParcels - stat.acceptedParcels) * 100f;
+			final float rejectionPenalty = (stat.totalParcels - stat.acceptedParcels);// *
+																						// 1000f;
 
-			final float pickupFailPenalty = (stat.acceptedParcels - stat.totalPickups) * 100000f;
-			final float deliveryFailPenalty = (stat.acceptedParcels - stat.totalDeliveries) * 100000f;
+			// final float pickupFailPenalty = (stat.acceptedParcels -
+			// stat.totalPickups) * 50f;
+			// final float deliveryFailPenalty = (stat.acceptedParcels -
+			// stat.totalDeliveries) * 50f;
 
-			fitness = rejectionPenalty + pickupFailPenalty + deliveryFailPenalty + stat.pickupTardiness
-					+ stat.deliveryTardiness + (float) stat.totalDistance;
+			// fitness = rejectionPenalty + pickupFailPenalty +
+			// deliveryFailPenalty + stat.pickupTardiness
+			// + stat.deliveryTardiness + (float) stat.totalDistance;
+
+			final float distPenalty = 1f - (1f / (float) stat.totalDistance);
+			fitness = rejectionPenalty + distPenalty;
 		}
 
 		return new FRResultDTO(job, stat, fitness);

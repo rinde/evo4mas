@@ -24,7 +24,7 @@ public class ProgramTester {
 
 	public static void main(String[] args) throws FileNotFoundException, ConfigurationException {
 		final FabriRechtScenario scenario = FabriRechtParser.fromJson(new FileReader(
-				"../../RinSim/problem/data/test/fabri-recht/lc101.scenario"));
+				"files/scenarios/fabri-recht/pdp100_mitAnrufzeit/lc107.scenario"));
 		final Collection<GPFunc<FRContext>> funcs = new GPFunctions().create();
 		// final String progString =
 		// "(add (div (mul dist ado) (mul 0.0 dist)) (if4 (add (div urge urge) (mul urge 0.0)) (add (mul dist ado) (sub ado ado)) (if4 (add (div urge urge) (mul urge 0.0)) (add (mul dist ado) (sub ado ado)) (add (mul est ado) (mul 1.0 mido)) (if4 (sub dist mado) (sub urge ado) (sub ado ado) (div mado dist))) (if4 (sub dist mado) (sub urge ado) (mul mado ado) (div est dist))))";
@@ -35,15 +35,26 @@ public class ProgramTester {
 
 		// final String progString =
 		// "(div (add est ado) (pow (add dist (div (add 0.0 0.0) ado)) dist))";
-		final String progString = "(add (add dist (add (add dist (if4 mado est (pow est 1.0) 0.0)) ado)) ado)";
+		// final String progString =
+		// "(add (add dist (add (add dist (if4 mado est (pow est 1.0) 0.0)) ado)) ado)";
+		// final String progString = "(if4 est dist est urge)";
+		//final String progString = "(add dist 0.0)";
+		String progString = "(add (add (pow ado mido) (add (pow urge est) (add (add (pow (div mido dist) (add urge est)) (div (add (mul mado 0.0) (pow ttl est)) (mul (add urge dist) (pow (sub 1.0 mido) 1.0)))) (mul (mul ttl 1.0) (div (mul mido 0.0) (mul ttl ado)))))) (add (add (pow (div mido dist) (add urge est)) (sub (if4 0.0 ado mido (mul mido 0.0)) (pow dist 1.0))) (div (sub (div (add (pow ado urge) (mul ttl urge)) (sub (add (pow ado urge) (pow dist dist)) urge)) (sub (if4 ttl dist 0.0 est) (pow ttl est))) (sub (div (sub (pow mido ado) urge) (sub 1.0 mido)) (sub (if4 ttl dist ttl est) (mul mido 0.0))))))";
+		
 
 		final GPProgram<FRContext> prog = GPProgramParser.parseProgram(progString, funcs);
 		assertEquals(progString, prog.toString());
 
-		final Simulation sim = new Simulation(scenario, prog, true);
-		sim.start();
-
+		final boolean useGui = true;
+		final Simulation sim = new Simulation(scenario, prog, useGui);
+		if (!useGui) {
+			sim.start();
+		}
+		if (sim.isShutDownPrematurely()) {
+			System.err.println("SIMULATION DID NOT RUN CORRECTLY");
+		}
 		System.out.println(sim.getStatistics());
+
 	}
 
 }

@@ -3,6 +3,8 @@
  */
 package rinde.evo4mas.evo.gp;
 
+import java.util.List;
+
 import rinde.cloud.javainterface.ComputationJob;
 
 /**
@@ -11,6 +13,10 @@ import rinde.cloud.javainterface.ComputationJob;
  */
 public interface GPComputationJob<C> extends ComputationJob {
 
-	GPProgram<C> getProgram();
+	List<GPProgram<C>> getPrograms();
+
+	// should be unique for the programs, usually this is a dump of the programs
+	// using Lisp notation
+	String getId();
 
 }

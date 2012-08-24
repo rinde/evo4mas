@@ -3,8 +3,15 @@
  */
 package rinde.evo4mas.evo.gp;
 
+import static java.util.Arrays.asList;
+
+import java.util.List;
+
 /**
+ * single program implementation
+ * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * 
  * 
  */
 public class GPComputationJobImpl<C> implements GPComputationJob<C> {
@@ -24,6 +31,14 @@ public class GPComputationJobImpl<C> implements GPComputationJob<C> {
 
 	public GPProgram<C> getProgram() {
 		return program;
+	}
+
+	public List<GPProgram<C>> getPrograms() {
+		return asList(program);
+	}
+
+	public String getId() {
+		return program.root.makeLispTree();
 	}
 
 }

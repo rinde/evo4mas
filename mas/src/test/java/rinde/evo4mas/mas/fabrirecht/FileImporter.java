@@ -3,13 +3,20 @@
  */
 package rinde.evo4mas.mas.fabrirecht;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
+import rinde.sim.problem.fabrirecht.AddParcelEvent;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
+import rinde.sim.problem.fabrirecht.FabriRechtScenario;
+import rinde.sim.scenario.ScenarioBuilder;
+import rinde.sim.scenario.TimedEvent;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -32,6 +39,11 @@ public class FileImporter {
 			}
 		});
 
+		int scenarios = 0;
+		int faultyScenarios = 0;
+		int notPossible = 0;
+		int totalTimeWindows = 0;
+
 		for (final File dir : dirs) {
 			final File d = new File(targetDir + "/" + dir.getName());
 			d.mkdir();
@@ -45,11 +57,52 @@ public class FileImporter {
 			for (final File csv : csvs) {
 				final String name = csv.getName().substring(0, csv.getName().length() - 4);
 				final String p = csv.getParent() + "/" + name + "_coord.csv";
-				FabriRechtParser.toJson(FabriRechtParser.parse(p, csv.getAbsolutePath()), new FileWriter(d
-						.getAbsolutePath() + "/" + name + ".scenario"));
+
+				final FabriRechtScenario scen = FabriRechtParser.parse(p, csv.getAbsolutePath());
+				scenarios++;
+				boolean faultyScenario = false;
+				int nop = 0;
+				for (final TimedEvent te : scen.asList()) {
+
+					if (te instanceof AddParcelEvent) {
+						final AddParcelEvent ape = (AddParcelEvent) te;
+						totalTimeWindows += 2;
+
+						if (ape.parcelDTO.deliveryTimeWindow.length() < ape.parcelDTO.deliveryDuration) {
+							nop++;
+							notPossible++;
+							faultyScenario = true;
+						}
+						if (ape.parcelDTO.pickupTimeWindow.length() < ape.parcelDTO.pickupDuration) {
+							nop++;
+							notPossible++;
+							faultyScenario = true;
+						}
+					}
+				}
+				if (faultyScenario) {
+					System.out.println(name + " " + nop + " / " + scen.asList().size() * 2);
+					faultyScenarios++;
+				}
+
+				checkState(ScenarioBuilder.isTimeOrderingConsistent(scen), "bummer");
+
+				FabriRechtParser.toJson(scen, new FileWriter(d.getAbsolutePath() + "/" + name + ".scenario"));
+
+				final FabriRechtScenario scen2 = FabriRechtParser.fromJson(new FileReader(d.getAbsolutePath() + "/"
+						+ name + ".scenario"));
+
+				// if (name.equals("lc101")) {
+				// System.out.println(scen2.asList());
+				// }
+
+				checkState(ScenarioBuilder.isTimeOrderingConsistent(scen2), "bummer2");
+				checkState(scen.equals(scen2));
 			}
 
 		}
+
+		System.out.println(notPossible + " / " + totalTimeWindows + "     " + faultyScenarios + " / " + scenarios);
 
 	}
 }

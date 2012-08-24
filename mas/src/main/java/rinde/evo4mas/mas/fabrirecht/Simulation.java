@@ -7,6 +7,8 @@ import rinde.evo4mas.evo.gp.GPProgram;
 import rinde.sim.core.Simulator;
 import rinde.sim.core.TickListener;
 import rinde.sim.core.TimeLapse;
+import rinde.sim.event.Event;
+import rinde.sim.event.Listener;
 import rinde.sim.problem.fabrirecht.AddVehicleEvent;
 import rinde.sim.problem.fabrirecht.FRDepot;
 import rinde.sim.problem.fabrirecht.FRParcel;
@@ -24,7 +26,7 @@ import rinde.sim.ui.renderers.UiSchema;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class Simulation extends FabriRechtProblem {
+public class Simulation extends FabriRechtProblem implements Listener {
 
 	// public Simulation(String coordinateFile, String ordersFile) throws
 	// IOException, ConfigurationException {
@@ -37,6 +39,8 @@ public class Simulation extends FabriRechtProblem {
 
 	protected boolean shutDownPrematurely = false;
 
+	protected CoordModel coordModel;
+
 	public Simulation(FabriRechtScenario scenario, GPProgram<FRContext> prog) throws ConfigurationException {
 		this(scenario, prog, false);
 	}
@@ -44,28 +48,34 @@ public class Simulation extends FabriRechtProblem {
 	public Simulation(final FabriRechtScenario scenario, GPProgram<FRContext> prog, boolean showGui)
 			throws ConfigurationException {
 		super(scenario);
+
 		program = prog;
 		useGui = showGui;
+		statisticsListener.getEventAPI()
+				.addListener(this, StatisticsEventType.PICKUP_TARDINESS, StatisticsEventType.DELIVERY_TARDINESS);
 		initialize();
 		getSimulator().addTickListener(new TickListener() {
-
 			public void tick(TimeLapse timeLapse) {}
 
 			public void afterTick(TimeLapse timeLapse) {
-				final long perc10 = (long) (0.1 * (scenario.timeWindow.end - scenario.timeWindow.begin));
-				if (timeLapse.getStartTime() - scenario.timeWindow.begin > perc10
-						&& statisticsListener.getTotalPickups() == 0) {
-					shutDownPrematurely = true;
-					stop();
-				}
+				stopCriterium(timeLapse);
 			}
 		});
+	}
+
+	public void stopCriterium(TimeLapse timeLapse) {
+		final long perc10 = (long) (0.1 * (fabriRechtScenario.timeWindow.end - fabriRechtScenario.timeWindow.begin));
+		if (timeLapse.getStartTime() - fabriRechtScenario.timeWindow.begin > perc10
+				&& statisticsListener.getTotalPickups() == 0) {
+			shutDownPrematurely = true;
+			stop();
+		}
 	}
 
 	@Override
 	protected Simulator createSimulator() throws Exception {
 		final Simulator sim = super.createSimulator();
-		sim.register(new CoordModel());
+		sim.register(coordModel);
 		return sim;
 	}
 
@@ -75,7 +85,7 @@ public class Simulation extends FabriRechtProblem {
 
 	@Override
 	protected boolean handleAddVehicle(AddVehicleEvent event) {
-		return getSimulator().register(new Truck(event.vehicleDTO, program));
+		return getSimulator().register(new Truck(event.vehicleDTO, program, fabriRechtScenario));
 	}
 
 	@Override
@@ -97,7 +107,22 @@ public class Simulation extends FabriRechtProblem {
 
 	@Override
 	protected ParcelAssesor createParcelAssesor() {
-		return new FRParcelAssesor(roadModel, pdpModel);
+		coordModel = new CoordModel(pdpModel);
+		return coordModel;
+	}
+
+	public void handleEvent(Event e) {
+		if (e.getEventType() == StatisticsEventType.PICKUP_TARDINESS
+				|| e.getEventType() == StatisticsEventType.DELIVERY_TARDINESS) {
+			// any tardiness is unacceptable -> stop immediately
+			shutDownPrematurely = true;
+			stop();
+
+			// if (!(this instanceof SubSimulation)) {
+			// throw new RuntimeException();
+			// }
+
+		}
 	}
 
 }

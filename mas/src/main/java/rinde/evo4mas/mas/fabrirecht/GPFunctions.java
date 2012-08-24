@@ -19,7 +19,7 @@ import rinde.evo4mas.evo.gp.GenericFunctions.Mul;
 import rinde.evo4mas.evo.gp.GenericFunctions.Pow;
 import rinde.evo4mas.evo.gp.GenericFunctions.Sub;
 import rinde.sim.core.graph.Point;
-import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.problem.fabrirecht.ParcelDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -60,13 +60,13 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 
 		@Override
 		public double execute(double[] input, FRContext context) {
-			final Collection<Parcel> contents = context.pdpModel.getContents(context.truck);
+			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
 			}
 			double distance = 0d;
-			for (final Parcel p : contents) {
-				distance += Point.distance(context.parcel.destinationLocation, p.getDestination());
+			for (final ParcelDTO p : contents) {
+				distance += Point.distance(context.parcel.destinationLocation, p.destinationLocation);
 			}
 			return distance / contents.size();
 		}
@@ -77,13 +77,13 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 
 		@Override
 		public double execute(double[] input, FRContext context) {
-			final Collection<Parcel> contents = context.pdpModel.getContents(context.truck);
+			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
 			}
 			double minDistance = Double.POSITIVE_INFINITY;
-			for (final Parcel p : contents) {
-				minDistance = min(minDistance, Point.distance(context.parcel.destinationLocation, p.getDestination()));
+			for (final ParcelDTO p : contents) {
+				minDistance = min(minDistance, Point.distance(context.parcel.destinationLocation, p.destinationLocation));
 			}
 			return minDistance;
 		}
@@ -94,13 +94,13 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 
 		@Override
 		public double execute(double[] input, FRContext context) {
-			final Collection<Parcel> contents = context.pdpModel.getContents(context.truck);
+			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
 			}
 			double maxDistance = Double.NEGATIVE_INFINITY;
-			for (final Parcel p : contents) {
-				maxDistance = max(maxDistance, Point.distance(context.parcel.destinationLocation, p.getDestination()));
+			for (final ParcelDTO p : contents) {
+				maxDistance = max(maxDistance, Point.distance(context.parcel.destinationLocation, p.destinationLocation));
 			}
 			return maxDistance;
 		}
@@ -112,9 +112,9 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		@Override
 		public double execute(double[] input, FRContext context) {
 			if (context.isInCargo) {
-				return Point.distance(context.roadModel.getPosition(context.truck), context.parcel.destinationLocation);
+				return Point.distance(context.truckPosition, context.parcel.destinationLocation);
 			} else {
-				return Point.distance(context.roadModel.getPosition(context.truck), context.parcel.pickupLocation);
+				return Point.distance(context.truckPosition, context.parcel.pickupLocation);
 			}
 		}
 	}
@@ -151,7 +151,7 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 
 		@Override
 		public double execute(double[] input, FRContext context) {
-			return context.truck.getDTO().availabilityTimeWindow.end - context.time;
+			return context.vehicleDTO.availabilityTimeWindow.end - context.time;
 		}
 	}
 

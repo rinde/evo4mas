@@ -15,14 +15,22 @@ gp.fs.0.size = 1
 gp.fs.0.name = f0
 gp.fs.0 = rinde.evo4mas.mas.fabrirecht.GPFunctions
 
-gp.fs.1.size = 1
-gp.fs.1.name = f1
-gp.fs.1 = rinde.evo4mas.mas.fabrirecht.GPFunctions
+#gp.fs.1.size = 1
+#gp.fs.1.name = f1
+#gp.fs.1 = rinde.evo4mas.mas.fabrirecht.GPFunctions
 
 
 breed.elite.0 = 			1
 
 seed.0 = 123
+
+pop.subpop.0.species.ind.numtrees = 1
+pop.subpop.0.species.ind.tree.0 = ec.gp.GPTree
+pop.subpop.0.species.ind.tree.0.tc = tc0
+
+#pop.subpop.0.species.ind.tree.1 = ec.gp.GPTree
+#pop.subpop.0.species.ind.tree.1.tc = tc0
+
 #
 # We specify our problem here
 #
@@ -52,12 +60,12 @@ pop.subpop.0.species.fitness = rinde.evo4mas.evo.gp.GPFitness
 #eval.computation-time-limit = 120000
 
 
-#eval.host = dnetfs.cs.kuleuven.be
+eval.host = dnetfs.cs.kuleuven.be
 
 #0
 
-pop.subpop.0.size 	= 10
-generations 		= 3
+pop.subpop.0.size 	= 1000
+generations 		= 30
 
 # Here we determine what kind of Ant we're doing:
 
