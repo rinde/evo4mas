@@ -37,4 +37,9 @@ public class GPProgram<C> implements Serializable {
 	public String toString() {
 		return root.makeLispTree();
 	}
+
+	@Override
+	public GPProgram<C> clone() {
+		return new GPProgram<C>((GPFunc<C>) root.clone());
+	}
 }

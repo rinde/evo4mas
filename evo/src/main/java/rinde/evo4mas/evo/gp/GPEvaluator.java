@@ -64,9 +64,13 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 		final Multimap<GPNodeHolder, IndividualHolder> mapping = getGPFitnessMapping(state);
 		final List<J> jobs = newArrayList();
 		for (final GPNodeHolder key : mapping.keySet()) {
-			jobs.addAll(createComputationJobs(key.trees));
+			jobs.addAll(createComputationJobs(key.trees, state));
 		}
+		final Collection<R> results = compute(jobs);
+		processResults(state, mapping, results);
+	}
 
+	protected Collection<R> compute(Collection<J> jobs) {
 		// either use RinCloud or compute locally
 		Collection<R> results = null;
 		if (compStrategy == ComputationStrategy.LOCAL) {
@@ -79,7 +83,7 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 			results = (Collection<R>) master.compute((Collection<ComputationJob>) jobs);
 
 		}
-		processResults(state, mapping, results);
+		return results;
 	}
 
 	protected void processResults(EvolutionState state, Multimap<GPNodeHolder, IndividualHolder> mapping,
@@ -120,7 +124,7 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 
 	}
 
-	protected abstract Collection<J> createComputationJobs(GPTree[] trees);
+	protected abstract Collection<J> createComputationJobs(GPTree[] trees, EvolutionState state);
 
 	protected abstract Computer<J, R> createComputer();
 
