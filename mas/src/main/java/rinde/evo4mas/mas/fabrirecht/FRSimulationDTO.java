@@ -35,4 +35,9 @@ public class FRSimulationDTO implements GPComputationJob<FRContext> {
 		return truckHeuristic.toString();
 	}
 
+	@Override
+	public String toString() {
+		return scenarioFile + " " + truckHeuristic.toString();
+	}
+
 }

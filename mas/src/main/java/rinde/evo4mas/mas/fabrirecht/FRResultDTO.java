@@ -31,4 +31,9 @@ public class FRResultDTO implements GPComputationResult {
 	public float getFitness() {
 		return fitness;
 	}
+
+	@Override
+	public String toString() {
+		return new StringBuilder(compJob.toString()).append("\n").append(stats.toString()).toString();
+	}
 }

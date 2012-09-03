@@ -28,20 +28,22 @@ public class SubSimulation extends Simulation {
 			throws ConfigurationException {
 		super(new FabriRechtScenario(srcScenario.min, srcScenario.max, srcScenario.timeWindow), t.getProgram());
 
-		// fast forward time
-		final TickListener fastForwardListener = new TickListener() {
-			public void tick(TimeLapse timeLapse) {}
+		if (startTime > 0) {
+			// fast forward time
+			final TickListener fastForwardListener = new TickListener() {
+				public void tick(TimeLapse timeLapse) {}
 
-			public void afterTick(TimeLapse timeLapse) {
-				if (timeLapse.getTime() == startTime) {
-					stop();
+				public void afterTick(TimeLapse timeLapse) {
+					if (timeLapse.getTime() == startTime) {
+						stop();
+					}
 				}
-			}
-		};
-		getSimulator().addTickListener(fastForwardListener);
-		getSimulator().start();
-		getSimulator().removeTickListener(fastForwardListener);
-		getSimulator().addTickListener(this);
+			};
+			getSimulator().addTickListener(fastForwardListener);
+			getSimulator().start();
+			getSimulator().removeTickListener(fastForwardListener);
+			getSimulator().addTickListener(this);
+		}
 		checkState(getSimulator().getCurrentTime() == startTime);
 
 		// move truck to current position

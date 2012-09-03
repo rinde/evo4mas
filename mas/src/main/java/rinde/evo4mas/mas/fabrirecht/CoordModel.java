@@ -104,7 +104,7 @@ public class CoordModel implements Model<CoordAgent>, Listener, ParcelAssesor {
 	public boolean acceptParcel(ParcelDTO dto) {
 		if (dto.pickupTimeWindow.length() < dto.pickupDuration
 				|| dto.deliveryTimeWindow.length() < dto.deliveryDuration) {
-			System.out.println("kickout impossible parcel");
+			// System.out.println("kickout impossible parcel");
 			return false;
 		}
 

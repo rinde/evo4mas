@@ -11,7 +11,6 @@ import rinde.cloud.javainterface.Computer;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
 import rinde.sim.problem.fabrirecht.FabriRechtProblem.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;
-import rinde.sim.scenario.ConfigurationException;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -37,8 +36,8 @@ public class FRSimulationComputer implements Computer<FRSimulationDTO, FRResultD
 		try {
 			s = new Simulation(scen, job.truckHeuristic);
 			s.start();
-		} catch (final ConfigurationException e) {
-			throw new RuntimeException(e);
+		} catch (final Exception e) {
+			throw new RuntimeException("Failed simulation job: " + job, e);
 		}
 
 		final StatisticsDTO stat = s.getStatistics();

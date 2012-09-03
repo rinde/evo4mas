@@ -64,8 +64,8 @@ eval.host = dnetfs.cs.kuleuven.be
 
 #0
 
-pop.subpop.0.size 	= 1000
-generations 		= 30
+pop.subpop.0.size 	= 20
+generations 		= 20
 
 # Here we determine what kind of Ant we're doing:
 

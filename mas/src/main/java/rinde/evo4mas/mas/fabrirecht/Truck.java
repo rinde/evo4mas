@@ -20,7 +20,6 @@ import rinde.sim.problem.fabrirecht.FRVehicle;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;
 import rinde.sim.problem.fabrirecht.ParcelDTO;
 import rinde.sim.problem.fabrirecht.VehicleDTO;
-import rinde.sim.scenario.ConfigurationException;
 
 class Truck extends FRVehicle implements CoordAgent {
 
@@ -267,7 +266,8 @@ class Truck extends FRVehicle implements CoordAgent {
 
 			return verdict;
 
-		} catch (final ConfigurationException e) {
+		} catch (final Exception e) {
+
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			throw new RuntimeException(e);
