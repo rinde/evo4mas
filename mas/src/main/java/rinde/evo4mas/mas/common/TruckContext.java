@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.fabrirecht;
+package rinde.evo4mas.mas.common;
 
 import static java.util.Collections.unmodifiableCollection;
 
@@ -15,7 +15,7 @@ import rinde.sim.problem.common.VehicleDTO;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class FRContext {
+public class TruckContext {
 
 	public final VehicleDTO vehicleDTO;
 	public final Point truckPosition;
@@ -24,7 +24,7 @@ public class FRContext {
 	public final boolean isInCargo;
 	public final long time;
 
-	public FRContext(VehicleDTO v, Point tp, Collection<ParcelDTO> tc, ParcelDTO p, long tm, boolean c) {
+	public TruckContext(VehicleDTO v, Point tp, Collection<ParcelDTO> tc, ParcelDTO p, long tm, boolean c) {
 		vehicleDTO = v;
 		truckPosition = tp;
 		truckContents = unmodifiableCollection(tc);

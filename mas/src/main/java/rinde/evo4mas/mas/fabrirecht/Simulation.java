@@ -4,6 +4,7 @@
 package rinde.evo4mas.mas.fabrirecht;
 
 import rinde.evo4mas.evo.gp.GPProgram;
+import rinde.evo4mas.mas.common.TruckContext;
 import rinde.sim.core.Simulator;
 import rinde.sim.problem.common.AddParcelEvent;
 import rinde.sim.problem.common.AddVehicleEvent;
@@ -21,15 +22,15 @@ import rinde.sim.problem.fabrirecht.FabriRechtScenario;
  */
 public class Simulation {
 
-	protected final GPProgram<FRContext> program;
+	protected final GPProgram<TruckContext> program;
 	protected final boolean useGui;
 	protected final DynamicPDPTWProblem problemInstance;
 
-	public Simulation(FabriRechtScenario scenario, GPProgram<FRContext> prog) {
+	public Simulation(FabriRechtScenario scenario, GPProgram<TruckContext> prog) {
 		this(scenario, prog, false);
 	}
 
-	public Simulation(final FabriRechtScenario scenario, GPProgram<FRContext> prog, boolean showGui) {
+	public Simulation(final FabriRechtScenario scenario, GPProgram<TruckContext> prog, boolean showGui) {
 		program = prog;
 		useGui = showGui;
 

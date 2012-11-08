@@ -2,10 +2,10 @@
 <classpath>
 	<classpathentry kind="src" output="target/classes" path="src/main/java"/>
 	<classpathentry kind="src" output="target/test-classes" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5"/>
 	<classpathentry kind="con" path="org.eclipse.m2e.MAVEN2_CLASSPATH_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="lib" path="lib/jppf-client.jar" sourcepath="lib/lib-src/jppf-client-src.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jppf-common-node.jar" sourcepath="lib/lib-src/jppf-common-node-src.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jppf-common.jar" sourcepath="lib/lib-src/jppf-common-src.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jppf-client.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jppf-common-node.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/jppf-common.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

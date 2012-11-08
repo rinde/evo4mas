@@ -7,6 +7,8 @@ import org.jppf.task.storage.DataProvider;
 
 import rinde.evo4mas.evo.gp.ComputationTask;
 import rinde.evo4mas.evo.gp.GPProgram;
+import rinde.evo4mas.mas.common.TruckContext;
+import rinde.evo4mas.mas.common.ResultDTO;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;
@@ -15,14 +17,14 @@ import rinde.sim.problem.fabrirecht.FabriRechtScenario;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class FRSimulationTask extends ComputationTask<FRResultDTO> {
+public class FRSimulationTask extends ComputationTask<ResultDTO> {
 
 	private final String scenarioKey;
-	private final GPProgram<FRContext> program;
+	private final GPProgram<TruckContext> program;
 	private final int numVehicles;
 	private final int vehicleCapacity;
 
-	public FRSimulationTask(String scenario, GPProgram<FRContext> p, int pNumVehicles, int pVehicleCapacity) {
+	public FRSimulationTask(String scenario, GPProgram<TruckContext> p, int pNumVehicles, int pVehicleCapacity) {
 		scenarioKey = scenario;
 		program = p;
 		numVehicles = pNumVehicles;
@@ -62,7 +64,7 @@ public class FRSimulationTask extends ComputationTask<FRResultDTO> {
 				// fitness = rejectionPenalty + distPenalty;
 				fitness = (float) stat.costPerDemand;
 			}
-			setResult(new FRResultDTO(scenarioKey, program, stat, fitness));
+			setResult(new ResultDTO(scenarioKey, program, stat, fitness));
 		} catch (final Exception e) {
 			throw new RuntimeException("Failed simulation task: " + program, e);
 		}
@@ -74,7 +76,7 @@ public class FRSimulationTask extends ComputationTask<FRResultDTO> {
 	}
 
 	@Override
-	public FRResultDTO getComputationResult() {
-		return (FRResultDTO) getResult();
+	public ResultDTO getComputationResult() {
+		return (ResultDTO) getResult();
 	}
 }

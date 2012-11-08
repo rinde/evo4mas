@@ -4,6 +4,7 @@
 package rinde.evo4mas.mas.fabrirecht;
 
 import rinde.evo4mas.evo.gp.GPProgram;
+import rinde.evo4mas.mas.common.TruckContext;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
@@ -23,7 +24,7 @@ public class SubTruck extends Truck {
 	 * @param p
 	 * @param scen
 	 */
-	public SubTruck(VehicleDTO pDto, GPProgram<FRContext> p, FabriRechtScenario scen) {
+	public SubTruck(VehicleDTO pDto, GPProgram<TruckContext> p, FabriRechtScenario scen) {
 		super(pDto, p, scen);
 	}
 

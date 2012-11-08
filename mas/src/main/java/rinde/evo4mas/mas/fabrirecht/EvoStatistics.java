@@ -7,6 +7,7 @@ import java.util.List;
 
 import rinde.evo4mas.evo.gp.GPComputationResult;
 import rinde.evo4mas.evo.gp.GPStats;
+import rinde.evo4mas.mas.common.ResultDTO;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import ec.EvolutionState;
 import ec.Individual;
@@ -26,7 +27,7 @@ public class EvoStatistics extends GPStats {
 		// System.out.println(((FRSimulationDTO)
 		// results.get(0).getComputationJob()).program.toString());
 
-		final StatisticsDTO stats = ((FRResultDTO) results.get(0)).stats;
+		final StatisticsDTO stats = ((ResultDTO) results.get(0)).stats;
 
 		System.out.println(stats);
 		System.out.println(results.get(0).getFitness());

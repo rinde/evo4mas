@@ -5,13 +5,11 @@ package rinde.evo4mas.evo.gp;
 
 import java.util.List;
 
-import rinde.cloud.javainterface.ComputationJob;
-
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public interface GPComputationJob<C> extends ComputationJob {
+public interface GPComputationJob<C> /* extends ComputationJob */{
 
 	List<GPProgram<C>> getPrograms();
 

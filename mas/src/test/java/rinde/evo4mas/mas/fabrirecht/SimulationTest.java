@@ -18,6 +18,7 @@ import rinde.evo4mas.evo.gp.GPFuncNode;
 import rinde.evo4mas.evo.gp.GPProgram;
 import rinde.evo4mas.evo.gp.GPProgramParser;
 import rinde.evo4mas.evo.gp.GenericFunctions.Constant;
+import rinde.evo4mas.mas.common.TruckContext;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;
@@ -30,7 +31,7 @@ import rinde.sim.scenario.ConfigurationException;
 public class SimulationTest {
 
 	protected FabriRechtScenario scenario;
-	protected GPProgram<FRContext> dummyProgram;
+	protected GPProgram<TruckContext> dummyProgram;
 
 	@Before
 	public void setup() throws FileNotFoundException {
@@ -39,7 +40,7 @@ public class SimulationTest {
 		// "../../RinSim/problem/data/test/fabri-recht/lc101.scenario"
 
 		scenario = FabriRechtParser.fromJson(new FileReader(scenFile), 10, 4);
-		dummyProgram = new GPProgram<FRContext>(new GPFuncNode<FRContext>(new Constant<FRContext>(0)));
+		dummyProgram = new GPProgram<TruckContext>(new GPFuncNode<TruckContext>(new Constant<TruckContext>(0)));
 	}
 
 	@Test
@@ -54,7 +55,7 @@ public class SimulationTest {
 
 	@Test
 	public void test2() {
-		final Collection<GPFunc<FRContext>> funcs = new GPFunctions().create();
+		final Collection<GPFunc<TruckContext>> funcs = new GPFunctions().create();
 		final Simulation sim2 = new Simulation(scenario, GPProgramParser.parseProgramFunc("(add 0.0 dist)", funcs),
 				false);
 
@@ -68,7 +69,7 @@ public class SimulationTest {
 
 	@Test
 	public void testProgram1() throws ConfigurationException {
-		final Collection<GPFunc<FRContext>> funcs = new GPFunctions().create();
+		final Collection<GPFunc<TruckContext>> funcs = new GPFunctions().create();
 		// (add (if4 (add (add 0.0 1.0) (add 0.0 1.0)) (add ado ado) (if4 dist
 		// ado ado 1.0) (if4 1.0 ado dist dist)) (if4 dist 0.0 0.0 dist))
 		String progString = "(add (if4 (add (add 0.0 1.0) (add 0.0 1.0)) (add ado ado) (if4 dist ado ado 1.0) (if4 1.0 ado dist dist)) (if4 dist 0.0 0.0 dist))";
@@ -77,7 +78,7 @@ public class SimulationTest {
 
 		progString = "(if4 (mul (mul (mul mido ado) (pow 1.0 est)) (div est (if4 (sub (div est 1.0) mado) (div (div mado mido) (pow 1.0 est)) (pow (sub (mul 0.0 dist) (pow ado mido)) (if4 mido mado ado 1.0)) (pow ttl ttl)))) (if4 (sub (div est 1.0) (mul 0.0 ttl)) (if4 mido dist mido urge) (pow (sub (mul 0.0 dist) (div est 0.0)) (pow mado 1.0)) (add (pow (div (add (if4 (if4 mado dist (if4 ttl 1.0 0.0 mido) ado) mido mido (div est 0.0)) mado) ado) (mul (mul mido ado) (mul mido ado))) (mul 1.0 (div ado est)))) (pow urge mado) (sub mido ttl))";
 
-		final GPProgram<FRContext> prog = GPProgramParser.parseProgramFunc(progString, funcs);
+		final GPProgram<TruckContext> prog = GPProgramParser.parseProgramFunc(progString, funcs);
 		assertEquals(progString, prog.toString());
 
 		final Simulation sim = new Simulation(scenario, prog);

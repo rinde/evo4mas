@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.fabrirecht;
+package rinde.evo4mas.mas.common;
 
 import java.io.Serializable;
 
@@ -14,15 +14,15 @@ import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class FRResultDTO implements GPComputationResult, Serializable {
+public class ResultDTO implements GPComputationResult, Serializable {
 
 	private static final long serialVersionUID = 2053089876856764188L;
-	protected final String scenarioKey;
-	protected final GPProgram<FRContext> heuristic;
-	protected final StatisticsDTO stats;
-	protected final float fitness;
+	public final String scenarioKey;
+	public final GPProgram<TruckContext> heuristic;
+	public final StatisticsDTO stats;
+	public final float fitness;
 
-	public FRResultDTO(String scenario, GPProgram<FRContext> h, StatisticsDTO stat, float fit) {
+	public ResultDTO(String scenario, GPProgram<TruckContext> h, StatisticsDTO stat, float fit) {
 		scenarioKey = scenario;
 		heuristic = h;
 		stats = stat;

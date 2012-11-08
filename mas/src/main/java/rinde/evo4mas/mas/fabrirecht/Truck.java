@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import rinde.evo4mas.evo.gp.GPProgram;
+import rinde.evo4mas.mas.common.TruckContext;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
@@ -27,7 +28,7 @@ class Truck extends DefaultVehicle implements CoordAgent {
 	protected final Set<ParcelDTO> todoSet;
 	protected final Map<ParcelDTO, Parcel> parcelMap;
 
-	protected final GPProgram<FRContext> program;
+	protected final GPProgram<TruckContext> program;
 
 	protected boolean hasChanged = true;
 	protected Parcel currentTarget;
@@ -39,7 +40,7 @@ class Truck extends DefaultVehicle implements CoordAgent {
 	/**
 	 * @param pDto
 	 */
-	public Truck(VehicleDTO pDto, GPProgram<FRContext> p, FabriRechtScenario scen) {
+	public Truck(VehicleDTO pDto, GPProgram<TruckContext> p, FabriRechtScenario scen) {
 		super(pDto);
 		program = p;
 		todoSet = newLinkedHashSet();
@@ -86,7 +87,7 @@ class Truck extends DefaultVehicle implements CoordAgent {
 		return next(program, dto, todoSet, convert(pdpModel.getContents(this)), roadModel.getPosition(this), time);
 	}
 
-	protected static ParcelDTO next(GPProgram<FRContext> program, VehicleDTO dto, Collection<ParcelDTO> todo,
+	protected static ParcelDTO next(GPProgram<TruckContext> program, VehicleDTO dto, Collection<ParcelDTO> todo,
 			Collection<ParcelDTO> contents, Point truckPos, long time) {
 		ParcelDTO best = null;
 		// int contentsSize = 0;
@@ -97,14 +98,14 @@ class Truck extends DefaultVehicle implements CoordAgent {
 
 		double bestValue = Double.POSITIVE_INFINITY;
 		for (final ParcelDTO p : todo) {
-			final double v = program.execute(new FRContext(dto, truckPos, contents, p, time, false));
+			final double v = program.execute(new TruckContext(dto, truckPos, contents, p, time, false));
 			if (v < bestValue) {
 				best = p;
 				bestValue = v;
 			}
 		}
 		for (final ParcelDTO p : contents) {
-			final double v = program.execute(new FRContext(dto, truckPos, contents, p, time, true));
+			final double v = program.execute(new TruckContext(dto, truckPos, contents, p, time, true));
 			if (v < bestValue) {
 				best = p;
 				bestValue = v;
@@ -221,11 +222,11 @@ class Truck extends DefaultVehicle implements CoordAgent {
 	}
 
 	public double getCost(ParcelDTO p) {
-		return program.execute(new FRContext(dto, roadModel.getPosition(this), convert(pdpModel.getContents(this)), p,
+		return program.execute(new TruckContext(dto, roadModel.getPosition(this), convert(pdpModel.getContents(this)), p,
 				p.orderArrivalTime, false));
 	}
 
-	public GPProgram<FRContext> getProgram() {
+	public GPProgram<TruckContext> getProgram() {
 		return program;
 	}
 

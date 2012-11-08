@@ -18,6 +18,7 @@ import rinde.evo4mas.evo.gp.GenericFunctions.If4;
 import rinde.evo4mas.evo.gp.GenericFunctions.Mul;
 import rinde.evo4mas.evo.gp.GenericFunctions.Pow;
 import rinde.evo4mas.evo.gp.GenericFunctions.Sub;
+import rinde.evo4mas.mas.common.TruckContext;
 import rinde.sim.core.graph.Point;
 import rinde.sim.problem.common.ParcelDTO;
 
@@ -25,24 +26,24 @@ import rinde.sim.problem.common.ParcelDTO;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class GPFunctions extends GPFuncSet<FRContext> {
+public class GPFunctions extends GPFuncSet<TruckContext> {
 
 	private static final long serialVersionUID = -1347739703291676886L;
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Collection<GPFunc<FRContext>> create() {
+	public Collection<GPFunc<TruckContext>> create() {
 		return newArrayList(
 		/* GENERIC FUNCTIONS */
-		new If4<FRContext>(), /* */
-				new Add<FRContext>(), /* */
-				new Sub<FRContext>(), /* */
-				new Div<FRContext>(), /* */
-				new Mul<FRContext>(), /* */
-				new Pow<FRContext>(),
+		new If4<TruckContext>(), /* */
+				new Add<TruckContext>(), /* */
+				new Sub<TruckContext>(), /* */
+				new Div<TruckContext>(), /* */
+				new Mul<TruckContext>(), /* */
+				new Pow<TruckContext>(),
 				/* CONSTANTS */
-				new Constant<FRContext>(1), /* */
-				new Constant<FRContext>(0), /* */
+				new Constant<TruckContext>(1), /* */
+				new Constant<TruckContext>(0), /* */
 				/* DOMAIN SPECIFIC FUNCTIONS */
 				new Ado(), /* */
 				new Mido(), /* */
@@ -55,11 +56,11 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		);
 	}
 
-	public static class Ado extends GPFunc<FRContext> {
+	public static class Ado extends GPFunc<TruckContext> {
 		private static final long serialVersionUID = -4497905419697638750L;
 
 		@Override
-		public double execute(double[] input, FRContext context) {
+		public double execute(double[] input, TruckContext context) {
 			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
@@ -72,11 +73,11 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		}
 	}
 
-	public static class Mido extends GPFunc<FRContext> {
+	public static class Mido extends GPFunc<TruckContext> {
 		private static final long serialVersionUID = 2314969955830030083L;
 
 		@Override
-		public double execute(double[] input, FRContext context) {
+		public double execute(double[] input, TruckContext context) {
 			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
@@ -89,11 +90,11 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		}
 	}
 
-	public static class Mado extends GPFunc<FRContext> {
+	public static class Mado extends GPFunc<TruckContext> {
 		private static final long serialVersionUID = -3969582933786406570L;
 
 		@Override
-		public double execute(double[] input, FRContext context) {
+		public double execute(double[] input, TruckContext context) {
 			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
@@ -106,11 +107,11 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		}
 	}
 
-	public static class Dist extends GPFunc<FRContext> {
+	public static class Dist extends GPFunc<TruckContext> {
 		private static final long serialVersionUID = 2713253095353499761L;
 
 		@Override
-		public double execute(double[] input, FRContext context) {
+		public double execute(double[] input, TruckContext context) {
 			if (context.isInCargo) {
 				return Point.distance(context.truckPosition, context.parcel.destinationLocation);
 			} else {
@@ -119,11 +120,11 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		}
 	}
 
-	public static class Urge extends GPFunc<FRContext> {
+	public static class Urge extends GPFunc<TruckContext> {
 		private static final long serialVersionUID = -1608855921866707712L;
 
 		@Override
-		public double execute(double[] input, FRContext context) {
+		public double execute(double[] input, TruckContext context) {
 			if (context.isInCargo) {
 				return context.parcel.deliveryTimeWindow.end - context.time;
 			} else {
@@ -132,11 +133,11 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 		}
 	}
 
-	public static class Est extends GPFunc<FRContext> {
+	public static class Est extends GPFunc<TruckContext> {
 		private static final long serialVersionUID = -3811389876518540528L;
 
 		@Override
-		public double execute(double[] input, FRContext context) {
+		public double execute(double[] input, TruckContext context) {
 			if (context.isInCargo) {
 				return context.parcel.deliveryTimeWindow.begin - context.time;
 			} else {
@@ -146,11 +147,11 @@ public class GPFunctions extends GPFuncSet<FRContext> {
 	}
 
 	// time left until truck is stopped
-	public static class Ttl extends GPFunc<FRContext> {
+	public static class Ttl extends GPFunc<TruckContext> {
 		private static final long serialVersionUID = -8186643123286080644L;
 
 		@Override
-		public double execute(double[] input, FRContext context) {
+		public double execute(double[] input, TruckContext context) {
 			return context.vehicleDTO.availabilityTimeWindow.end - context.time;
 		}
 	}

@@ -15,6 +15,7 @@ import org.junit.Test;
 
 import rinde.evo4mas.evo.gp.GPProgram;
 import rinde.evo4mas.evo.gp.GPProgramParser;
+import rinde.evo4mas.mas.common.TruckContext;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPScenarioEvent;
 import rinde.sim.problem.common.AddDepotEvent;
@@ -35,7 +36,7 @@ import rinde.sim.util.TimeWindow;
 public class FeasibilityTest {
 
 	FabriRechtScenario scenario;
-	GPProgram<FRContext> program;
+	GPProgram<TruckContext> program;
 
 	VehicleDTO vehicleDTO;
 	TimeWindow timeWindow;
@@ -85,7 +86,7 @@ public class FeasibilityTest {
 	class TestSimulation extends Simulation {
 		long nextStopTime = -1;
 
-		public TestSimulation(FabriRechtScenario scenario, GPProgram<FRContext> prog) {
+		public TestSimulation(FabriRechtScenario scenario, GPProgram<TruckContext> prog) {
 			super(scenario, prog);
 
 			problemInstance.addStopCondition(new StopCondition() {

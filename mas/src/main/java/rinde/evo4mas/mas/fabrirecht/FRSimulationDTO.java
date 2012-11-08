@@ -4,30 +4,30 @@ import static java.util.Arrays.asList;
 
 import java.util.List;
 
-import rinde.evo4mas.evo.gp.GPComputationJob;
 import rinde.evo4mas.evo.gp.GPProgram;
+import rinde.evo4mas.mas.common.TruckContext;
 
 /**
  * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class FRSimulationDTO implements GPComputationJob<FRContext> {
+public class FRSimulationDTO {
 
 	private static final long serialVersionUID = 8203533494614545727L;
-	protected final GPProgram<FRContext> truckHeuristic;
+	protected final GPProgram<TruckContext> truckHeuristic;
 	protected final String scenarioFile;
 
-	public FRSimulationDTO(GPProgram<FRContext> p, String scenario) {
+	public FRSimulationDTO(GPProgram<TruckContext> p, String scenario) {
 		truckHeuristic = p;
 		scenarioFile = scenario;
 	}
 
-	public String getComputerClassName() {
-		return "rinde.evo4mas.mas.fabrirecht.FRSimulationComputer";
-	}
+	// public String getComputerClassName() {
+	// return "rinde.evo4mas.mas.fabrirecht.FRSimulationComputer";
+	// }
 
-	public List<GPProgram<FRContext>> getPrograms() {
+	public List<GPProgram<TruckContext>> getPrograms() {
 		return asList(truckHeuristic);
 	}
 

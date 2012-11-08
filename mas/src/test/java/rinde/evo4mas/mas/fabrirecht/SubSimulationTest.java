@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import rinde.evo4mas.evo.gp.GPProgram;
 import rinde.evo4mas.evo.gp.GPProgramParser;
+import rinde.evo4mas.mas.common.TruckContext;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPScenarioEvent;
 import rinde.sim.problem.common.ParcelDTO;
@@ -36,7 +37,7 @@ public class SubSimulationTest {
 	private static final double EPSILON = 0.0001;
 
 	FabriRechtScenario scenario;
-	GPProgram<FRContext> program;
+	GPProgram<TruckContext> program;
 
 	VehicleDTO vehicleDTO;
 	TimeWindow timeWindow;
