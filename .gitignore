@@ -3,6 +3,5 @@
 mas/target/**
 mas/files/deploy/deploy.xml
 # Package Files #
-*.jar
 *.war
 *.ear
