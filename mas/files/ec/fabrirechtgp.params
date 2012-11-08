@@ -60,12 +60,15 @@ pop.subpop.0.species.fitness = rinde.evo4mas.evo.gp.GPFitness
 #eval.computation-time-limit = 120000
 
 
-eval.host = dnetfs.cs.kuleuven.be
+eval.host = distributed
+
+eval.num_vehicles = 10
+eval.vehicle_capacity = 4
 
 #0
 
-pop.subpop.0.size 	= 20
-generations 		= 20
+pop.subpop.0.size 	= 1500
+generations 		= 51
 
 # Here we determine what kind of Ant we're doing:
 
