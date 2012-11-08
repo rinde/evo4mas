@@ -3,16 +3,18 @@
  */
 package rinde.evo4mas.evo.gp;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
-import rinde.cloud.javainterface.Cloud;
-import rinde.cloud.javainterface.CloudInterface;
-import rinde.cloud.javainterface.ComputationJob;
-import rinde.cloud.javainterface.Computer;
+import org.jppf.client.JPPFClient;
+import org.jppf.client.JPPFJob;
+import org.jppf.server.protocol.JPPFTask;
+import org.jppf.task.storage.DataProvider;
+import org.jppf.task.storage.MemoryMapDataProvider;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -29,13 +31,14 @@ import ec.util.Parameter;
  * 
  */
 // note: the C here must correspond to the type of the GPFuncSet !
-public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPComputationResult, C> extends Evaluator {
+public abstract class GPEvaluator<T extends ComputationTask<R>, R extends GPComputationResult, C> extends Evaluator {
 
 	private static final long serialVersionUID = -8172136113716773085L;
 	public final static String P_HOST = "host";
-	protected transient CloudInterface master;
 
-	enum ComputationStrategy {
+	protected transient JPPFClient jppfClient;
+
+	protected enum ComputationStrategy {
 		LOCAL, DISTRIBUTED
 	}
 
@@ -49,7 +52,7 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 			compStrategy = ComputationStrategy.LOCAL;
 		} else {
 			compStrategy = ComputationStrategy.DISTRIBUTED;
-			master = Cloud.getCloud(hostName, 9999, "server-service");
+			jppfClient = new JPPFClient();
 		}
 	}
 
@@ -62,26 +65,46 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 		// }
 
 		final Multimap<GPNodeHolder, IndividualHolder> mapping = getGPFitnessMapping(state);
-		final List<J> jobs = newArrayList();
-		for (final GPNodeHolder key : mapping.keySet()) {
-			jobs.addAll(createComputationJobs(key.trees, state));
+		final DataProvider dataProvider = new MemoryMapDataProvider();
+		final JPPFJob job = new JPPFJob(dataProvider);
+		job.setBlocking(true);
+		job.setName("Generation " + state.generation);
+
+		try {
+			for (final GPNodeHolder key : mapping.keySet()) {
+				final Collection<T> coll = createComputationJobs(dataProvider, key.trees, state);
+				for (final T j : coll) {
+					// only needed when local, otherwise JPPF handles this
+					// automatically
+					if (compStrategy == ComputationStrategy.LOCAL) {
+						j.setDataProvider(dataProvider);
+					}
+					job.addTask(j);
+				}
+			}
+			final Collection<R> results = compute(job);
+			processResults(state, mapping, results);
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
 		}
-		final Collection<R> results = compute(jobs);
-		processResults(state, mapping, results);
 	}
 
-	protected Collection<R> compute(Collection<J> jobs) {
-		// either use RinCloud or compute locally
-		Collection<R> results = null;
+	protected Collection<R> compute(JPPFJob job) throws Exception {
+		// either use JPPF or compute locally
+		final Collection<R> results = newArrayList();
 		if (compStrategy == ComputationStrategy.LOCAL) {
-			results = newArrayList();
-			final Computer<J, R> computer = createComputer();
-			for (final J j : jobs) {
-				results.add(computer.compute(j));
+			for (final JPPFTask task : job.getTasks()) {
+				task.run();
+				results.add(((T) task).getComputationResult());
 			}
 		} else {
-			results = (Collection<R>) master.compute((Collection<ComputationJob>) jobs);
-
+			final List<JPPFTask> res = jppfClient.submit(job);
+			for (final JPPFTask t : res) {
+				if (t.getException() != null) {
+					throw new RuntimeException("This exception occured on a node", t.getException());
+				}
+				results.add(((T) t).getComputationResult());
+			}
 		}
 		return results;
 	}
@@ -90,10 +113,9 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 			Collection<R> results) {
 		final Multimap<String, R> gatheredFitnessValues = HashMultimap.create();
 		for (final R res : results) {
-			final String programString = ((J) res.getComputationJob()).getId();// res.getComputationJob().((J)
+			final String programString = res.getGPId();// res.getComputationJob().((J)
 			gatheredFitnessValues.put(programString, res);
 		}
-
 		for (final Entry<String, Collection<R>> entry : gatheredFitnessValues.asMap().entrySet()) {
 			if (entry.getValue().size() != expectedNumberOfResultsPerGPIndividual()) {
 				throw new IllegalStateException(
@@ -115,6 +137,7 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 				sum /= expectedNumberOfResultsPerGPIndividual();
 			}
 			final Collection<IndividualHolder> inds = mapping.get(new GPNodeHolder(entry.getKey()));
+			checkState(!inds.isEmpty(), "there must be at least one individual for every program");
 			for (final IndividualHolder ind : inds) {
 				((GPFitness<R>) ind.ind.fitness).addResults(entry.getValue());
 				((GPFitness<R>) ind.ind.fitness).setStandardizedFitness(state, sum);
@@ -124,9 +147,8 @@ public abstract class GPEvaluator<J extends GPComputationJob<C>, R extends GPCom
 
 	}
 
-	protected abstract Collection<J> createComputationJobs(GPTree[] trees, EvolutionState state);
-
-	protected abstract Computer<J, R> createComputer();
+	protected abstract Collection<T> createComputationJobs(DataProvider dataProvider, GPTree[] trees,
+			EvolutionState state);
 
 	protected abstract int expectedNumberOfResultsPerGPIndividual();
 
@@ -200,6 +222,11 @@ class GPNodeHolder {
 	@Override
 	public boolean equals(Object o) {
 		return hashCode() == o.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return string;
 	}
 
 	// @Override

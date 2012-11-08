@@ -32,7 +32,7 @@ public class GPStats extends Statistics {
 
 		final List<GPComputationResult> results = ((GPFitness<GPComputationResult>) best_i.fitness).getResults();
 		System.out.println(results);
-		System.out.println(((GPComputationJob) results.get(0).getComputationJob()).getPrograms());
+		System.out.println(results.get(0).getGPId());
 		System.out.println(results.get(0).getFitness());
 		printMore(results);
 	}

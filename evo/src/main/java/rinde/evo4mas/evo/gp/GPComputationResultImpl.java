@@ -9,8 +9,8 @@ import rinde.cloud.javainterface.ComputationJob;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class GPComputationResultImpl implements GPComputationResult {
-
+public class GPComputationResultImpl // implements GPComputationResult {
+{
 	private static final long serialVersionUID = 2596795183812240883L;
 	protected final ComputationJob compJob;
 	protected final float fitness;

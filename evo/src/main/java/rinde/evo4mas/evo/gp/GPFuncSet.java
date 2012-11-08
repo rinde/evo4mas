@@ -59,11 +59,12 @@ public abstract class GPFuncSet<T> extends GPFunctionSet {
 		final Vector tmp = new Vector();
 		int j = 0;
 		for (final GPFunc<?> func : functions) {
-			nodesByName.put(func.name(), new GPNode[] { func });
+			final GPBaseNode<?> node = new GPBaseNode(func);
+			nodesByName.put(func.name(), new GPNode[] { node });
 			final Parameter pp = p.push("" + j);
 			j++;
-			func.setup(state, pp);
-			tmp.addElement(func);
+			node.setup(state, pp);
+			tmp.addElement(node);
 		}
 
 		// final Parameter p = base.push(P_FUNC);

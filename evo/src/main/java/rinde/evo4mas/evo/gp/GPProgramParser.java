@@ -2,14 +2,18 @@ package rinde.evo4mas.evo.gp;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,37 +84,88 @@ public class GPProgramParser {
 		return Character.isLetter(ch) || Character.isDigit(ch) || ch == '.';
 	}
 
-	public static <T> GPProgram<T> parseProgram(String program, Collection<GPFunc<T>> functions) {
-		final Map<String, GPFunc<T>> funcMap = newHashMap();
-		for (final GPFunc<T> func : functions) {
+	public static <T> GPProgram<T> parseProgram(String program, Collection<GPBaseNode<T>> functions) {
+		final Map<String, GPBaseNode<T>> funcMap = newHashMap();
+		for (final GPBaseNode<T> func : functions) {
 			funcMap.put(func.name(), func);
 		}
 
 		final Node n = new Node("super");
 		parseProgram(fixBraces(program), 0, n);
-		return new GPProgram<T>(convert(n.children.get(0), funcMap));
+		return convertToGPProgram(convert(n.children.get(0), funcMap));
 	}
 
-	// public static GPNode copy(GPNode node) {
-	// final GPNode copy = new SuperNode(node.name(), node.children.length);
-	// copy.children = new GPNode[node.children.length];
-	// for (int i = 0; i < node.children.length; i++) {
-	// copy.children[i] = copy(node.children[i]);
-	// }
-	// return copy;
-	// }
+	public static <T> GPProgram<T> parseProgramFunc(String program, Collection<GPFunc<T>> functions) {
+		final Map<String, GPBaseNode<T>> funcMap = newHashMap();
+		for (final GPFunc<T> func : functions) {
+			funcMap.put(func.name(), new GPBaseNode<T>(func));
+		}
+		final Node n = new Node("super");
+		parseProgram(fixBraces(program), 0, n);
+		return convertToGPProgram(convert(n.children.get(0), funcMap));
+	}
 
-	private static <T> GPFunc<T> convert(Node n, Map<String, GPFunc<T>> funcMap) {
+	@SuppressWarnings("unchecked")
+	public static <C> GPProgram<C> convertToGPProgram(GPBaseNode<C> root) {
+
+		final List<GPNode> list = newArrayList();
+		final Queue<GPNode> head = newLinkedList();
+		head.add(root);
+
+		while (!head.isEmpty()) {
+			final GPNode cur = head.poll();
+			if (cur.children.length > 0) {
+				for (int i = 0; i < cur.children.length; i++) {
+					head.add(cur.children[i]);
+				}
+			}
+			list.add(cur);
+		}
+
+		Collections.reverse(list);
+		final Map<GPBaseNode<C>, GPFuncNode<C>> map = newHashMap();
+		for (final GPNode n : list) {
+			if (n.children.length == 0) {
+				map.put((GPBaseNode<C>) n, new GPFuncNode<C>(((GPBaseNode<C>) n).getFunc()));
+			} else {
+				final GPFuncNode<C>[] arr = new GPFuncNode[n.children.length];
+				for (int i = 0; i < arr.length; i++) {
+					arr[i] = map.get(n.children[i]);
+				}
+				map.put((GPBaseNode<C>) n, new GPFuncNode<C>(((GPBaseNode<C>) n).getFunc(), arr));
+			}
+		}
+		return new GPProgram<C>(map.get(root));
+	}
+
+	public static String toLisp(GPProgram<?> prog) {
+		return toLisp(prog.root);
+	}
+
+	public static String toLisp(GPFuncNode<?> node) {
+		if (node.getNumChildren() == 0) {
+			return node.getFunction().name();
+		} else {
+			final StringBuilder sb = new StringBuilder("(");
+			sb.append(node.getFunction().name());
+			for (int x = 0; x < node.getNumChildren(); x++) {
+				sb.append(" ").append(toLisp(node.getChild(x)));
+			}
+			return sb.append(")").toString();
+		}
+	}
+
+	private static <T> GPBaseNode<T> convert(Node n, Map<String, GPBaseNode<T>> funcMap) {
 		// final GPNode gpnode = new GPFunc(n.name, n.children.size());
 		checkArgument(funcMap.containsKey(n.name), "The function with name: \"" + n.name
 				+ "\" is not known to the parser.");
-		final GPFunc<T> func = funcMap.get(n.name).create();
-		func.children = new GPNode[n.children.size()];
-		checkState(n.children.size() == func.getNumChildren(), "the supplied program is invalid, the number of children does not match the expected number of children");
+		final GPBaseNode<T> node = funcMap.get(n.name).create();
+		node.children = new GPBaseNode[n.children.size()];
+		checkState(n.children.size() == node.getNumChildren(), "the supplied program is invalid, the number of children does not match the expected number of children");
 		for (int i = 0; i < n.children.size(); i++) {
-			func.children[i] = convert(n.children.get(i), funcMap);
+			node.children[i] = convert(n.children.get(i), funcMap);
 		}
-		return func;
+		return node;
 	}
 
 	static class Node {

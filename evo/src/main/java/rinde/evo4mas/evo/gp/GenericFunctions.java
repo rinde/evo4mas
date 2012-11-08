@@ -113,10 +113,12 @@ public class GenericFunctions {
 		// protected division
 		@Override
 		public double execute(double[] input, T context) {
-			if (input[1] == 0d) {
+			final double val0 = input[0];
+			final double val1 = input[1];
+			if (val1 == 0d) {
 				return 1d;
 			}
-			return input[0] / input[1];
+			return val0 / val1;
 		}
 	}
 

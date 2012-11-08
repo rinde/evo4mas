@@ -5,18 +5,18 @@ package rinde.evo4mas.evo.gp;
 
 import java.io.Serializable;
 
-import ec.gp.GPNode;
-
 /**
+ * immutable
+ * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
 public class GPProgram<C> implements Serializable {
 
 	private static final long serialVersionUID = 2873071674972923971L;
-	protected final GPFunc<C> root;
+	protected final GPFuncNode<C> root;
 
-	public GPProgram(GPFunc<C> rootNode) {
+	public GPProgram(GPFuncNode<C> rootNode) {
 		root = rootNode;
 	}
 
@@ -24,22 +24,21 @@ public class GPProgram<C> implements Serializable {
 		return executeNode(root, context);
 	}
 
-	protected double executeNode(GPFunc<C> current, C context) {
-		final GPNode[] children = current.children;
-		final double[] vals = new double[children == null ? 0 : children.length];
+	protected double executeNode(GPFuncNode<C> current, C context) {
+		final double[] vals = new double[current.getNumChildren()];
 		for (int i = 0; i < vals.length; i++) {
-			vals[i] = executeNode((GPFunc<C>) children[i], context);
+			vals[i] = executeNode(current.getChild(i), context);
 		}
-		return current.execute(vals, context);
+		return current.getFunction().execute(vals, context);
 	}
 
 	@Override
 	public String toString() {
-		return root.makeLispTree();
+		return GPProgramParser.toLisp(this);
 	}
 
 	@Override
 	public GPProgram<C> clone() {
-		return new GPProgram<C>((GPFunc<C>) root.clone());
+		return new GPProgram<C>(root);
 	}
 }

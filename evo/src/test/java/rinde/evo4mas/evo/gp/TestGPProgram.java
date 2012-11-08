@@ -35,6 +35,14 @@ public class TestGPProgram {
 
 	@Test
 	public void test() {
+
+		// final GPBaseNode<Object> node =
+		// GPProgramParser.parseProgramFunc("(sub 1.0 0.0)", functionList);
+		//
+		// final GPProgram<Object> prog =
+		// GPProgramCreator.convertToGPProgram(node, Object.class);
+		// System.out.println(GPProgramParser.toLisp(prog));
+
 		assertFunc(1, "(sub 1.0 0.0)");
 		assertFunc(216, "(pow (div (sub (mul 10.0 2.0) 8.0) 2.0) 3.0)");
 		assertFunc(4, "(pow 2.0 2.0)");
@@ -42,6 +50,6 @@ public class TestGPProgram {
 	}
 
 	public void assertFunc(double expectedValue, String func) {
-		assertEquals(expectedValue, GPProgramParser.parseProgram(func, functionList).execute(null), PRECISION);
+		assertEquals(expectedValue, GPProgramParser.parseProgramFunc(func, functionList).execute(null), PRECISION);
 	}
 }
