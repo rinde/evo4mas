@@ -19,7 +19,7 @@ import rinde.evo4mas.evo.gp.GenericFunctions.Mul;
 import rinde.evo4mas.evo.gp.GenericFunctions.Pow;
 import rinde.evo4mas.evo.gp.GenericFunctions.Sub;
 import rinde.sim.core.graph.Point;
-import rinde.sim.problem.fabrirecht.ParcelDTO;
+import rinde.sim.problem.common.ParcelDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

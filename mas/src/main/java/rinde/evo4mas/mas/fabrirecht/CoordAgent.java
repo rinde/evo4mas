@@ -4,7 +4,7 @@
 package rinde.evo4mas.mas.fabrirecht;
 
 import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.problem.fabrirecht.ParcelDTO;
+import rinde.sim.problem.common.ParcelDTO;
 
 /**
  * 

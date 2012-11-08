@@ -6,9 +6,8 @@ package rinde.evo4mas.mas.fabrirecht;
 import java.util.List;
 
 import rinde.evo4mas.evo.gp.GPComputationResult;
-import rinde.evo4mas.evo.gp.GPFitness;
 import rinde.evo4mas.evo.gp.GPStats;
-import rinde.sim.problem.fabrirecht.FabriRechtProblem.StatisticsDTO;
+import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import ec.EvolutionState;
 import ec.Individual;
 
@@ -44,9 +43,11 @@ public class EvoStatistics extends GPStats {
 				best = state.population.subpops[0].individuals[y];
 			}
 		}
-		final List<GPComputationResult> list = ((GPFitness<GPComputationResult>) best.fitness).getResults();
+		// final List<GPComputationResult> list =
+		// ((GPFitness<GPComputationResult>) best.fitness).getResults();
 
-		((FREvaluator) state.evaluator)
-				.testOnTestSet(((FRSimulationDTO) list.get(0).getComputationJob()).truckHeuristic.clone());
+		// ((FREvaluator) state.evaluator)
+		// .testOnTestSet( ((FRSimulationDTO)
+		// list.get(0).getComputationJob()).truckHeuristic.clone());
 	}
 }

@@ -3,65 +3,78 @@
  */
 package rinde.evo4mas.mas.fabrirecht;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import org.jppf.task.storage.DataProvider;
 
-import rinde.cloud.javainterface.Computer;
+import rinde.evo4mas.evo.gp.ComputationTask;
+import rinde.evo4mas.evo.gp.GPProgram;
+import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
-import rinde.sim.problem.fabrirecht.FabriRechtProblem.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class FRSimulationComputer implements Computer<FRSimulationDTO, FRResultDTO> {
+public class FRSimulationTask extends ComputationTask<FRResultDTO> {
 
-	public FRSimulationComputer() {}
+	private final String scenarioKey;
+	private final GPProgram<FRContext> program;
+	private final int numVehicles;
+	private final int vehicleCapacity;
 
-	public FRResultDTO compute(FRSimulationDTO job) {
+	public FRSimulationTask(String scenario, GPProgram<FRContext> p, int pNumVehicles, int pVehicleCapacity) {
+		scenarioKey = scenario;
+		program = p;
+		numVehicles = pNumVehicles;
+		vehicleCapacity = pVehicleCapacity;
+	}
 
-		// final BufferedReader reader = ;
-		// /reader.
+	public void run() {
+		final DataProvider dataProvider = getDataProvider();
 
-		// TODO scenario caching!
-		FabriRechtScenario scen = null;
-		try {
-			scen = FabriRechtParser.fromJson(new BufferedReader(new FileReader(job.scenarioFile)));
-		} catch (final FileNotFoundException e) {
-			throw new RuntimeException(e);
-		}
 		Simulation s = null;
 		try {
-			s = new Simulation(scen, job.truckHeuristic);
-			s.start();
+			final FabriRechtScenario scenario = FabriRechtParser
+					.fromJson((String) dataProvider.getValue(scenarioKey), numVehicles, vehicleCapacity);
+			s = new Simulation(scenario, program);
+
+			final StatisticsDTO stat = s.start();
+			float fitness;
+			if (!stat.simFinish || stat.acceptedParcels != stat.totalDeliveries || stat.acceptedParcels == 0) {
+				fitness = Float.MAX_VALUE;
+			} else {
+
+				// final float rejectionPenalty = (stat.totalParcels -
+				// stat.acceptedParcels);// *
+				// 1000f;
+
+				// final float pickupFailPenalty = (stat.acceptedParcels -
+				// stat.totalPickups) * 50f;
+				// final float deliveryFailPenalty = (stat.acceptedParcels -
+				// stat.totalDeliveries) * 50f;
+
+				// fitness = rejectionPenalty + pickupFailPenalty +
+				// deliveryFailPenalty + stat.pickupTardiness
+				// + stat.deliveryTardiness + (float) stat.totalDistance;
+
+				// final float distPenalty = 1f - (1f / (float)
+				// stat.totalDistance);
+				// fitness = rejectionPenalty + distPenalty;
+				fitness = (float) stat.costPerDemand;
+			}
+			setResult(new FRResultDTO(scenarioKey, program, stat, fitness));
 		} catch (final Exception e) {
-			throw new RuntimeException("Failed simulation job: " + job, e);
+			throw new RuntimeException("Failed simulation task: " + program, e);
 		}
+	}
 
-		final StatisticsDTO stat = s.getStatistics();
-		float fitness;
-		if (s.isShutDownPrematurely() || stat.acceptedParcels != stat.totalDeliveries) {
-			fitness = Float.MAX_VALUE;
-		} else {
+	@Override
+	public String getGPId() {
+		return program.toString();
+	}
 
-			final float rejectionPenalty = (stat.totalParcels - stat.acceptedParcels);// *
-																						// 1000f;
-
-			// final float pickupFailPenalty = (stat.acceptedParcels -
-			// stat.totalPickups) * 50f;
-			// final float deliveryFailPenalty = (stat.acceptedParcels -
-			// stat.totalDeliveries) * 50f;
-
-			// fitness = rejectionPenalty + pickupFailPenalty +
-			// deliveryFailPenalty + stat.pickupTardiness
-			// + stat.deliveryTardiness + (float) stat.totalDistance;
-
-			final float distPenalty = 1f - (1f / (float) stat.totalDistance);
-			fitness = rejectionPenalty + distPenalty;
-		}
-
-		return new FRResultDTO(job, stat, fitness);
+	@Override
+	public FRResultDTO getComputationResult() {
+		return (FRResultDTO) getResult();
 	}
 }

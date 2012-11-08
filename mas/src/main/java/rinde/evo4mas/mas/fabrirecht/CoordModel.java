@@ -13,35 +13,37 @@ import java.util.Map;
 import java.util.Set;
 
 import rinde.sim.core.model.Model;
+import rinde.sim.core.model.ModelProvider;
+import rinde.sim.core.model.ModelReceiver;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.PDPModelEvent;
 import rinde.sim.core.model.pdp.PDPModel.PDPModelEventType;
 import rinde.sim.event.Event;
 import rinde.sim.event.Listener;
-import rinde.sim.problem.fabrirecht.FRParcel;
-import rinde.sim.problem.fabrirecht.ParcelAssesor;
-import rinde.sim.problem.fabrirecht.ParcelDTO;
+import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.problem.common.ParcelDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class CoordModel implements Model<CoordAgent>, Listener, ParcelAssesor {
+public class CoordModel implements Model<CoordAgent>, Listener, ModelReceiver {
 	Set<CoordAgent> knownAgents;
 	// protected final Map<Parcel, ServiceAssignment> parcelAssignments;
 	// protected final Map<CoordAgent, Parcel> agentParcelAssignments;
 
-	protected final PDPModel pdpModel;
-
 	Map<ParcelDTO, CoordAgent> assignments;
 
-	public CoordModel(PDPModel pm) {
+	public CoordModel() {
 		// parcelAssignments = newLinkedHashMap();
 		// agentParcelAssignments = newLinkedHashMap();
 		knownAgents = newLinkedHashSet();
-		pdpModel = pm;
-		pdpModel.getEventAPI().addListener(this, PDPModelEventType.NEW_PARCEL);
 		assignments = newLinkedHashMap();
+	}
+
+	public void registerModelProvider(ModelProvider mp) {
+		// TODO Auto-generated method stub
+		mp.getModel(PDPModel.class).getEventAPI().addListener(this, PDPModelEventType.NEW_PARCEL);
 	}
 
 	// public boolean canServe(Parcel p, double val) {
@@ -94,7 +96,7 @@ public class CoordModel implements Model<CoordAgent>, Listener, ParcelAssesor {
 
 	public void handleEvent(Event e) {
 		final PDPModelEvent pe = (PDPModelEvent) e;
-		final FRParcel newParcel = (FRParcel) pe.parcel;
+		final DefaultParcel newParcel = (DefaultParcel) pe.parcel;
 		if (assignments.containsKey(newParcel.dto)) {
 			final CoordAgent ca = assignments.get(newParcel.dto);
 			ca.receiveOrder(newParcel);
@@ -104,13 +106,11 @@ public class CoordModel implements Model<CoordAgent>, Listener, ParcelAssesor {
 	public boolean acceptParcel(ParcelDTO dto) {
 		if (dto.pickupTimeWindow.length() < dto.pickupDuration
 				|| dto.deliveryTimeWindow.length() < dto.deliveryDuration) {
-			// System.out.println("kickout impossible parcel");
+			System.out.println("kickout impossible parcel");
 			return false;
 		}
 
 		// do auction for every newly arrived parcel
-
-		// System.out.println(knownAgents.size());
 		final List<Bid> bids = newArrayList();
 		for (final CoordAgent a : knownAgents) {
 			bids.add(new Bid(a, a.getCost(dto)));
@@ -119,14 +119,18 @@ public class CoordModel implements Model<CoordAgent>, Listener, ParcelAssesor {
 
 		// System.out.println(bids);
 
+		System.out.println("Accept parcel? " + dto);
 		for (final Bid b : bids) {
 			if (b.bidder.isFeasible(dto)) {
+				System.out.println(" > ACCEPT");
 				// the assignment is saved here. it will be added as soon as the
 				// parcel is created on the map.
 				assignments.put(dto, b.bidder);
 				return true;
 			}
+			System.out.println(" > not yet ..");
 		}
+		System.out.println(" > NO");
 		// System.out.println("the new parcel could not be assigned to anyone");
 		return false;
 	}
@@ -149,4 +153,5 @@ public class CoordModel implements Model<CoordAgent>, Listener, ParcelAssesor {
 			return new StringBuilder("[").append(bidder).append(",").append(cost).append("]").toString();
 		}
 	}
+
 }

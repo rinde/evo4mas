@@ -5,9 +5,10 @@ package rinde.evo4mas.mas.fabrirecht;
 
 import org.eclipse.swt.graphics.GC;
 
+import rinde.sim.core.model.ModelProvider;
+import rinde.sim.core.model.ModelReceiver;
 import rinde.sim.core.model.road.RoadModel;
-import rinde.sim.ui.renderers.ModelProvider;
-import rinde.sim.ui.renderers.ModelRenderer;
+import rinde.sim.ui.renderers.Renderer;
 import rinde.sim.ui.renderers.ViewPort;
 import rinde.sim.ui.renderers.ViewRect;
 
@@ -15,7 +16,7 @@ import rinde.sim.ui.renderers.ViewRect;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class CoordModelRenderer implements ModelRenderer {
+public class CoordModelRenderer implements ModelReceiver, Renderer {
 
 	protected CoordModel cm;
 	protected RoadModel rm;

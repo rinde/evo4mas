@@ -12,7 +12,7 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
-import rinde.sim.problem.fabrirecht.AddParcelEvent;
+import rinde.sim.problem.common.AddParcelEvent;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.ScenarioBuilder;
@@ -62,9 +62,11 @@ public class FileImporter {
 				scenarios++;
 				boolean faultyScenario = false;
 				int nop = 0;
+				int apes = 0;
 				for (final TimedEvent te : scen.asList()) {
 
 					if (te instanceof AddParcelEvent) {
+						apes++;
 						final AddParcelEvent ape = (AddParcelEvent) te;
 						totalTimeWindows += 2;
 
@@ -85,21 +87,19 @@ public class FileImporter {
 					faultyScenarios++;
 				}
 
-				checkState(ScenarioBuilder.isTimeOrderingConsistent(scen), "bummer");
+				if (apes == 0) {
+					System.err.println(name + " is empty");
+				} else {
+					checkState(ScenarioBuilder.isTimeOrderingConsistent(scen), "bummer");
+					FabriRechtParser.toJson(scen, new FileWriter(d.getAbsolutePath() + "/" + name + ".scenario"));
 
-				FabriRechtParser.toJson(scen, new FileWriter(d.getAbsolutePath() + "/" + name + ".scenario"));
+					final FabriRechtScenario scen2 = FabriRechtParser.fromJson(new FileReader(d.getAbsolutePath() + "/"
+							+ name + ".scenario"));
 
-				final FabriRechtScenario scen2 = FabriRechtParser.fromJson(new FileReader(d.getAbsolutePath() + "/"
-						+ name + ".scenario"));
-
-				// if (name.equals("lc101")) {
-				// System.out.println(scen2.asList());
-				// }
-
-				checkState(ScenarioBuilder.isTimeOrderingConsistent(scen2), "bummer2");
-				checkState(scen.equals(scen2));
+					checkState(ScenarioBuilder.isTimeOrderingConsistent(scen2), "bummer2");
+					checkState(scen.equals(scen2));
+				}
 			}
-
 		}
 
 		System.out.println(notPossible + " / " + totalTimeWindows + "     " + faultyScenarios + " / " + scenarios);

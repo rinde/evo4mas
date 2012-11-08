@@ -10,6 +10,7 @@ import java.util.Collection;
 import rinde.evo4mas.evo.gp.GPFunc;
 import rinde.evo4mas.evo.gp.GPProgram;
 import rinde.evo4mas.evo.gp.GPProgramParser;
+import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.ConfigurationException;
@@ -22,7 +23,7 @@ public class ProgramTester {
 
 	public static void main(String[] args) throws FileNotFoundException, ConfigurationException {
 		final FabriRechtScenario scenario = FabriRechtParser.fromJson(new FileReader(
-				"files/scenarios/fabri-recht/pdp100_mitAnrufzeit/lc109.scenario"));
+				"files/scenarios/fabri-recht/pdp100_mitAnrufzeit/lc109.scenario"), 10, 4);
 		final Collection<GPFunc<FRContext>> funcs = new GPFunctions().create();
 		// final String progString =
 		// "(add (div (mul dist ado) (mul 0.0 dist)) (if4 (add (div urge urge) (mul urge 0.0)) (add (mul dist ado) (sub ado ado)) (if4 (add (div urge urge) (mul urge 0.0)) (add (mul dist ado) (sub ado ado)) (add (mul est ado) (mul 1.0 mido)) (if4 (sub dist mado) (sub urge ado) (sub ado ado) (div mado dist))) (if4 (sub dist mado) (sub urge ado) (mul mado ado) (div est dist))))";
@@ -41,20 +42,25 @@ public class ProgramTester {
 		// "(add (add (pow ado mido) (add (pow urge est) (add (add (pow (div mido dist) (add urge est)) (div (add (mul mado 0.0) (pow ttl est)) (mul (add urge dist) (pow (sub 1.0 mido) 1.0)))) (mul (mul ttl 1.0) (div (mul mido 0.0) (mul ttl ado)))))) (add (add (pow (div mido dist) (add urge est)) (sub (if4 0.0 ado mido (mul mido 0.0)) (pow dist 1.0))) (div (sub (div (add (pow ado urge) (mul ttl urge)) (sub (add (pow ado urge) (pow dist dist)) urge)) (sub (if4 ttl dist 0.0 est) (pow ttl est))) (sub (div (sub (pow mido ado) urge) (sub 1.0 mido)) (sub (if4 ttl dist ttl est) (mul mido 0.0))))))";
 
 		final String progString = "(sub (pow (pow 1.0 ado) (add mido mido)) (div (add mido mido) (pow (sub 1.0 est) (add ado 1.0))))";
+		// final String best =
+		// "(if4 (div (mul (sub dist mido) mado) (sub 1.0 0.0)) (add mado (div (add (div (div mido 1.0) mido) (mul (if4 mido urge 1.0 ado) (mul mado ttl))) (if4 mado mido (mul (mul (if4 (sub 1.0 dist) 0.0 urge ado) (mul (sub (pow ttl 0.0) (pow (mul (sub dist mido) (add mado (div 0.0 ttl))) (if4 (if4 urge dist mado est) (if4 0.0 urge urge mado) (mul mado ttl) (div 0.0 ado)))) (add (if4 0.0 dist dist (if4 (div (sub urge mido) (sub est ttl)) (pow mido est) (div (add ado urge) mido) (mul (add dist dist) (div mido 1.0)))) (sub (add 1.0 urge) (pow (mul (if4 1.0 ado ado urge) (add mado (div 0.0 ttl))) (if4 (pow (add mado dist) 0.0) (if4 0.0 urge urge mado) (mul mado ttl) (div 0.0 ado))))))) (sub (add 1.0 urge) (pow (if4 0.0 dist dist mido) (if4 (add mido 0.0) (if4 0.0 urge urge mado) (pow ttl 1.0) (div 0.0 ado))))) (sub urge mido)))) (if4 ado urge 1.0 urge) (if4 (add mido 0.0) (sub ado mido) (add ado urge) (pow ttl 1.0)))";
 
-		final GPProgram<FRContext> prog = GPProgramParser.parseProgram(progString, funcs);
+		// 23/10/2012
+		final String best = "(pow (pow dist (pow ttl 1.0)) (mul (div (sub (add est 0.0) (sub est mido)) 1.0) (sub (mul (sub 0.0 urge) (if4 (if4 (mul (div (sub (add est 0.0) (sub est mido)) 1.0) (sub (pow (mul ttl (mul (if4 est 0.0 0.0 mado) (add mido 0.0))) mado) (pow ttl (mul (if4 urge 0.0 0.0 mado) (sub mado 0.0))))) (if4 (if4 (sub (mul ado (mul mido mado)) (pow (pow ado mado) mado)) (if4 urge (sub mado ado) (mul mido 1.0) (pow (pow ado mado) ttl)) (if4 (div mado dist) (div est 0.0) (div dist (sub mido est)) (mul est ado)) (if4 (pow dist (pow ttl (mul (if4 (div (pow urge (mul 0.0 mido)) (add mido 0.0)) (add ado mado) (add mado mido) (mul mido mido)) (sub mado 0.0)))) (mul urge 0.0) (if4 mado 0.0 0.0 (if4 est dist dist ttl)) (add est ado))) urge dist 0.0) est dist) (div (add mado mido) (pow ttl 1.0)) (mul urge 1.0) (add (mul 0.0 (sub (mul (pow ttl (mul (mul mado est) (pow (pow dist (add (pow (add 0.0 ttl) 1.0) (mul 1.0 0.0))) (mul (div (sub (add est 0.0) (sub est mido)) 1.0) (sub (mul ado (mul mido mado)) (pow (pow ado mado) mado)))))) (add 0.0 mido)) est)) (mul (pow (pow (pow dist ttl) urge) 1.0) (add (sub mido mado) (pow dist (pow (div 0.0 mido) (pow (mul ttl mado) (sub ttl 0.0))))))))) (pow (pow ado mado) mado))))";
+
+		// best = "(add dist 0.0)";
+
+		final GPProgram<FRContext> prog = GPProgramParser.parseProgramFunc(best, funcs);
 		// assertEquals(progString, prog.toString());
 
-		final boolean useGui = true;
+		final boolean useGui = false;
 		final Simulation sim = new Simulation(scenario, prog, useGui);
-		if (!useGui) {
-			sim.start();
-		}
-		if (sim.isShutDownPrematurely()) {
+
+		final StatisticsDTO stats = sim.start();
+		if (!stats.simFinish) {
 			System.err.println("SIMULATION DID NOT RUN CORRECTLY");
 		}
-		System.out.println(sim.getStatistics());
+		System.out.println(stats);
 
 	}
-
 }
