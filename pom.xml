@@ -1,49 +1,46 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>evo4mas</groupId>
-  <artifactId>evo4mas</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
-  <modules>
-  	<module>evo</module>
-  	<module>mas</module>
-  </modules>
-  <dependencies>
-  	<dependency>
-  		<groupId>rinsim</groupId>
-  		<artifactId>core</artifactId>
-  		<version>2.0.1-SNAPSHOT</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>com.google.guava</groupId>
-  		<artifactId>guava</artifactId>
-  		<version>12.0</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>edu.gmu.cs</groupId>
-  		<artifactId>ecj</artifactId>
-  		<version>20.0</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>rinsim</groupId>
-  		<artifactId>problem</artifactId>
-  		<version>2.0.1-SNAPSHOT</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>rinsim</groupId>
-  		<artifactId>ui</artifactId>
-  		<version>2.0.1-SNAPSHOT</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>junit</groupId>
-  		<artifactId>junit</artifactId>
-  		<version>4.10</version>
-  		<scope>test</scope>
-  	</dependency>
-  	<dependency>
-  		<groupId>ch.qos.logback</groupId>
-  		<artifactId>logback-classic</artifactId>
-  		<version>1.0.6</version>
-  	</dependency>
-  </dependencies>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.github.rinde</groupId>
+	<artifactId>evo4mas</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+
+	<name>Evo 4 MAS</name>
+	<description>Evolutionary algorithms for designing multi-agent systems for logistics.</description>
+	<url>http://github.com/rinde/evo4mas</url>
+	<inceptionYear>2012</inceptionYear>
+
+	<properties>
+		<rinsim.version>2.0.1-SNAPSHOT</rinsim.version>
+		<rinecj.version>0.0.1-SNAPSHOT</rinecj.version>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>rinsim</groupId>
+			<artifactId>core</artifactId>
+			<version>${rinsim.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>rinsim</groupId>
+			<artifactId>problem</artifactId>
+			<version>${rinsim.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>rinsim</groupId>
+			<artifactId>ui</artifactId>
+			<version>${rinsim.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>RinECJ</groupId>
+			<artifactId>RinECJ</artifactId>
+			<version>${rinecj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.10</version>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>
