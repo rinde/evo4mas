@@ -1,7 +1,6 @@
 *.class
 *.stat
-mas/target/**
-mas/files/deploy/deploy.xml
+target/*
 # Package Files #
 *.war
 *.ear
