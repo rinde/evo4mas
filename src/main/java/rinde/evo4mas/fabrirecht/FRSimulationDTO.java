@@ -1,11 +1,11 @@
-package rinde.evo4mas.mas.fabrirecht;
+package rinde.evo4mas.fabrirecht;
 
 import static java.util.Arrays.asList;
 
 import java.util.List;
 
 import rinde.ecj.GPProgram;
-import rinde.evo4mas.mas.common.TruckContext;
+import rinde.evo4mas.common.TruckContext;
 
 /**
  * 

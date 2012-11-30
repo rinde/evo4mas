@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.fabrirecht;
+package rinde.evo4mas.fabrirecht;
 
 import static com.google.common.base.Preconditions.checkState;
 

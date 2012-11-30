@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.gendreau06;
+package rinde.evo4mas.gendreau06;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -21,9 +21,9 @@ import rinde.ecj.GPBaseNode;
 import rinde.ecj.GPEvaluator;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
-import rinde.evo4mas.mas.common.ExperimentUtil;
-import rinde.evo4mas.mas.common.ResultDTO;
-import rinde.evo4mas.mas.common.TruckContext;
+import rinde.evo4mas.common.ExperimentUtil;
+import rinde.evo4mas.common.ResultDTO;
+import rinde.evo4mas.common.TruckContext;
 import ec.EvolutionState;
 import ec.gp.GPTree;
 

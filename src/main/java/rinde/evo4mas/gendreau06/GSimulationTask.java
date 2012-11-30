@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.gendreau06;
+package rinde.evo4mas.gendreau06;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -10,8 +10,8 @@ import org.jppf.task.storage.DataProvider;
 
 import rinde.ecj.ComputationTask;
 import rinde.ecj.GPProgram;
-import rinde.evo4mas.mas.common.ResultDTO;
-import rinde.evo4mas.mas.common.TruckContext;
+import rinde.evo4mas.common.ResultDTO;
+import rinde.evo4mas.common.TruckContext;
 import rinde.sim.core.Simulator;
 import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.DynamicPDPTWProblem;

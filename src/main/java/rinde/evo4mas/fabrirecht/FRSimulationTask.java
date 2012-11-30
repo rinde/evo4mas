@@ -1,14 +1,14 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.fabrirecht;
+package rinde.evo4mas.fabrirecht;
 
 import org.jppf.task.storage.DataProvider;
 
 import rinde.ecj.ComputationTask;
 import rinde.ecj.GPProgram;
-import rinde.evo4mas.mas.common.ResultDTO;
-import rinde.evo4mas.mas.common.TruckContext;
+import rinde.evo4mas.common.ResultDTO;
+import rinde.evo4mas.common.TruckContext;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;

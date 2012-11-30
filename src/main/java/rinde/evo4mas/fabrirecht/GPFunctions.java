@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.fabrirecht;
+package rinde.evo4mas.fabrirecht;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.Math.max;
@@ -18,7 +18,7 @@ import rinde.ecj.GenericFunctions.If4;
 import rinde.ecj.GenericFunctions.Mul;
 import rinde.ecj.GenericFunctions.Pow;
 import rinde.ecj.GenericFunctions.Sub;
-import rinde.evo4mas.mas.common.TruckContext;
+import rinde.evo4mas.common.TruckContext;
 import rinde.sim.core.graph.Point;
 import rinde.sim.problem.common.ParcelDTO;
 

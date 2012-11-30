@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.fabrirecht;
+package rinde.evo4mas.fabrirecht;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
@@ -26,9 +26,9 @@ import rinde.ecj.GPEvaluator;
 import rinde.ecj.GPEvaluator.ComputationStrategy;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
-import rinde.evo4mas.mas.common.ExperimentUtil;
-import rinde.evo4mas.mas.common.ResultDTO;
-import rinde.evo4mas.mas.common.TruckContext;
+import rinde.evo4mas.common.ExperimentUtil;
+import rinde.evo4mas.common.ResultDTO;
+import rinde.evo4mas.common.TruckContext;
 import ec.EvolutionState;
 import ec.gp.GPTree;
 import ec.util.Parameter;

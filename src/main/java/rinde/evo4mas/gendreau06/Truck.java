@@ -1,4 +1,4 @@
-package rinde.evo4mas.mas.gendreau06;
+package rinde.evo4mas.gendreau06;
 
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
@@ -6,7 +6,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import rinde.ecj.GPProgram;
-import rinde.evo4mas.mas.common.TruckContext;
+import rinde.evo4mas.common.TruckContext;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;

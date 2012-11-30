@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.fabrirecht;
+package rinde.evo4mas.fabrirecht;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -10,7 +10,9 @@ import java.util.Collection;
 import rinde.ecj.GPFunc;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
-import rinde.evo4mas.mas.common.TruckContext;
+import rinde.evo4mas.common.TruckContext;
+import rinde.evo4mas.fabrirecht.GPFunctions;
+import rinde.evo4mas.fabrirecht.Simulation;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;

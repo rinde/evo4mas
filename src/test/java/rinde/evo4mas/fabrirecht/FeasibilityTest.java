@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.fabrirecht;
+package rinde.evo4mas.fabrirecht;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
@@ -15,7 +15,10 @@ import org.junit.Test;
 
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
-import rinde.evo4mas.mas.common.TruckContext;
+import rinde.evo4mas.common.TruckContext;
+import rinde.evo4mas.fabrirecht.CoordModel;
+import rinde.evo4mas.fabrirecht.GPFunctions;
+import rinde.evo4mas.fabrirecht.Simulation;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPScenarioEvent;
 import rinde.sim.problem.common.AddDepotEvent;

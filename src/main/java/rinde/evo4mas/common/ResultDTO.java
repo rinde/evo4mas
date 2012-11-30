@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.mas.common;
+package rinde.evo4mas.common;
 
 import java.io.Serializable;
 
