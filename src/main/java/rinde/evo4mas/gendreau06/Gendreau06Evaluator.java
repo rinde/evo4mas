@@ -7,9 +7,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Collections.unmodifiableList;
 
-import java.io.BufferedReader;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
@@ -53,27 +51,16 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 		scenarioCache = newHashMap();
 		try {
 			for (final String s : testSet) {
-				scenarioCache.put(s, readScenarioFile(s));
+				scenarioCache.put(s, ExperimentUtil.textFileToString(s));
 			}
 			for (final String s : trainSet) {
-				scenarioCache.put(s, readScenarioFile(s));
+				scenarioCache.put(s, ExperimentUtil.textFileToString(s));
 			}
 		} catch (final FileNotFoundException e) {
 			throw new RuntimeException(e);
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	private String readScenarioFile(String file) throws IOException {
-		final StringBuilder sb = new StringBuilder();
-		final BufferedReader bf = new BufferedReader(new FileReader(file));
-		String line;
-		while ((line = bf.readLine()) != null) {
-			sb.append(line);
-		}
-		return sb.toString();
-
 	}
 
 	List<String> getCurrentScenarios(EvolutionState state) {

@@ -5,8 +5,11 @@ package rinde.evo4mas.common;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -44,6 +47,17 @@ public class ExperimentUtil {
 			}
 		}
 		return set;
+	}
+
+	public static String textFileToString(String file) throws IOException {
+		final StringBuilder sb = new StringBuilder();
+		final BufferedReader bf = new BufferedReader(new FileReader(file));
+		String line;
+		while ((line = bf.readLine()) != null) {
+			sb.append(line + "\n");
+		}
+		return sb.toString();
+
 	}
 
 }

@@ -60,7 +60,7 @@ class Truck extends DefaultVehicle {
 	protected void tickImpl(TimeLapse time) {
 		try {
 
-			if (currentTarget == null && time.hasTimeLeft()) {
+			if ((currentTarget == null || !roadModel.containsObject(currentTarget)) && time.hasTimeLeft()) {
 				currentTarget = next(time.getTime());
 			}
 
