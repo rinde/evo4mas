@@ -32,8 +32,8 @@
 			<version>${rinsim.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>RinECJ</groupId>
-			<artifactId>RinECJ</artifactId>
+			<groupId>com.github.rinde</groupId>
+			<artifactId>rinecj</artifactId>
 			<version>${rinecj.version}</version>
 		</dependency>
 		<dependency>
