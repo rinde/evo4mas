@@ -11,6 +11,7 @@ import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
 import rinde.evo4mas.common.TruckContext;
 import rinde.evo4mas.fabrirecht.GPFunctions;
+import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -31,9 +32,14 @@ public class ProgramTest {
 		final GPProgram<TruckContext> prog = GPProgramParser.parseProgramFunc(progString, funcs);
 
 		final GSimulationTask task = GSimulationTask
-				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 5, true);
+				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, true);
 
 		task.run();
+
+		final Gendreau06ObjectiveFunction obj = new Gendreau06ObjectiveFunction();
+
+		System.out.println(obj.computeCost(task.getComputationResult().stats));
+		System.out.println(obj.printHumanReadableFormat(task.getComputationResult().stats));
 
 		System.out.println(task.getComputationResult());
 

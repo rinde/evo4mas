@@ -56,7 +56,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, TruckContext> {
 
 			final Gendreau06Scenario scenario = Gendreau06Parser.parse(new BufferedReader(new StringReader(
 					scenarioString)), scenarioKey, numVehicles);
-			final DynamicPDPTWProblem problem = new DynamicPDPTWProblem(scenario, 123);
+			final DynamicPDPTWProblem problem = new DynamicPDPTWProblem(scenario, 123, new CoordinationModel());
 			problem.addCreator(AddVehicleEvent.class, new Creator<AddVehicleEvent>() {
 				public boolean create(Simulator sim, AddVehicleEvent event) {
 					return sim.register(new Truck(event.vehicleDTO, program));
@@ -66,7 +66,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, TruckContext> {
 			final StatisticsDTO stats = problem.simulate();
 			final boolean isValid = objFunc.isValidResult(stats);
 			final float fitness = isValid ? (float) objFunc.computeCost(stats) : Float.MAX_VALUE;
-			setResult(new ResultDTO(scenarioKey, null, stats, fitness));
+			setResult(new ResultDTO(scenarioKey, program, stats, fitness));
 
 		} catch (final Exception e) {
 			throw new RuntimeException("Failed simulation task: " + program, e);
