@@ -26,7 +26,9 @@ public class ProgramTest {
 	public static void main(String[] args) throws IOException {
 		// TODO Auto-generated method stub
 
-		final String progString = "(sub (pow (pow 1.0 ado) (add mido mido)) (div (add mido mido) (pow (sub 1.0 est) (add ado 1.0))))";
+		// final String progString =
+		// "(sub (pow (pow 1.0 ado) (add mido mido)) (div (add mido mido) (pow (sub 1.0 est) (add ado 1.0))))";
+		final String progString = "(add (dist) (est))";
 
 		final Collection<GPFunc<TruckContext>> funcs = new GPFunctions().create();
 		final GPProgram<TruckContext> prog = GPProgramParser.parseProgramFunc(progString, funcs);
