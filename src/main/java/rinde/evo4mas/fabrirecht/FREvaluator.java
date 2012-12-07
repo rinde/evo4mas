@@ -40,7 +40,8 @@ import ec.util.Parameter;
 public class FREvaluator extends GPEvaluator<FRSimulationTask, ResultDTO, Heuristic<TruckContext>> {
 
 	private static final long serialVersionUID = 7755793133305470461L;
-	static List<List<String>> folds = ExperimentUtil.createFolds("files/scenarios/fabri-recht/pdp100_mitAnrufzeit/", 5);
+	static List<List<String>> folds = ExperimentUtil
+			.createFolds("files/scenarios/fabri-recht/pdp100_mitAnrufzeit/", 5, ".scenario");
 
 	public static final String P_NUM_VEHICLES = "num_vehicles";
 	public static final String P_VEHICLE_CAPACITY = "vehicle_capacity";

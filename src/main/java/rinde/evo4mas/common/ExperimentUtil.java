@@ -20,10 +20,10 @@ import java.util.List;
  */
 public class ExperimentUtil {
 
-	public static List<List<String>> createFolds(String dir, int n) {
+	public static List<List<String>> createFolds(String dir, int n, final String suffix) {
 		final String[] scens = new File(dir).list(new FilenameFilter() {
 			public boolean accept(File d, String name) {
-				return name.endsWith(".scenario");
+				return name.endsWith(suffix);
 			}
 		});
 		// sort on file name such that produced folds are always deterministic

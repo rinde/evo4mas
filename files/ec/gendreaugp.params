@@ -1,0 +1,78 @@
+# Copyright 2006 by Sean Luke and George Mason University
+# Licensed under the Academic Free License version 3.0
+# See the file "LICENSE" for more information
+
+parent.0 = ecj20parents/koza.params
+
+# Stolen from koza/params -- overwriting just
+# a little for readability
+# You need to create at least one function set, 
+# called "f0", which your first tree will use.  
+#gp.tree.print-style = dot
+gp.tree.print-style = lisp
+
+gp.fs.0.size = 1
+gp.fs.0.name = f0
+gp.fs.0 = rinde.evo4mas.fabrirecht.GPFunctions
+
+#gp.fs.1.size = 1
+#gp.fs.1.name = f1
+#gp.fs.1 = rinde.evo4mas.mas.fabrirecht.GPFunctions
+
+
+breed.elite.0 = 			1
+
+seed.0 = 123
+
+pop.subpop.0.species.ind.numtrees = 1
+pop.subpop.0.species.ind.tree.0 = ec.gp.GPTree
+pop.subpop.0.species.ind.tree.0.tc = tc0
+
+#pop.subpop.0.species.ind.tree.1 = ec.gp.GPTree
+#pop.subpop.0.species.ind.tree.1.tc = tc0
+
+#
+# We specify our problem here
+#
+state = ec.simple.SimpleEvolutionState
+stat = rinde.evo4mas.fabrirecht.EvoStatistics
+eval = rinde.evo4mas.gendreau06.Gendreau06Evaluator
+#eval.problem = rinde.evo4mas.evo.gp.DummyProblem
+eval.problem.data = rinde.ecj.DummyData
+pop.subpop.0.species.fitness = rinde.ecj.GPFitness
+#eval.mode = GP
+#eval.fitness-mode = DISTINCT
+#eval.num-scenarios = 5
+
+#checkpoint = true
+#checkpoint-modulo = 1
+
+
+# maybe new syntax?
+#eval.scenarios-per-generation = (g=0,s=3),(g=140,s=10),(g=150,s=50)
+#eval.scenarios-per-generation = 3,10,50
+#eval.scenarios-at-generation = 0,140,150
+
+#eval.scenarios = files/scenarios/PPSN/train/
+#eval.last-generation-scenarios = files/scenarios/PPSN/train/s975.scen,files/scenarios/PPSN/train/s976.scen,files/scenarios/PPSN/train/s977.scen,files/scenarios/PPSN/train/s978.scen,files/scenarios/PPSN/train/s979.scen,files/scenarios/PPSN/train/s980.scen,files/scenarios/PPSN/train/s981.scen,files/scenarios/PPSN/train/s982.scen,files/scenarios/PPSN/train/s983.scen,files/scenarios/PPSN/train/s984.scen,files/scenarios/PPSN/train/s985.scen,files/scenarios/PPSN/train/s986.scen,files/scenarios/PPSN/train/s987.scen,files/scenarios/PPSN/train/s988.scen,files/scenarios/PPSN/train/s989.scen,files/scenarios/PPSN/train/s990.scen,files/scenarios/PPSN/train/s991.scen,files/scenarios/PPSN/train/s992.scen,files/scenarios/PPSN/train/s993.scen,files/scenarios/PPSN/train/s994.scen,files/scenarios/PPSN/train/s995.scen,files/scenarios/PPSN/train/s996.scen,files/scenarios/PPSN/train/s997.scen,files/scenarios/PPSN/train/s998.scen,files/scenarios/PPSN/train/s999.scen
+#eval.time-step = 1000
+#eval.graph = files/maps/leuven-simple.dot
+#eval.computation-time-limit = 120000
+
+
+eval.host = local
+
+eval.num_vehicles = 10
+eval.vehicle_capacity = 4
+
+#0
+
+pop.subpop.0.size 	= 10
+generations 		= 11
+
+# Here we determine what kind of Ant we're doing:
+
+# no progn4, 400 moves, Santa Fe trail
+
+#eval.problem.moves = 400
+#eval.problem.file = santafe.trl

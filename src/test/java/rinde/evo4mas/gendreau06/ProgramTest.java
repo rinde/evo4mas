@@ -27,13 +27,16 @@ public class ProgramTest {
 
 		// final String progString =
 		// "(sub (pow (pow 1.0 ado) (add mido mido)) (div (add mido mido) (pow (sub 1.0 est) (add ado 1.0))))";
-		final String progString = "(add (dist) (est))";
+		// final String progString = "(add (dist) (est))";
+
+		// TODO fix bug in truck which shows in following heuristic
+		final String progString = "(sub (pow 0.0 ttl) (if4 0.0 mado mado ttl))";
 
 		final Collection<GPFunc<TruckContext>> funcs = new GPFunctions().create();
 		final GPProgram<TruckContext> prog = GPProgramParser.parseProgramFunc(progString, funcs);
 
 		final GSimulationTask task = GSimulationTask
-				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, false);
+				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, true);
 
 		task.run();
 

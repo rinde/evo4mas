@@ -32,7 +32,7 @@ import ec.gp.GPTree;
  */
 public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO, Heuristic<TruckContext>> {
 
-	static List<List<String>> folds = ExperimentUtil.createFolds("files/scenarios/gendreau06/", 5);
+	static List<List<String>> folds = ExperimentUtil.createFolds("files/scenarios/gendreau06/", 5, "");
 
 	private final List<String> trainSet;
 	private final List<String> testSet;
@@ -44,11 +44,14 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 	public Gendreau06Evaluator() {
 		testSet = unmodifiableList(folds.get(0));
 		trainSet = unmodifiableList(ExperimentUtil.createTrainSet(folds, 0));
+
+		System.out.println(testSet + "\n" + trainSet);
+
 		numScenariosAtLastGeneration = 5;
 		numScenariosPerGeneration = 3;
 
 		// TODO set proper nr of vehicles
-		numVehicles = 5;
+		numVehicles = 10;
 		scenarioCache = newHashMap();
 		try {
 			for (final String s : testSet) {
@@ -77,6 +80,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 	@Override
 	protected Collection<GSimulationTask> createComputationJobs(DataProvider dataProvider, GPTree[] trees,
 			EvolutionState state) {
+
 		final GPProgram<TruckContext> heuristic = GPProgramParser
 				.convertToGPProgram((GPBaseNode<TruckContext>) trees[0].child);
 
@@ -95,8 +99,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 
 	@Override
 	protected int expectedNumberOfResultsPerGPIndividual() {
-		// TODO Auto-generated method stub
-		return 0;
+		return numScenariosPerGeneration;
 	}
 
 }

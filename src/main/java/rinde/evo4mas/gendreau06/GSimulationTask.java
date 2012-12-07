@@ -52,7 +52,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<TruckC
 		String scenarioString;
 		try {
 			scenarioString = (String) dataProvider.getValue(scenarioKey);
-
+			System.out.println(taskData.getId());
 			final Gendreau06Scenario scenario = Gendreau06Parser.parse(new BufferedReader(new StringReader(
 					scenarioString)), scenarioKey, numVehicles);
 			final DynamicPDPTWProblem problem = new DynamicPDPTWProblem(scenario, 123, new CoordinationModel());
@@ -66,7 +66,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<TruckC
 			final boolean isValid = objFunc.isValidResult(stats);
 			final float fitness = isValid ? (float) objFunc.computeCost(stats) : Float.MAX_VALUE;
 			setResult(new ResultDTO(scenarioKey, taskData.getId(), stats, fitness));
-
+			System.out.println("task done: " + objFunc.printHumanReadableFormat(stats));
 		} catch (final Exception e) {
 			throw new RuntimeException("Failed simulation task: " + taskData, e);
 		}
