@@ -23,9 +23,9 @@ import org.jppf.task.storage.MemoryMapDataProvider;
 
 import rinde.ecj.GPBaseNode;
 import rinde.ecj.GPEvaluator;
-import rinde.ecj.GPEvaluator.ComputationStrategy;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
+import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ExperimentUtil;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.evo4mas.common.TruckContext;
@@ -37,7 +37,7 @@ import ec.util.Parameter;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class FREvaluator extends GPEvaluator<FRSimulationTask, ResultDTO, TruckContext> {
+public class FREvaluator extends GPEvaluator<FRSimulationTask, ResultDTO, Heuristic<TruckContext>> {
 
 	private static final long serialVersionUID = 7755793133305470461L;
 	static List<List<String>> folds = ExperimentUtil.createFolds("files/scenarios/fabri-recht/pdp100_mitAnrufzeit/", 5);

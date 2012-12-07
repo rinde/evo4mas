@@ -5,9 +5,9 @@ package rinde.evo4mas.fabrirecht;
 
 import java.util.List;
 
-import rinde.ecj.GPComputationResult;
 import rinde.ecj.GPStats;
 import rinde.evo4mas.common.ResultDTO;
+import rinde.jppf.GPComputationResult;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import ec.EvolutionState;
 import ec.Individual;

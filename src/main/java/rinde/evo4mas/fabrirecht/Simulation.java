@@ -3,7 +3,7 @@
  */
 package rinde.evo4mas.fabrirecht;
 
-import rinde.ecj.GPProgram;
+import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.TruckContext;
 import rinde.sim.core.Simulator;
 import rinde.sim.problem.common.AddParcelEvent;
@@ -22,15 +22,15 @@ import rinde.sim.problem.fabrirecht.FabriRechtScenario;
  */
 public class Simulation {
 
-	protected final GPProgram<TruckContext> program;
+	protected final Heuristic<TruckContext> program;
 	protected final boolean useGui;
 	protected final DynamicPDPTWProblem problemInstance;
 
-	public Simulation(FabriRechtScenario scenario, GPProgram<TruckContext> prog) {
+	public Simulation(FabriRechtScenario scenario, Heuristic<TruckContext> prog) {
 		this(scenario, prog, false);
 	}
 
-	public Simulation(final FabriRechtScenario scenario, GPProgram<TruckContext> prog, boolean showGui) {
+	public Simulation(final FabriRechtScenario scenario, Heuristic<TruckContext> prog, boolean showGui) {
 		program = prog;
 		useGui = showGui;
 

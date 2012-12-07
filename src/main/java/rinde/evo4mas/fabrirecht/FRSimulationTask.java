@@ -5,10 +5,10 @@ package rinde.evo4mas.fabrirecht;
 
 import org.jppf.task.storage.DataProvider;
 
-import rinde.ecj.ComputationTask;
-import rinde.ecj.GPProgram;
+import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.evo4mas.common.TruckContext;
+import rinde.jppf.ComputationTask;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
 import rinde.sim.problem.fabrirecht.FabriRechtScenario;
@@ -17,16 +17,15 @@ import rinde.sim.problem.fabrirecht.FabriRechtScenario;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class FRSimulationTask extends ComputationTask<ResultDTO, TruckContext> {
+public class FRSimulationTask extends ComputationTask<ResultDTO, Heuristic<TruckContext>> {
 
 	private final String scenarioKey;
 	private final int numVehicles;
 	private final int vehicleCapacity;
 
-	public FRSimulationTask(String scenario, GPProgram<TruckContext> p, int pNumVehicles, int pVehicleCapacity) {
+	public FRSimulationTask(String scenario, Heuristic<TruckContext> p, int pNumVehicles, int pVehicleCapacity) {
 		super(p);
 		scenarioKey = scenario;
-		program = p;
 		numVehicles = pNumVehicles;
 		vehicleCapacity = pVehicleCapacity;
 	}
@@ -38,7 +37,7 @@ public class FRSimulationTask extends ComputationTask<ResultDTO, TruckContext> {
 		try {
 			final FabriRechtScenario scenario = FabriRechtParser
 					.fromJson((String) dataProvider.getValue(scenarioKey), numVehicles, vehicleCapacity);
-			s = new Simulation(scenario, program);
+			s = new Simulation(scenario, taskData);
 
 			final StatisticsDTO stat = s.start();
 			float fitness;
@@ -64,15 +63,10 @@ public class FRSimulationTask extends ComputationTask<ResultDTO, TruckContext> {
 				// fitness = rejectionPenalty + distPenalty;
 				fitness = (float) stat.costPerDemand;
 			}
-			setResult(new ResultDTO(scenarioKey, program, stat, fitness));
+			setResult(new ResultDTO(scenarioKey, taskData.getId(), stat, fitness));
 		} catch (final Exception e) {
-			throw new RuntimeException("Failed simulation task: " + program, e);
+			throw new RuntimeException("Failed simulation task: " + taskData, e);
 		}
-	}
-
-	@Override
-	public String getGPId() {
-		return program.toString();
 	}
 
 	@Override

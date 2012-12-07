@@ -19,6 +19,7 @@ import rinde.ecj.GPBaseNode;
 import rinde.ecj.GPEvaluator;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
+import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ExperimentUtil;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.evo4mas.common.TruckContext;
@@ -29,7 +30,7 @@ import ec.gp.GPTree;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO, TruckContext> {
+public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO, Heuristic<TruckContext>> {
 
 	static List<List<String>> folds = ExperimentUtil.createFolds("files/scenarios/gendreau06/", 5);
 

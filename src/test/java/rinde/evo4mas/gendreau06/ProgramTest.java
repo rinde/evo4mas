@@ -24,7 +24,6 @@ public class ProgramTest {
 	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
 
 		// final String progString =
 		// "(sub (pow (pow 1.0 ado) (add mido mido)) (div (add mido mido) (pow (sub 1.0 est) (add ado 1.0))))";
@@ -34,7 +33,7 @@ public class ProgramTest {
 		final GPProgram<TruckContext> prog = GPProgramParser.parseProgramFunc(progString, funcs);
 
 		final GSimulationTask task = GSimulationTask
-				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, true);
+				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, false);
 
 		task.run();
 

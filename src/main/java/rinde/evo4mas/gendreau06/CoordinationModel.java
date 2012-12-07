@@ -17,7 +17,7 @@ import rinde.sim.core.model.pdp.Parcel;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class CoordinationModel implements Model<Truck> {
+public class CoordinationModel implements Model<HeuristicTruck> {
 
 	protected final HashSet<Parcel> claims;
 
@@ -34,16 +34,16 @@ public class CoordinationModel implements Model<Truck> {
 		return unmodifiableSet(claims);
 	}
 
-	public boolean register(Truck element) {
+	public boolean register(HeuristicTruck element) {
 		element.setCoordinationModel(this);
 		return true;
 	}
 
-	public boolean unregister(Truck element) {
+	public boolean unregister(HeuristicTruck element) {
 		return false;
 	}
 
-	public Class<Truck> getSupportedType() {
-		return Truck.class;
+	public Class<HeuristicTruck> getSupportedType() {
+		return HeuristicTruck.class;
 	}
 }

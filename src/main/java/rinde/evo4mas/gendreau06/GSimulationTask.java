@@ -12,11 +12,11 @@ import java.io.StringReader;
 
 import org.jppf.task.storage.DataProvider;
 
-import rinde.ecj.ComputationTask;
-import rinde.ecj.GPProgram;
+import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ExperimentUtil;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.evo4mas.common.TruckContext;
+import rinde.jppf.ComputationTask;
 import rinde.sim.core.Simulator;
 import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.DynamicPDPTWProblem;
@@ -31,16 +31,15 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class GSimulationTask extends ComputationTask<ResultDTO, TruckContext> {
+public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<TruckContext>> {
 
 	protected final String scenarioKey;
 	protected final int numVehicles;
 	protected final ObjectiveFunction objFunc;
 
-	public GSimulationTask(String scenario, GPProgram<TruckContext> p, int vehicles) {
+	public GSimulationTask(String scenario, Heuristic<TruckContext> p, int vehicles) {
 		super(p);
 		scenarioKey = scenario;
-		program = p;
 		numVehicles = vehicles;
 		objFunc = new Gendreau06ObjectiveFunction();
 	}
@@ -59,17 +58,17 @@ public class GSimulationTask extends ComputationTask<ResultDTO, TruckContext> {
 			final DynamicPDPTWProblem problem = new DynamicPDPTWProblem(scenario, 123, new CoordinationModel());
 			problem.addCreator(AddVehicleEvent.class, new Creator<AddVehicleEvent>() {
 				public boolean create(Simulator sim, AddVehicleEvent event) {
-					return sim.register(new Truck(event.vehicleDTO, program));
+					return sim.register(new HeuristicTruck(event.vehicleDTO, taskData));
 				}
 			});
 			preSimulate(problem);
 			final StatisticsDTO stats = problem.simulate();
 			final boolean isValid = objFunc.isValidResult(stats);
 			final float fitness = isValid ? (float) objFunc.computeCost(stats) : Float.MAX_VALUE;
-			setResult(new ResultDTO(scenarioKey, program, stats, fitness));
+			setResult(new ResultDTO(scenarioKey, taskData.getId(), stats, fitness));
 
 		} catch (final Exception e) {
-			throw new RuntimeException("Failed simulation task: " + program, e);
+			throw new RuntimeException("Failed simulation task: " + taskData, e);
 		}
 	}
 
@@ -78,12 +77,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, TruckContext> {
 		return (ResultDTO) getResult();
 	}
 
-	@Override
-	public String getGPId() {
-		return program.toString();
-	}
-
-	public static GSimulationTask createTestableTask(final String fileName, GPProgram<TruckContext> p, int vehicles,
+	public static GSimulationTask createTestableTask(final String fileName, Heuristic<TruckContext> p, int vehicles,
 			final boolean showGui) {
 		try {
 			final String scenarioString = ExperimentUtil.textFileToString(fileName);
