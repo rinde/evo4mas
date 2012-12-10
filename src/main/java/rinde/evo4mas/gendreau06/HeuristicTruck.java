@@ -77,13 +77,14 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 
 		boolean isPickup = true;
 
+		final StringBuilder sb = new StringBuilder();
 		final Collection<ParcelDTO> contentDTOs = convert(contents);
 		for (final Parcel p : todo) {
 			// filter out the already claimed parcels
 			if (!alreadyClaimed.contains(p)) {
 				final double v = program.compute(new TruckContext(dto, truckPos, contentDTOs, ((DefaultParcel) p).dto,
 						time, false));
-				if (v < bestValue) {
+				if (v < bestValue || (v == Double.POSITIVE_INFINITY && bestValue == v)) {
 					best = p;
 					bestValue = v;
 				}
@@ -92,7 +93,7 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		for (final Parcel p : contents) {
 			final double v = program.compute(new TruckContext(dto, truckPos, contentDTOs, ((DefaultParcel) p).dto,
 					time, true));
-			if (v < bestValue) {
+			if (v < bestValue || (v == Double.POSITIVE_INFINITY && bestValue == v)) {
 				best = p;
 				bestValue = v;
 				isPickup = false;
