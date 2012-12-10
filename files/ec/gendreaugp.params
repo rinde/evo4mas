@@ -13,7 +13,7 @@ gp.tree.print-style = lisp
 
 gp.fs.0.size = 1
 gp.fs.0.name = f0
-gp.fs.0 = rinde.evo4mas.fabrirecht.GPFunctions
+gp.fs.0 = rinde.evo4mas.gendreau06.GPFunctions
 
 #gp.fs.1.size = 1
 #gp.fs.1.name = f1
@@ -35,7 +35,7 @@ pop.subpop.0.species.ind.tree.0.tc = tc0
 # We specify our problem here
 #
 state = ec.simple.SimpleEvolutionState
-stat = rinde.evo4mas.fabrirecht.EvoStatistics
+stat = rinde.evo4mas.gendreau06.EvoStatistics
 eval = rinde.evo4mas.gendreau06.Gendreau06Evaluator
 #eval.problem = rinde.evo4mas.evo.gp.DummyProblem
 eval.problem.data = rinde.ecj.DummyData
@@ -62,13 +62,11 @@ pop.subpop.0.species.fitness = rinde.ecj.GPFitness
 
 eval.host = distributed
 
-eval.num_vehicles = 10
-eval.vehicle_capacity = 4
 
 #0
 
-pop.subpop.0.size 	= 3
-generations 		= 11
+pop.subpop.0.size 	= 200
+generations 		= 25
 
 # Here we determine what kind of Ant we're doing:
 

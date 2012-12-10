@@ -1,16 +1,15 @@
 /**
  * 
  */
-package rinde.evo4mas.fabrirecht;
+package rinde.evo4mas.gendreau06;
 
 import java.util.List;
 
 import rinde.ecj.GPStats;
-import rinde.evo4mas.common.ResultDTO;
 import rinde.jppf.GPComputationResult;
-import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import ec.EvolutionState;
 import ec.Individual;
+import ec.gp.GPIndividual;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -22,31 +21,21 @@ public class EvoStatistics extends GPStats {
 
 	@Override
 	public void printMore(List<GPComputationResult> results) {
-		// final List<FRResultDTO> results = ((GPFitness<FRResultDTO>)
-		// best_i.fitness).getResults();
-		// System.out.println(((FRSimulationDTO)
-		// results.get(0).getComputationJob()).program.toString());
-
-		final StatisticsDTO stats = ((ResultDTO) results.get(0)).stats;
-
-		// System.out.println(stats);
-		// System.out.println("Best of generation: " +
-		// results.get(0).getTaskDataId());
-		// System.out.println(results.get(0).getFitness());
-
-		// System.out.println("avg cost/delivery " + stats.totalDistance /
-		// stats.totalDeliveries);
 
 	}
 
 	@Override
 	public void finalStatistics(final EvolutionState state, final int result) {
-		Individual best = null; // quiets compiler complaints
+
+		Individual best = null;
 		for (int y = 1; y < state.population.subpops[0].individuals.length; y++) {
 			if (best == null || state.population.subpops[0].individuals[y].fitness.betterThan(best.fitness)) {
 				best = state.population.subpops[0].individuals[y];
 			}
 		}
+
+		((Gendreau06Evaluator) state.evaluator).experimentOnTestSet((GPIndividual) best);
+
 		// final List<GPComputationResult> list =
 		// ((GPFitness<GPComputationResult>) best.fitness).getResults();
 

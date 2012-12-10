@@ -13,7 +13,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.jppf.client.JPPFJob;
 import org.jppf.task.storage.DataProvider;
+import org.jppf.task.storage.MemoryMapDataProvider;
 
 import rinde.ecj.GPBaseNode;
 import rinde.ecj.GPEvaluator;
@@ -24,6 +26,7 @@ import rinde.evo4mas.common.ExperimentUtil;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.evo4mas.common.TruckContext;
 import ec.EvolutionState;
+import ec.gp.GPIndividual;
 import ec.gp.GPTree;
 
 /**
@@ -39,7 +42,6 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 	private final int numScenariosPerGeneration;
 	private final int numScenariosAtLastGeneration;
 	private final Map<String, String> scenarioCache;
-	private final int numVehicles;
 
 	public Gendreau06Evaluator() {
 		testSet = unmodifiableList(folds.get(0));
@@ -50,8 +52,6 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 		numScenariosAtLastGeneration = 5;
 		numScenariosPerGeneration = 3;
 
-		// TODO set proper nr of vehicles
-		numVehicles = 10;
 		scenarioCache = newHashMap();
 		try {
 			for (final String s : testSet) {
@@ -77,6 +77,46 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 		return list;
 	}
 
+	void experimentOnTestSet(GPIndividual ind) {
+		final GPProgram<TruckContext> heuristic = GPProgramParser
+				.convertToGPProgram((GPBaseNode<TruckContext>) ind.trees[0].child);
+
+		final DataProvider dataProvider = new MemoryMapDataProvider();
+		final JPPFJob job = new JPPFJob(dataProvider);
+		job.setBlocking(true);
+		job.setName("Evaluation on test set");
+
+		final List<GSimulationTask> list = newArrayList();
+		final List<String> scenarios = testSet;
+		for (final String s : scenarios) {
+			try {
+				dataProvider.setValue(s, scenarioCache.get(s));
+			} catch (final Exception e) {
+				throw new RuntimeException(e);
+			}
+			final int numVehicles = s.contains("_450_") ? 20 : 10;
+			list.add(new GSimulationTask(s, heuristic.clone(), numVehicles));
+		}
+		try {
+
+			for (final GSimulationTask j : list) {
+				if (compStrategy == ComputationStrategy.LOCAL) {
+					j.setDataProvider(dataProvider);
+				}
+				job.addTask(j);
+			}
+			final Collection<ResultDTO> results = compute(job);
+
+			for (final ResultDTO r : results) {
+				System.out.println(r.scenarioKey + " " + r.fitness);
+			}
+
+		} catch (final Exception e) {
+			throw new RuntimeException(e);
+		}
+
+	}
+
 	@Override
 	protected Collection<GSimulationTask> createComputationJobs(DataProvider dataProvider, GPTree[] trees,
 			EvolutionState state) {
@@ -92,6 +132,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 			} catch (final Exception e) {
 				throw new RuntimeException(e);
 			}
+			final int numVehicles = s.contains("_450_") ? 20 : 10;
 			list.add(new GSimulationTask(s, heuristic.clone(), numVehicles));
 		}
 		return list;
