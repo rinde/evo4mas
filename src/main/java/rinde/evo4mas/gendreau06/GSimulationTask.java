@@ -33,21 +33,21 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
  */
 public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<TruckContext>> {
 
+	private static final long serialVersionUID = -4669749528059234353L;
 	protected final String scenarioKey;
 	protected final int numVehicles;
-	protected final ObjectiveFunction objFunc;
 
 	public GSimulationTask(String scenario, Heuristic<TruckContext> p, int vehicles) {
 		super(p);
 		scenarioKey = scenario;
 		numVehicles = vehicles;
-		objFunc = new Gendreau06ObjectiveFunction();
 	}
 
 	// extension hook
 	protected void preSimulate(DynamicPDPTWProblem problem) {}
 
 	public void run() {
+		final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
 		final DataProvider dataProvider = getDataProvider();
 		String scenarioString;
 		try {
@@ -64,9 +64,11 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<TruckC
 			preSimulate(problem);
 			final StatisticsDTO stats = problem.simulate();
 			final boolean isValid = objFunc.isValidResult(stats);
+
 			final float fitness = isValid ? (float) objFunc.computeCost(stats) : Float.MAX_VALUE;
 			setResult(new ResultDTO(scenarioKey, taskData.getId(), stats, fitness));
-			System.out.println("task done: " + objFunc.printHumanReadableFormat(stats));
+			System.out
+					.println(fitness + " valid:" + isValid + " task done: " + objFunc.printHumanReadableFormat(stats));
 		} catch (final Exception e) {
 			throw new RuntimeException("Failed simulation task: " + taskData, e);
 		}

@@ -84,21 +84,31 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 			if (!alreadyClaimed.contains(p)) {
 				final double v = program.compute(new TruckContext(dto, truckPos, contentDTOs, ((DefaultParcel) p).dto,
 						time, false));
-				if (v < bestValue || (v == Double.POSITIVE_INFINITY && bestValue == v)) {
+				sb.append(p).append(" ").append(v).append("\n");
+				if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
 					best = p;
 					bestValue = v;
 				}
 			}
 		}
+		// if (best == null) {
+		// System.err.println(sb.toString());
+		// System.err.println(bestValue);
+		// }
 		for (final Parcel p : contents) {
 			final double v = program.compute(new TruckContext(dto, truckPos, contentDTOs, ((DefaultParcel) p).dto,
 					time, true));
-			if (v < bestValue || (v == Double.POSITIVE_INFINITY && bestValue == v)) {
+			if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
 				best = p;
 				bestValue = v;
 				isPickup = false;
 			}
 		}
+		if (best == null) {
+			// System.out.println("todo: " + todo + "\ncontents: " + contents +
+			// "\nclaimed: " + alreadyClaimed);
+		}
+
 		return best;
 	}
 

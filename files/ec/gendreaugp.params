@@ -60,14 +60,14 @@ pop.subpop.0.species.fitness = rinde.ecj.GPFitness
 #eval.computation-time-limit = 120000
 
 
-eval.host = local
+eval.host = distributed
 
 eval.num_vehicles = 10
 eval.vehicle_capacity = 4
 
 #0
 
-pop.subpop.0.size 	= 10
+pop.subpop.0.size 	= 3
 generations 		= 11
 
 # Here we determine what kind of Ant we're doing:

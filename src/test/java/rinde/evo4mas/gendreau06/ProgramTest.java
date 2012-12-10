@@ -29,8 +29,9 @@ public class ProgramTest {
 		// "(sub (pow (pow 1.0 ado) (add mido mido)) (div (add mido mido) (pow (sub 1.0 est) (add ado 1.0))))";
 		// final String progString = "(add (dist) (est))";
 
-		// TODO fix bug in truck which shows in following heuristic
-		final String progString = "(sub (pow 0.0 ttl) (if4 0.0 mado mado ttl))";
+		// final String progString =
+		// "(sub (pow 0.0 ttl) (if4 0.0 mado mado ttl))";
+		final String progString = "(if4 (pow urge 0.0) dist dist (if4 est urge dist ttl))";
 
 		final Collection<GPFunc<TruckContext>> funcs = new GPFunctions().create();
 		final GPProgram<TruckContext> prog = GPProgramParser.parseProgramFunc(progString, funcs);
