@@ -23,6 +23,7 @@ import rinde.evo4mas.common.GPFunctions.Mado;
 import rinde.evo4mas.common.GPFunctions.Mido;
 import rinde.evo4mas.common.GPFunctions.Ttl;
 import rinde.evo4mas.common.GPFunctions.Urge;
+import rinde.sim.core.graph.Point;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -50,6 +51,7 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 				new Waiters(), /* */
 				new CargoSize(), /* */
 				new IsInCargo(), /* */
+				new TimeUntilAvailable(), /* */
 				new Ado<GendreauContext>(), /* */
 				new Mido<GendreauContext>(), /* */
 				new Mado<GendreauContext>(), /* */
@@ -84,6 +86,22 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 		@Override
 		public double execute(double[] input, GendreauContext context) {
 			return context.numWaiters;
+		}
+	}
+
+	public static class TimeUntilAvailable extends GPFunc<GendreauContext> {
+		private static final long serialVersionUID = -3527221929651639824L;
+
+		@Override
+		public double execute(double[] input, GendreauContext context) {
+			final boolean isPickup = !context.isInCargo;
+
+			final Point loc = isPickup ? context.parcel.pickupLocation : context.parcel.destinationLocation;
+			final long travelTime = (long) ((Point.distance(loc, context.truckPosition) / 30d) * 3600000d);
+			final long timeToBegin = (isPickup ? context.parcel.pickupTimeWindow.begin
+					: context.parcel.deliveryTimeWindow.begin) - context.time - travelTime;
+
+			return Math.min(0, timeToBegin);
 		}
 	}
 
