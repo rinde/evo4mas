@@ -15,7 +15,6 @@ import org.jppf.task.storage.DataProvider;
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ExperimentUtil;
 import rinde.evo4mas.common.ResultDTO;
-import rinde.evo4mas.common.TruckContext;
 import rinde.jppf.ComputationTask;
 import rinde.sim.core.Simulator;
 import rinde.sim.problem.common.AddVehicleEvent;
@@ -31,13 +30,13 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<TruckContext>> {
+public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<GendreauContext>> {
 
 	private static final long serialVersionUID = -4669749528059234353L;
 	protected final String scenarioKey;
 	protected final int numVehicles;
 
-	public GSimulationTask(String scenario, Heuristic<TruckContext> p, int vehicles) {
+	public GSimulationTask(String scenario, Heuristic<GendreauContext> p, int vehicles) {
 		super(p);
 		scenarioKey = scenario;
 		numVehicles = vehicles;
@@ -79,7 +78,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<TruckC
 		return (ResultDTO) getResult();
 	}
 
-	public static GSimulationTask createTestableTask(final String fileName, Heuristic<TruckContext> p, int vehicles,
+	public static GSimulationTask createTestableTask(final String fileName, Heuristic<GendreauContext> p, int vehicles,
 			final boolean showGui) {
 		try {
 			final String scenarioString = ExperimentUtil.textFileToString(fileName);

@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Set;
 
 import rinde.ecj.Heuristic;
-import rinde.evo4mas.common.TruckContext;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel;
@@ -24,7 +23,7 @@ import rinde.sim.util.fsm.StateMachine.State;
 
 public class HeuristicTruck extends DefaultVehicle implements Listener {
 
-	protected final Heuristic<TruckContext> program;
+	protected final Heuristic<GendreauContext> program;
 	protected boolean hasChanged = true;
 	protected Parcel currentTarget;
 
@@ -36,7 +35,7 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		CHANGE, END_OF_DAY, READY, ARRIVE, DONE, CONTINUE, YES, NO;
 	}
 
-	public HeuristicTruck(VehicleDTO pDto, Heuristic<TruckContext> p) {
+	public HeuristicTruck(VehicleDTO pDto, Heuristic<GendreauContext> p) {
 		super(pDto);
 		program = p;
 
@@ -67,11 +66,11 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 
 	protected Parcel next(long time) {
 		return next(program, dto, pdpModel.getParcels(ParcelState.ANNOUNCED, ParcelState.AVAILABLE), pdpModel.getContents(this), coordinationModel
-				.getClaims(), roadModel.getPosition(this), time);
+				.getClaims(), roadModel.getPosition(this), time, coordinationModel);
 	}
 
-	protected static Parcel next(Heuristic<TruckContext> program, VehicleDTO dto, Collection<Parcel> todo,
-			Collection<Parcel> contents, Set<Parcel> alreadyClaimed, Point truckPos, long time) {
+	protected static Parcel next(Heuristic<GendreauContext> program, VehicleDTO dto, Collection<Parcel> todo,
+			Collection<Parcel> contents, Set<Parcel> alreadyClaimed, Point truckPos, long time, CoordinationModel cm) {
 		Parcel best = null;
 		double bestValue = Double.POSITIVE_INFINITY;
 
@@ -82,8 +81,8 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		for (final Parcel p : todo) {
 			// filter out the already claimed parcels
 			if (!alreadyClaimed.contains(p)) {
-				final double v = program.compute(new TruckContext(dto, truckPos, contentDTOs, ((DefaultParcel) p).dto,
-						time, false));
+				final double v = program.compute(new GendreauContext(dto, truckPos, contentDTOs,
+						((DefaultParcel) p).dto, time, false, cm.getNumWaitersFor(p)));
 				sb.append(p).append(" ").append(v).append("\n");
 				if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
 					best = p;
@@ -96,8 +95,8 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		// System.err.println(bestValue);
 		// }
 		for (final Parcel p : contents) {
-			final double v = program.compute(new TruckContext(dto, truckPos, contentDTOs, ((DefaultParcel) p).dto,
-					time, true));
+			final double v = program.compute(new GendreauContext(dto, truckPos, contentDTOs, ((DefaultParcel) p).dto,
+					time, true, 0)); // there can be no waiters for a delivery
 			if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
 				best = p;
 				bestValue = v;
@@ -208,6 +207,12 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		// }
 		// },
 		EARLY_TARGET {
+
+			@Override
+			public void onEntry(TruckEvent event, HeuristicTruck context) {
+				context.coordinationModel.waitFor(context, context.currentTarget);
+			}
+
 			@Override
 			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
 				if (!context
@@ -216,6 +221,11 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 					return TruckEvent.READY;
 				}
 				return null;
+			}
+
+			@Override
+			public void onExit(TruckEvent event, HeuristicTruck context) {
+				context.coordinationModel.unwaitFor(context, context.currentTarget);
 			}
 		},
 		GOTO_DELIVERY {
@@ -295,7 +305,7 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		coordinationModel = cm;
 	}
 
-	public Heuristic<TruckContext> getProgram() {
+	public Heuristic<GendreauContext> getProgram() {
 		return program;
 	}
 

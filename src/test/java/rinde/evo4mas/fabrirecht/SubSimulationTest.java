@@ -18,7 +18,7 @@ import org.junit.Test;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
 import rinde.evo4mas.common.TruckContext;
-import rinde.evo4mas.fabrirecht.GPFunctions;
+import rinde.evo4mas.fabrirecht.FRFunctions;
 import rinde.evo4mas.fabrirecht.SubSimulation;
 import rinde.evo4mas.fabrirecht.SubTruck;
 import rinde.evo4mas.fabrirecht.Truck;
@@ -48,7 +48,7 @@ public class SubSimulationTest {
 
 	@Before
 	public void setUp() throws FileNotFoundException {
-		program = GPProgramParser.parseProgramFunc("(add dist 0.0)", new GPFunctions().create());
+		program = GPProgramParser.parseProgramFunc("(add dist 0.0)", new FRFunctions().create());
 
 		timeWindow = new TimeWindow(0, 500);
 		vehicleDTO = new VehicleDTO(new Point(10, 10), 1, 4, timeWindow);

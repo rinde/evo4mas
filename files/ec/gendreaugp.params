@@ -13,7 +13,7 @@ gp.tree.print-style = lisp
 
 gp.fs.0.size = 1
 gp.fs.0.name = f0
-gp.fs.0 = rinde.evo4mas.gendreau06.GPFunctions
+gp.fs.0 = rinde.evo4mas.gendreau06.GendreauFunctions
 
 #gp.fs.1.size = 1
 #gp.fs.1.name = f1

@@ -13,6 +13,9 @@ import java.util.Set;
 import rinde.sim.core.model.Model;
 import rinde.sim.core.model.pdp.Parcel;
 
+import com.google.common.collect.LinkedHashMultimap;
+import com.google.common.collect.Multimap;
+
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
@@ -20,14 +23,35 @@ import rinde.sim.core.model.pdp.Parcel;
 public class CoordinationModel implements Model<HeuristicTruck> {
 
 	protected final HashSet<Parcel> claims;
+	protected final Multimap<Parcel, HeuristicTruck> waiting;
 
 	public CoordinationModel() {
 		claims = newHashSet();
+		waiting = LinkedHashMultimap.create();
 	}
 
 	public void claim(Parcel target) {
 		checkArgument(!claims.contains(target), "A parcel can be claimed only once!");
 		claims.add(target);
+	}
+
+	public void unclaim(Parcel target) {
+		checkArgument(claims.contains(target));
+		claims.remove(target);
+	}
+
+	public void waitFor(HeuristicTruck t, Parcel p) {
+		checkArgument(!waiting.containsEntry(p, t));
+		waiting.put(p, t);
+	}
+
+	public void unwaitFor(HeuristicTruck t, Parcel p) {
+		checkArgument(waiting.containsEntry(p, t));
+		waiting.remove(p, t);
+	}
+
+	public int getNumWaitersFor(Parcel p) {
+		return waiting.get(p).size();
 	}
 
 	public Set<Parcel> getClaims() {

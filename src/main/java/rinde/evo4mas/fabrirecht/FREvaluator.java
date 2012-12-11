@@ -169,7 +169,7 @@ public class FREvaluator extends GPEvaluator<FRSimulationTask, ResultDTO, Heuris
 		eval.jppfClient = new JPPFClient();
 
 		final String best = "(if4 (div (mul (sub dist mido) mado) (sub 1.0 0.0)) (add mado (div (add (div (div mido 1.0) mido) (mul (if4 mido urge 1.0 ado) (mul mado ttl))) (if4 mado mido (mul (mul (if4 (sub 1.0 dist) 0.0 urge ado) (mul (sub (pow ttl 0.0) (pow (mul (sub dist mido) (add mado (div 0.0 ttl))) (if4 (if4 urge dist mado est) (if4 0.0 urge urge mado) (mul mado ttl) (div 0.0 ado)))) (add (if4 0.0 dist dist (if4 (div (sub urge mido) (sub est ttl)) (pow mido est) (div (add ado urge) mido) (mul (add dist dist) (div mido 1.0)))) (sub (add 1.0 urge) (pow (mul (if4 1.0 ado ado urge) (add mado (div 0.0 ttl))) (if4 (pow (add mado dist) 0.0) (if4 0.0 urge urge mado) (mul mado ttl) (div 0.0 ado))))))) (sub (add 1.0 urge) (pow (if4 0.0 dist dist mido) (if4 (add mido 0.0) (if4 0.0 urge urge mado) (pow ttl 1.0) (div 0.0 ado))))) (sub urge mido)))) (if4 ado urge 1.0 urge) (if4 (add mido 0.0) (sub ado mido) (add ado urge) (pow ttl 1.0)))";
-		final GPProgram<TruckContext> prog = GPProgramParser.parseProgramFunc(best, new GPFunctions().create());
+		final GPProgram<TruckContext> prog = GPProgramParser.parseProgramFunc(best, new FRFunctions().create());
 
 		eval.testOnTestSet(prog);
 	}

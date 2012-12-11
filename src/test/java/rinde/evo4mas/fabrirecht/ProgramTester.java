@@ -11,7 +11,7 @@ import rinde.ecj.GPFunc;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
 import rinde.evo4mas.common.TruckContext;
-import rinde.evo4mas.fabrirecht.GPFunctions;
+import rinde.evo4mas.fabrirecht.FRFunctions;
 import rinde.evo4mas.fabrirecht.Simulation;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
@@ -27,7 +27,7 @@ public class ProgramTester {
 	public static void main(String[] args) throws FileNotFoundException, ConfigurationException {
 		final FabriRechtScenario scenario = FabriRechtParser.fromJson(new FileReader(
 				"files/scenarios/fabri-recht/pdp100_mitAnrufzeit/lc109.scenario"), 10, 4);
-		final Collection<GPFunc<TruckContext>> funcs = new GPFunctions().create();
+		final Collection<GPFunc<TruckContext>> funcs = new FRFunctions().create();
 		// final String progString =
 		// "(add (div (mul dist ado) (mul 0.0 dist)) (if4 (add (div urge urge) (mul urge 0.0)) (add (mul dist ado) (sub ado ado)) (if4 (add (div urge urge) (mul urge 0.0)) (add (mul dist ado) (sub ado ado)) (add (mul est ado) (mul 1.0 mido)) (if4 (sub dist mado) (sub urge ado) (sub ado ado) (div mado dist))) (if4 (sub dist mado) (sub urge ado) (mul mado ado) (div est dist))))";
 		// final String progString =

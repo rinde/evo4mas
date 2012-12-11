@@ -17,7 +17,7 @@ import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
 import rinde.evo4mas.common.TruckContext;
 import rinde.evo4mas.fabrirecht.CoordModel;
-import rinde.evo4mas.fabrirecht.GPFunctions;
+import rinde.evo4mas.fabrirecht.FRFunctions;
 import rinde.evo4mas.fabrirecht.Simulation;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPScenarioEvent;
@@ -67,7 +67,7 @@ public class FeasibilityTest {
 		final List<TimedEvent> events = asList(depotEvent, vehicleEvent, parcelEvent1, timeOutEvent);
 		scenario = new FabriRechtScenario(events, eventTypes, min, max, timeWindow, vehicleDTO);
 
-		program = GPProgramParser.parseProgramFunc("(add dist 0.0)", new GPFunctions().create());
+		program = GPProgramParser.parseProgramFunc("(add dist 0.0)", new FRFunctions().create());
 	}
 
 	@Test

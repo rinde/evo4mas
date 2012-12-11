@@ -19,7 +19,7 @@ import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
 import rinde.ecj.GenericFunctions.Constant;
 import rinde.evo4mas.common.TruckContext;
-import rinde.evo4mas.fabrirecht.GPFunctions;
+import rinde.evo4mas.fabrirecht.FRFunctions;
 import rinde.evo4mas.fabrirecht.Simulation;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.fabrirecht.FabriRechtParser;
@@ -57,7 +57,7 @@ public class SimulationTest {
 
 	@Test
 	public void test2() {
-		final Collection<GPFunc<TruckContext>> funcs = new GPFunctions().create();
+		final Collection<GPFunc<TruckContext>> funcs = new FRFunctions().create();
 		final Simulation sim2 = new Simulation(scenario, GPProgramParser.parseProgramFunc("(add 0.0 dist)", funcs),
 				false);
 
@@ -71,7 +71,7 @@ public class SimulationTest {
 
 	@Test
 	public void testProgram1() throws ConfigurationException {
-		final Collection<GPFunc<TruckContext>> funcs = new GPFunctions().create();
+		final Collection<GPFunc<TruckContext>> funcs = new FRFunctions().create();
 		// (add (if4 (add (add 0.0 1.0) (add 0.0 1.0)) (add ado ado) (if4 dist
 		// ado ado 1.0) (if4 1.0 ado dist dist)) (if4 dist 0.0 0.0 dist))
 		String progString = "(add (if4 (add (add 0.0 1.0) (add 0.0 1.0)) (add ado ado) (if4 dist ado ado 1.0) (if4 1.0 ado dist dist)) (if4 dist 0.0 0.0 dist))";
