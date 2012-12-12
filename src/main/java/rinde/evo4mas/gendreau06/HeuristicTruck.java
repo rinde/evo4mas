@@ -43,9 +43,7 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		.addTransition(TruckState.IDLE, TruckEvent.CHANGE, TruckState.HAS_TARGET) /* */
 		.addTransition(TruckState.IDLE, TruckEvent.END_OF_DAY, TruckState.GO_HOME) /* */
 		.addTransition(TruckState.HAS_TARGET, TruckEvent.YES, TruckState.IS_EARLY) /* */
-		.addTransition(TruckState.HAS_TARGET, TruckEvent.NO, TruckState.IS_END_OF_DAY) /* */
-		.addTransition(TruckState.IS_END_OF_DAY, TruckEvent.YES, TruckState.GO_HOME) /* */
-		.addTransition(TruckState.IS_END_OF_DAY, TruckEvent.NO, TruckState.IDLE) /* */
+		.addTransition(TruckState.HAS_TARGET, TruckEvent.NO, TruckState.IDLE) /* */
 		.addTransition(TruckState.IS_EARLY, TruckEvent.YES, TruckState.EARLY_TARGET) /* */
 		.addTransition(TruckState.IS_EARLY, TruckEvent.NO, TruckState.IS_IN_CARGO) /* */
 		.addTransition(TruckState.IS_IN_CARGO, TruckEvent.YES, TruckState.GOTO_DELIVERY) /* */
@@ -148,6 +146,10 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		IDLE {
 			@Override
 			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+				if (context.isEndOfDay(context.currentTime)
+						&& !context.roadModel.getPosition(context).equals(context.dto.startPosition)) {
+					return TruckEvent.END_OF_DAY;
+				}
 				return null;
 			}
 		},
@@ -158,16 +160,12 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 				return context.currentTarget != null ? TruckEvent.YES : TruckEvent.NO;
 			}
 		},
-		IS_END_OF_DAY {
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				if (context.isEndOfDay(context.currentTime)) {
-					return TruckEvent.YES;
-				} else {
-					return TruckEvent.NO;
-				}
-			}
-		},
+		// IS_END_OF_DAY {
+		// @Override
+		// public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+		//
+		// }
+		// },
 		IS_EARLY {
 			@Override
 			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
