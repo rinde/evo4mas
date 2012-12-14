@@ -43,8 +43,15 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 	private final Map<String, String> scenarioCache;
 
 	public Gendreau06Evaluator() {
-		testSet = unmodifiableList(folds.get(0));
-		trainSet = unmodifiableList(ExperimentUtil.createTrainSet(folds, 0));
+
+		final List<String> files = newArrayList();
+		for (int i = 1; i < 6; i++) {
+			files.add("files/scenarios/gendreau06/req_rapide_" + i + "_240_24");
+		}
+
+		testSet = unmodifiableList(files);// folds.get(0));
+		trainSet = unmodifiableList(files);// ExperimentUtil.createTrainSet(folds,
+											// 0));
 
 		System.out.println(testSet + "\n" + trainSet);
 
