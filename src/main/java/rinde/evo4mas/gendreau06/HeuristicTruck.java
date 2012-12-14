@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import rinde.ecj.Heuristic;
+import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel;
@@ -62,29 +63,56 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 
 	}
 
-	protected Parcel next(long time) {
-		return next(program, dto, pdpModel.getParcels(ParcelState.ANNOUNCED, ParcelState.AVAILABLE), pdpModel.getContents(this), coordinationModel
-				.getClaims(), roadModel.getPosition(this), time, coordinationModel);
+	// protected Parcel next(long time) {
+	// return next(program, dto, , pdpModel.getContents(this), coordinationModel
+	// .getClaims(), roadModel.getPosition(this), time, coordinationModel);
+	// }
+
+	// creates a generic context obj
+	// protected GendreauContext createContext(long time) {
+	// return new GendreauContext(dto, roadModel.getPosition(this),
+	// convert(pdpModel.getContents(this)), null, time,
+	// false, -1);
+	// }
+
+	// uses a generic context obj to create a parcel specific context
+	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
+		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
+				isInCargo, isInCargo ? coordinationModel.getNumWaitersFor(p) : 0);
 	}
 
-	protected static Parcel next(Heuristic<GendreauContext> program, VehicleDTO dto, Collection<Parcel> todo,
-			Collection<Parcel> contents, Set<Parcel> alreadyClaimed, Point truckPos, long time, CoordinationModel cm) {
+	protected static TimeUntilAvailable tua = new TimeUntilAvailable();
+
+	protected Parcel next(long time) {
+		final Collection<Parcel> todo = pdpModel.getParcels(ParcelState.ANNOUNCED, ParcelState.AVAILABLE);
+		final Set<Parcel> alreadyClaimed = coordinationModel.getClaims();
+		final Collection<Parcel> contents = pdpModel.getContents(this);
+
+		final GendreauContext genericContext = new GendreauContext(dto, roadModel.getPosition(this), convert(contents),
+				null, time, false, -1);
+		return nextLoop(todo, alreadyClaimed, contents, genericContext);
+	}
+
+	protected Parcel nextLoop(Collection<Parcel> todo, Set<Parcel> alreadyClaimed, Collection<Parcel> contents,
+			GendreauContext genericContext) {
 		Parcel best = null;
 		double bestValue = Double.POSITIVE_INFINITY;
 
-		boolean isPickup = true;
-
 		final StringBuilder sb = new StringBuilder();
-		final Collection<ParcelDTO> contentDTOs = convert(contents);
 		for (final Parcel p : todo) {
 			// filter out the already claimed parcels
 			if (!alreadyClaimed.contains(p)) {
-				final double v = program.compute(new GendreauContext(dto, truckPos, contentDTOs,
-						((DefaultParcel) p).dto, time, false, cm.getNumWaitersFor(p)));
-				sb.append(p).append(" ").append(v).append("\n");
-				if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
-					best = p;
-					bestValue = v;
+				final GendreauContext gc = createContext(genericContext, p, false);
+				final double res = tua.execute(null, gc);
+
+				if (res < 1000) {
+					final double v = program.compute(gc);
+
+					sb.append(p).append(" ").append(v).append("\n");
+					if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
+						best = p;
+						bestValue = v;
+					}
 				}
 			}
 		}
@@ -93,12 +121,13 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		// System.err.println(bestValue);
 		// }
 		for (final Parcel p : contents) {
-			final double v = program.compute(new GendreauContext(dto, truckPos, contentDTOs, ((DefaultParcel) p).dto,
-					time, true, 0)); // there can be no waiters for a delivery
+
+			final GendreauContext gc = createContext(genericContext, p, true);
+
+			final double v = program.compute(gc);
 			if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
 				best = p;
 				bestValue = v;
-				isPickup = false;
 			}
 		}
 		if (best == null) {
