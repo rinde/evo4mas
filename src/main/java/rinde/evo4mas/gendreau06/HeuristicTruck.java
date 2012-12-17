@@ -138,12 +138,18 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		return best;
 	}
 
-	protected boolean isTooEarly(Parcel p, Point truckPos, long time) {
-		final boolean isPickup = pdpModel.getParcelState(currentTarget) == ParcelState.IN_CARGO;
+	protected boolean isTooEarly(Parcel p, Point truckPos, TimeLapse time) {
+		final boolean isPickup = pdpModel.getParcelState(p) != ParcelState.IN_CARGO;
 		final Point loc = isPickup ? ((DefaultParcel) p).dto.pickupLocation : p.getDestination();
 		final long travelTime = (long) ((Point.distance(loc, truckPos) / 30d) * 3600000d);
-		final long timeToBegin = (isPickup ? p.getPickupTimeWindow().begin : p.getDeliveryTimeWindow().begin) - time;
-		return timeToBegin >= 0 && timeToBegin - travelTime > 1000;
+		long timeUntilAvailable = (isPickup ? p.getPickupTimeWindow().begin : p.getDeliveryTimeWindow().begin)
+				- time.getStartTime();
+
+		final long remainder = timeUntilAvailable % time.getTimeStep();
+		if (remainder > 0) {
+			timeUntilAvailable += time.getTimeStep() - remainder;
+		}
+		return timeUntilAvailable - travelTime > 0;
 	}
 
 	TimeLapse currentTime;
@@ -199,8 +205,8 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 			@Override
 			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
 				return context
-						.isTooEarly(context.currentTarget, context.roadModel.getPosition(context), context.currentTime
-								.getTime()) ? TruckEvent.YES : TruckEvent.NO;
+						.isTooEarly(context.currentTarget, context.roadModel.getPosition(context), context.currentTime) ? TruckEvent.YES
+						: TruckEvent.NO;
 			}
 		},
 		IS_IN_CARGO {
@@ -243,8 +249,7 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 			@Override
 			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
 				if (!context
-						.isTooEarly(context.currentTarget, context.roadModel.getPosition(context.truck), context.currentTime
-								.getTime())) {
+						.isTooEarly(context.currentTarget, context.roadModel.getPosition(context.truck), context.currentTime)) {
 					return TruckEvent.READY;
 				}
 				return null;
