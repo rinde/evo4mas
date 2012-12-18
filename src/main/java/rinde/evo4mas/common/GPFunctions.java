@@ -18,18 +18,21 @@ import rinde.sim.problem.common.ParcelDTO;
  */
 public class GPFunctions {
 
+	// when considering an available parcel this behaves as Ado, when it is in
+	// cargo it behaves as Add (both from Behams paper).
 	public static class Ado<T extends TruckContext> extends GPFunc<T> {
 		private static final long serialVersionUID = -4497905419697638750L;
 
 		@Override
 		public double execute(double[] input, T context) {
+			final Point poi = context.isInCargo ? context.parcel.destinationLocation : context.parcel.pickupLocation;
 			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
 			}
 			double distance = 0d;
 			for (final ParcelDTO p : contents) {
-				distance += Point.distance(context.parcel.destinationLocation, p.destinationLocation);
+				distance += Point.distance(poi, p.destinationLocation);
 			}
 			return distance / contents.size();
 		}
@@ -40,13 +43,14 @@ public class GPFunctions {
 
 		@Override
 		public double execute(double[] input, T context) {
+			final Point poi = context.isInCargo ? context.parcel.destinationLocation : context.parcel.pickupLocation;
 			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
 			}
 			double minDistance = Double.POSITIVE_INFINITY;
 			for (final ParcelDTO p : contents) {
-				minDistance = min(minDistance, Point.distance(context.parcel.destinationLocation, p.destinationLocation));
+				minDistance = min(minDistance, Point.distance(poi, p.destinationLocation));
 			}
 			return minDistance;
 		}
@@ -57,13 +61,14 @@ public class GPFunctions {
 
 		@Override
 		public double execute(double[] input, T context) {
+			final Point poi = context.isInCargo ? context.parcel.destinationLocation : context.parcel.pickupLocation;
 			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
 			}
 			double maxDistance = Double.NEGATIVE_INFINITY;
 			for (final ParcelDTO p : contents) {
-				maxDistance = max(maxDistance, Point.distance(context.parcel.destinationLocation, p.destinationLocation));
+				maxDistance = max(maxDistance, Point.distance(poi, p.destinationLocation));
 			}
 			return maxDistance;
 		}
