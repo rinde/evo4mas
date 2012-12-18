@@ -45,7 +45,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 	public Gendreau06Evaluator() {
 
 		final List<String> files = newArrayList();
-		for (int i = 1; i < 6; i++) {
+		for (int i = 1; i < 2; i++) {
 			files.add("files/scenarios/gendreau06/req_rapide_" + i + "_240_24");
 		}
 
@@ -55,8 +55,8 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 
 		System.out.println(testSet + "\n" + trainSet);
 
-		numScenariosAtLastGeneration = 5;
-		numScenariosPerGeneration = 3;
+		numScenariosAtLastGeneration = 1;
+		numScenariosPerGeneration = 1;
 
 		scenarioCache = newHashMap();
 		try {

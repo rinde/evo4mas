@@ -58,7 +58,10 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 				new Dist<GendreauContext>(), /* */
 				new Urge<GendreauContext>(), /* */
 				new Est<GendreauContext>(), /* */
-				new Ttl<GendreauContext>() /* */
+				new Ttl<GendreauContext>(), /* */
+				new Adc(), /* */
+				new Midc(), /* */
+				new Madc() /* */
 		);
 	}
 
@@ -102,6 +105,55 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 					: context.parcel.deliveryTimeWindow.begin) - context.time - travelTime;
 
 			return Math.min(0, timeToBegin);
+		}
+	}
+
+	public static class Adc extends GPFunc<GendreauContext> {
+		private static final long serialVersionUID = -3351761832322115361L;
+
+		@Override
+		public double execute(double[] input, GendreauContext context) {
+			final Point poi = context.isInCargo ? context.parcel.destinationLocation : context.parcel.pickupLocation;
+			double dist = 0;
+			for (final Point p : context.otherVehiclePositions) {
+				dist += Point.distance(poi, p);
+			}
+			dist /= context.otherVehiclePositions.size();
+			return dist;
+		}
+	}
+
+	public static class Midc extends GPFunc<GendreauContext> {
+		private static final long serialVersionUID = 4350517514894413992L;
+
+		@Override
+		public double execute(double[] input, GendreauContext context) {
+			final Point poi = context.isInCargo ? context.parcel.destinationLocation : context.parcel.pickupLocation;
+			double min = Double.POSITIVE_INFINITY;
+			for (final Point p : context.otherVehiclePositions) {
+				final double dist = Point.distance(poi, p);
+				if (dist < min) {
+					min = dist;
+				}
+			}
+			return min;
+		}
+	}
+
+	public static class Madc extends GPFunc<GendreauContext> {
+		private static final long serialVersionUID = -7052728913139911309L;
+
+		@Override
+		public double execute(double[] input, GendreauContext context) {
+			final Point poi = context.isInCargo ? context.parcel.destinationLocation : context.parcel.pickupLocation;
+			double max = Double.NEGATIVE_INFINITY;
+			for (final Point p : context.otherVehiclePositions) {
+				final double dist = Point.distance(poi, p);
+				if (dist > max) {
+					max = dist;
+				}
+			}
+			return max;
 		}
 	}
 

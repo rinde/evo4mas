@@ -6,6 +6,8 @@ package rinde.evo4mas.gendreau06;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newLinkedHashMap;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -57,13 +59,20 @@ public class FunctionTest {
 		final ParcelDTO dto1 = new ParcelDTO(new Point(2, 2.5), new Point(1, 2.5), new TimeWindow(0, 10000),
 				new TimeWindow(10000, 20000), 0, 0, SERVICE_TIME, SERVICE_TIME);
 
-		final TestInstance ti = new TestInstance(dto1);
+		final ParcelDTO dto2 = new ParcelDTO(new Point(2, 2.5), new Point(1, 2.5), new TimeWindow(10000, 20000),
+				new TimeWindow(10000, 20000), 0, 0, SERVICE_TIME, SERVICE_TIME);
+
+		final TestInstance ti = new TestInstance(dto1, dto2);
 		final Map<ParcelDTO, Parcel> parcels = ti.getParcelMap();
 
 		assertEquals(0d, ti.getTestTruck().testFunc(new Dist<TruckContext>(), 0, parcels.get(dto1), false), EPSILON);
 		assertEquals(1d, ti.getTestTruck().testFunc(new Dist<TruckContext>(), 0, parcels.get(dto1), true), EPSILON);
 
-		System.out.println(ti.getTestTruck().testFunc(new Urge<TruckContext>(), 0, parcels.get(dto1), false));
+		assertEquals(10000d, ti.getTestTruck().testFunc(new Urge<TruckContext>(), 0, parcels.get(dto1), false), EPSILON);
+		assertEquals(20000d, ti.getTestTruck().testFunc(new Urge<TruckContext>(), 0, parcels.get(dto2), false), EPSILON);
+
+		assertFalse(ti.getTestTruck().testIsTooEarly(parcels.get(dto1), 0));
+		assertTrue(ti.getTestTruck().testIsTooEarly(parcels.get(dto2), 0));
 
 	}
 
@@ -128,6 +137,7 @@ public class FunctionTest {
 		Parcel parcel;
 		boolean isInCargo;
 		double value;
+		GPFunc<TruckContext> testFunc;
 
 		public TestTruck(VehicleDTO pDto) {
 			// the supplied program is ignored
@@ -146,16 +156,25 @@ public class FunctionTest {
 		protected Parcel nextLoop(Collection<Parcel> todo, Set<Parcel> alreadyClaimed, Collection<Parcel> contents,
 				GendreauContext genericContext) {
 			final GendreauContext gc = createContext(genericContext, parcel, isInCargo);
-			value = new Dist<TruckContext>().execute(null, gc);
+			value = testFunc.execute(null, gc);
 			return null;
 		}
 
 		public double testFunc(GPFunc<TruckContext> func, long time, Parcel p, Boolean cargo) {
 			parcel = p;
+			testFunc = func;
 			isInCargo = cargo;
 			tickImpl(TimeLapseFactory.create(time, time + 1000));
 			parcel = null;
 			return value;
+		}
+
+		public boolean testIsTooEarly(Parcel p, long time) {
+			return super.isTooEarly(p, getPosition(), TimeLapseFactory.create(time, time + 1000));
+		}
+
+		public Point getPosition() {
+			return roadModel.getPosition(this);
 		}
 	}
 

@@ -1,8 +1,10 @@
 package rinde.evo4mas.gendreau06;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 import rinde.ecj.Heuristic;
@@ -12,6 +14,7 @@ import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.core.model.pdp.Vehicle;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.event.Event;
 import rinde.sim.event.Listener;
@@ -78,7 +81,7 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 	// uses a generic context obj to create a parcel specific context
 	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
 		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
-				isInCargo, isInCargo ? coordinationModel.getNumWaitersFor(p) : 0);
+				isInCargo, isInCargo ? coordinationModel.getNumWaitersFor(p) : 0, gc.otherVehiclePositions);
 	}
 
 	protected static TimeUntilAvailable tua = new TimeUntilAvailable();
@@ -88,8 +91,16 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 		final Set<Parcel> alreadyClaimed = coordinationModel.getClaims();
 		final Collection<Parcel> contents = pdpModel.getContents(this);
 
+		final Set<Vehicle> vehicles = pdpModel.getVehicles();
+		final List<Point> positions = newArrayList();
+		for (final Vehicle v : vehicles) {
+			if (v != this) {
+				positions.add(roadModel.getPosition(v));
+			}
+		}
+
 		final GendreauContext genericContext = new GendreauContext(dto, roadModel.getPosition(this), convert(contents),
-				null, time, false, -1);
+				null, time, false, -1, positions);
 		return nextLoop(todo, alreadyClaimed, contents, genericContext);
 	}
 
@@ -105,6 +116,7 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 				final GendreauContext gc = createContext(genericContext, p, false);
 				final double res = tua.execute(null, gc);
 
+				// TODO this should be a differnt value? similar to isEarly
 				if (res < 1000) {
 					final double v = program.compute(gc);
 
