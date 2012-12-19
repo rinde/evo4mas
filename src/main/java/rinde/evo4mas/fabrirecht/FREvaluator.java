@@ -134,7 +134,7 @@ public class FREvaluator extends GPEvaluator<FRSimulationTask, ResultDTO, Heuris
 	}
 
 	@Override
-	protected int expectedNumberOfResultsPerGPIndividual() {
+	protected int expectedNumberOfResultsPerGPIndividual(EvolutionState state) {
 		return numScenariosPerGeneration;
 	}
 
