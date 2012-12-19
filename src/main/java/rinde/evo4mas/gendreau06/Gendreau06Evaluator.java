@@ -61,7 +61,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 
 		System.out.println("test: " + removeDirPrefix(testSet) + "\ntrain: " + removeDirPrefix(trainSet));
 
-		numScenariosAtLastGeneration = 20;
+		numScenariosAtLastGeneration = 50;
 		numScenariosPerGeneration = 5;
 
 		scenarioCache = newHashMap();
@@ -103,7 +103,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 		return names;
 	}
 
-	void experimentOnTestSet(GPIndividual ind) {
+	Collection<ResultDTO> experimentOnTestSet(GPIndividual ind) {
 		final GPProgram<GendreauContext> heuristic = GPProgramParser
 				.convertToGPProgram((GPBaseNode<GendreauContext>) ind.trees[0].child);
 
@@ -132,10 +132,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 				job.addTask(j);
 			}
 			final Collection<ResultDTO> results = compute(job);
-
-			for (final ResultDTO r : results) {
-				System.out.println(r.scenarioKey + " " + r.fitness);
-			}
+			return results;
 
 		} catch (final Exception e) {
 			throw new RuntimeException(e);

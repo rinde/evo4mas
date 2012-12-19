@@ -3,13 +3,28 @@
  */
 package rinde.evo4mas.gendreau06;
 
+import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Lists.newArrayList;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import rinde.ecj.GPStats;
+import rinde.evo4mas.common.ResultDTO;
 import rinde.jppf.GPComputationResult;
 import ec.EvolutionState;
 import ec.Individual;
 import ec.gp.GPIndividual;
+import ec.util.Parameter;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -19,8 +34,55 @@ public class EvoStatistics extends GPStats {
 
 	private static final long serialVersionUID = -4756048854629216449L;
 
+	String path;
+
 	@Override
-	public void printMore(List<GPComputationResult> results) {
+	public void setup(final EvolutionState state, final Parameter base) {
+		super.setup(state, base);
+
+		final String dirName = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
+		path = "runs/" + dirName;
+		checkState(new File(path).mkdir(), "dir " + path + " could not be created");
+
+	}
+
+	@Override
+	public void printMore(EvolutionState state, Individual best, List<GPComputationResult> results) {
+
+		// TODO also write fitness values of current best individual on train
+		// data?
+
+		// do experiment on test set with best individual
+		final List<ResultDTO> testResults = newArrayList(((Gendreau06Evaluator) state.evaluator)
+				.experimentOnTestSet((GPIndividual) best));
+
+		Collections.sort(testResults, new Comparator<ResultDTO>() {
+			public int compare(ResultDTO o1, ResultDTO o2) {
+				return o1.taskDataId.compareTo(o2.taskDataId);
+			}
+		});
+
+		// write results to some file
+		final StringBuilder sb = new StringBuilder();
+		sb.append(state.generation);
+
+		float sum = 0f;
+		for (final ResultDTO dto : testResults) {
+			sum += dto.fitness;
+		}
+		sb.append(" ").append(sum / testResults.size());
+		for (final ResultDTO dto : testResults) {
+			sb.append(" ").append(dto.fitness);
+		}
+
+		try {
+			final PrintWriter out = new PrintWriter(
+					new BufferedWriter(new FileWriter(path + "/fitness-test.log", true)));
+			out.println(sb.toString());
+			out.close();
+		} catch (final IOException e) {
+			throw new RuntimeException("Something went wrong when writing results.");
+		}
 
 	}
 
@@ -34,7 +96,12 @@ public class EvoStatistics extends GPStats {
 			}
 		}
 
-		((Gendreau06Evaluator) state.evaluator).experimentOnTestSet((GPIndividual) best);
+		final Collection<ResultDTO> results = ((Gendreau06Evaluator) state.evaluator)
+				.experimentOnTestSet((GPIndividual) best);
+
+		for (final ResultDTO r : results) {
+			System.out.println(r.scenarioKey + " " + r.fitness);
+		}
 
 		// final List<GPComputationResult> list =
 		// ((GPFitness<GPComputationResult>) best.fitness).getResults();

@@ -21,7 +21,7 @@ public class EvoStatistics extends GPStats {
 	private static final long serialVersionUID = -4756048854629216449L;
 
 	@Override
-	public void printMore(List<GPComputationResult> results) {
+	public void printMore(EvolutionState state, Individual best, List<GPComputationResult> results) {
 		// final List<FRResultDTO> results = ((GPFitness<FRResultDTO>)
 		// best_i.fitness).getResults();
 		// System.out.println(((FRSimulationDTO)
