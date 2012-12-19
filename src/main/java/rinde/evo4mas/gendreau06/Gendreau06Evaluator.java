@@ -145,8 +145,8 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 	}
 
 	@Override
-	protected int expectedNumberOfResultsPerGPIndividual() {
-		return numScenariosPerGeneration;
+	protected int expectedNumberOfResultsPerGPIndividual(EvolutionState state) {
+		return state.generation == state.numGenerations - 1 ? numScenariosAtLastGeneration : numScenariosPerGeneration;
 	}
 
 }
