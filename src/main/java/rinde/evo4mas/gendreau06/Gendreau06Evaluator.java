@@ -49,14 +49,20 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 			files.add("files/scenarios/gendreau06/req_rapide_" + i + "_240_24");
 		}
 
-		testSet = unmodifiableList(files);// folds.get(0));
-		trainSet = unmodifiableList(files);// ExperimentUtil.createTrainSet(folds,
-											// 0));
+		ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/train/", "_240_24");
 
-		System.out.println(testSet + "\n" + trainSet);
+		// testSet = unmodifiableList(files);// folds.get(0));
+		// trainSet = unmodifiableList(files);//
+		// ExperimentUtil.createTrainSet(folds,
+		// // 0));
 
-		numScenariosAtLastGeneration = 1;
-		numScenariosPerGeneration = 1;
+		testSet = unmodifiableList(ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/", "_240_24"));
+		trainSet = unmodifiableList(ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/train/", "_240_24"));
+
+		System.out.println("test: " + removeDirPrefix(testSet) + "\ntrain: " + removeDirPrefix(trainSet));
+
+		numScenariosAtLastGeneration = 20;
+		numScenariosPerGeneration = 5;
 
 		scenarioCache = newHashMap();
 		try {
@@ -77,10 +83,24 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 		final List<String> list = newArrayList();
 		final int numScens = state.generation == state.numGenerations - 1 ? numScenariosAtLastGeneration
 				: numScenariosPerGeneration;
-		for (int i = 0; i < numScenariosPerGeneration; i++) {
-			list.add(trainSet.get((state.generation * numScens + i) % trainSet.size()));
+		for (int i = 0; i < numScens; i++) {
+			list.add(trainSet.get((state.generation * numScenariosPerGeneration + i) % trainSet.size()));
 		}
 		return list;
+	}
+
+	@Override
+	public void evaluatePopulation(EvolutionState state) {
+		System.out.println(removeDirPrefix(getCurrentScenarios(state)));
+		super.evaluatePopulation(state);
+	}
+
+	List<String> removeDirPrefix(List<String> files) {
+		final List<String> names = newArrayList();
+		for (final String f : files) {
+			names.add(f.substring(f.lastIndexOf('/') + 1));
+		}
+		return names;
 	}
 
 	void experimentOnTestSet(GPIndividual ind) {
