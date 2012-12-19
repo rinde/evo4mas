@@ -20,21 +20,30 @@ import java.util.List;
  */
 public class ExperimentUtil {
 
-	public static List<List<String>> createFolds(String dir, int n, final String suffix) {
-		final String[] scens = new File(dir).list(new FilenameFilter() {
+	public static List<String> getFilesFromDir(String dir, final String suffix) {
+		final String[] names = new File(dir).list(new FilenameFilter() {
 			public boolean accept(File d, String name) {
 				return name.endsWith(suffix);
 			}
 		});
-		// sort on file name such that produced folds are always deterministic
-		// and do not depend on filesystem ordering.
-		Arrays.sort(scens);
+		// sort on file name such that order of returned list does not depend on
+		// filesystem ordering.
+		Arrays.sort(names);
+		final List<String> paths = newArrayList();
+		for (final String scen : names) {
+			paths.add(dir + scen);
+		}
+		return paths;
+	}
+
+	public static List<List<String>> createFolds(String dir, int n, final String suffix) {
+		final List<String> files = getFilesFromDir(dir, suffix);
 		final List<List<String>> fs = newArrayList();
 		for (int i = 0; i < n; i++) {
 			fs.add(new ArrayList<String>());
 		}
-		for (int i = 0; i < scens.length; i++) {
-			fs.get(i % n).add(dir + scens[i]);
+		for (int i = 0; i < files.size(); i++) {
+			fs.get(i % n).add(files.get(i));
 		}
 		return fs;
 	}
