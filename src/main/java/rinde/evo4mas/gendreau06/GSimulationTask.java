@@ -69,7 +69,8 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 			problem.addStopCondition(new StopCondition() {
 				@Override
 				public boolean isSatisfiedBy(SimulationInfo context) {
-					return context.stats.computationTime > 5 * 60 * 1000;
+					return false;// context.stats.computationTime > 5 * 60 *
+									// 1000;
 				}
 			});
 			problem.addStopCondition(new StopCondition() {
