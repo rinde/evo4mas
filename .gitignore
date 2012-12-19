@@ -4,3 +4,5 @@ target/*
 # Package Files #
 *.war
 *.ear
+runs/
+files/scenarios/gendreau06/train/
