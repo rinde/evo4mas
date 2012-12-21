@@ -47,7 +47,7 @@ public class EvoStatistics extends GPStats {
 	}
 
 	public static void createSymbolicLink(String target, String link) {
-		final String[] cmd = { "ln", "-s", new File(target).getAbsolutePath(), new File(link).getAbsolutePath() };
+		final String[] cmd = { "ln", "-sFh", new File(target).getAbsolutePath(), new File(link).getAbsolutePath() };
 		int exitCode;
 		try {
 			exitCode = Runtime.getRuntime().exec(cmd).waitFor();
