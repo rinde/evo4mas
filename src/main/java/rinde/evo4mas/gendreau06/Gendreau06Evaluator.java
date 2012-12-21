@@ -3,10 +3,12 @@
  */
 package rinde.evo4mas.gendreau06;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Collections.unmodifiableList;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
@@ -27,6 +29,7 @@ import rinde.evo4mas.common.ResultDTO;
 import ec.EvolutionState;
 import ec.gp.GPIndividual;
 import ec.gp.GPTree;
+import ec.util.Parameter;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -34,37 +37,40 @@ import ec.gp.GPTree;
  */
 public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO, Heuristic<GendreauContext>> {
 
+	private static final long serialVersionUID = 5944679648563955812L;
+
 	static List<List<String>> folds = ExperimentUtil.createFolds("files/scenarios/gendreau06/", 5, "");
 
-	private final List<String> trainSet;
-	private final List<String> testSet;
-	private final int numScenariosPerGeneration;
-	private final int numScenariosAtLastGeneration;
+	protected List<String> trainSet;
+	protected List<String> testSet;
+	protected int numScenariosPerGeneration;
+	protected int numScenariosAtLastGeneration;
 	private final Map<String, String> scenarioCache;
 
+	public final static String P_TEST_SET_DIR = "test-set-dir";
+	public final static String P_TRAIN_SET_DIR = "train-set-dir";
+
+	public final static String P_NUM_SCENARIOS_PER_GENERATION = "num-scenarios-per-generation";
+	public final static String P_NUM_SCENARIOS_AT_LAST_GENERATION = "num-scenarios-at-last-generation";
+
 	public Gendreau06Evaluator() {
+		scenarioCache = newHashMap();
+	}
 
-		final List<String> files = newArrayList();
-		for (int i = 1; i < 2; i++) {
-			files.add("files/scenarios/gendreau06/req_rapide_" + i + "_240_24");
-		}
+	@Override
+	public void setup(final EvolutionState state, final Parameter base) {
+		super.setup(state, base);
+		final String testSetDir = state.parameters.getString(base.push(P_TEST_SET_DIR), null);
+		checkArgument(testSetDir != null && new File(testSetDir).isDirectory(), "A valid test set directory should be specified, "
+				+ base.push(P_TEST_SET_DIR) + "=" + testSetDir);
+		final String trainSetDir = state.parameters.getString(base.push(P_TRAIN_SET_DIR), null);
+		checkArgument(trainSetDir != null && new File(trainSetDir).isDirectory(), "A valid train set directory should be specified, "
+				+ base.push(P_TRAIN_SET_DIR) + "=" + trainSetDir);
 
-		ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/train/", "_240_24");
-
-		// testSet = unmodifiableList(files);// folds.get(0));
-		// trainSet = unmodifiableList(files);//
-		// ExperimentUtil.createTrainSet(folds,
-		// // 0));
-
-		testSet = unmodifiableList(ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/", "_240_24"));
-		trainSet = unmodifiableList(ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/train/", "_240_24"));
-
+		testSet = unmodifiableList(ExperimentUtil.getFilesFromDir(testSetDir, "_240_24"));
+		trainSet = unmodifiableList(ExperimentUtil.getFilesFromDir(trainSetDir, "_240_24"));
 		System.out.println("test: " + removeDirPrefix(testSet) + "\ntrain: " + removeDirPrefix(trainSet));
 
-		numScenariosAtLastGeneration = 50;
-		numScenariosPerGeneration = 5;
-
-		scenarioCache = newHashMap();
 		try {
 			for (final String s : testSet) {
 				scenarioCache.put(s, ExperimentUtil.textFileToString(s));
@@ -77,6 +83,18 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
+
+		numScenariosPerGeneration = state.parameters.getInt(base.push(P_NUM_SCENARIOS_PER_GENERATION), null, 0);
+		checkArgument(numScenariosPerGeneration > 0, "Number of scenarios per generation must be defined, found "
+				+ base.push(P_NUM_SCENARIOS_PER_GENERATION) + "="
+				+ (numScenariosPerGeneration == -1 ? "undefined" : numScenariosPerGeneration));
+
+		numScenariosAtLastGeneration = state.parameters.getInt(base.push(P_NUM_SCENARIOS_AT_LAST_GENERATION), null, 0);
+		checkArgument(numScenariosAtLastGeneration > 0, "Number of scenarios at last generation must be defined, found "
+				+ base.push(P_NUM_SCENARIOS_AT_LAST_GENERATION)
+				+ "="
+				+ (numScenariosAtLastGeneration == -1 ? "undefined" : numScenariosAtLastGeneration));
+
 	}
 
 	List<String> getCurrentScenarios(EvolutionState state) {
