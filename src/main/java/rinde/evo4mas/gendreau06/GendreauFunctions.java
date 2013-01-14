@@ -65,6 +65,9 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 		);
 	}
 
+	/**
+	 * Returns number of parcels in cargo of vehicle.
+	 */
 	public static class CargoSize extends GPFunc<GendreauContext> {
 		private static final long serialVersionUID = -3041300164485908524L;
 
@@ -74,6 +77,10 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 		}
 	}
 
+	/**
+	 * Returns <code>1</code> if current parcel is in cargo <code>0</code>
+	 * otherwise.
+	 */
 	public static class IsInCargo extends GPFunc<GendreauContext> {
 		private static final long serialVersionUID = -3041300164485908524L;
 
@@ -83,6 +90,10 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 		}
 	}
 
+	/**
+	 * A vehicle is waiting if it aims to pickup a parcel but is too early. This
+	 * function returns the number of waiters of the current parcel.
+	 */
 	public static class Waiters extends GPFunc<GendreauContext> {
 		private static final long serialVersionUID = -1258248355393336918L;
 
@@ -92,6 +103,14 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 		}
 	}
 
+	/**
+	 * This function returns the time that is left until the current parcel is
+	 * available or <code>0</code> if it is available. In case the parcel has to
+	 * be picked up availability is indicated by its pickup time window, if it
+	 * is already in cargo availability is indicated by its delivery time
+	 * window. The time is corrected for the travel time of the vehicle to the
+	 * parcel.
+	 */
 	public static class TimeUntilAvailable extends GPFunc<GendreauContext> {
 		private static final long serialVersionUID = -3527221929651639824L;
 
@@ -108,6 +127,12 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 		}
 	}
 
+	/**
+	 * Average distance of current parcels to all vehicles.
+	 * 
+	 * From Beham: 'specifies the average distance of the service point to the
+	 * other couriers'.
+	 */
 	public static class Adc extends GPFunc<GendreauContext> {
 		private static final long serialVersionUID = -3351761832322115361L;
 
@@ -123,6 +148,9 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 		}
 	}
 
+	/**
+	 * Distance of current parcel to closest vehicle.
+	 */
 	public static class Midc extends GPFunc<GendreauContext> {
 		private static final long serialVersionUID = 4350517514894413992L;
 
@@ -140,6 +168,9 @@ public class GendreauFunctions extends GPFuncSet<GendreauContext> {
 		}
 	}
 
+	/**
+	 * Distance of current parcel to vehicle farthest away.
+	 */
 	public static class Madc extends GPFunc<GendreauContext> {
 		private static final long serialVersionUID = -7052728913139911309L;
 
