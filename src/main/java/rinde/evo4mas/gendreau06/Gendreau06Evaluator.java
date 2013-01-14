@@ -11,6 +11,7 @@ import static java.util.Collections.unmodifiableList;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import rinde.ecj.GPProgramParser;
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ExperimentUtil;
 import rinde.evo4mas.common.ResultDTO;
+import rinde.evo4mas.gendreau06.GSimulationTask.SolutionType;
 import ec.EvolutionState;
 import ec.gp.GPIndividual;
 import ec.gp.GPTree;
@@ -45,7 +47,10 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 	protected List<String> testSet;
 	protected int numScenariosPerGeneration;
 	protected int numScenariosAtLastGeneration;
+	protected SolutionType solutionType;
 	private final Map<String, String> scenarioCache;
+
+	public final static String P_SOLUTION_VARIANT = "solution-variant";
 
 	public final static String P_TEST_SET_DIR = "test-set-dir";
 	public final static String P_TRAIN_SET_DIR = "train-set-dir";
@@ -70,6 +75,11 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 		testSet = unmodifiableList(ExperimentUtil.getFilesFromDir(testSetDir, "_240_24"));
 		trainSet = unmodifiableList(ExperimentUtil.getFilesFromDir(trainSetDir, "_240_24"));
 		System.out.println("test: " + removeDirPrefix(testSet) + "\ntrain: " + removeDirPrefix(trainSet));
+
+		final String sv = state.parameters.getString(base.push(P_SOLUTION_VARIANT), null);
+		checkArgument(SolutionType.hasValue(sv), base.push(P_TRAIN_SET_DIR)
+				+ " should be assigned one of the following values: " + Arrays.toString(SolutionType.values()));
+		solutionType = SolutionType.valueOf(sv);
 
 		try {
 			for (final String s : testSet) {
@@ -139,7 +149,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 				throw new RuntimeException(e);
 			}
 			final int numVehicles = s.contains("_450_") ? 20 : 10;
-			list.add(new GSimulationTask(s, heuristic.clone(), numVehicles, -1));
+			list.add(new GSimulationTask(s, heuristic.clone(), numVehicles, -1, solutionType));
 		}
 		try {
 
@@ -174,7 +184,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 				throw new RuntimeException(e);
 			}
 			final int numVehicles = s.contains("_450_") ? 20 : 10;
-			list.add(new GSimulationTask(s, heuristic.clone(), numVehicles, 60000));
+			list.add(new GSimulationTask(s, heuristic.clone(), numVehicles, 60000, SolutionType.AUCTION));
 		}
 		return list;
 	}

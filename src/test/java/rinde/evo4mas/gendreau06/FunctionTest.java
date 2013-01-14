@@ -131,7 +131,7 @@ public class FunctionTest {
 
 	}
 
-	class TestTruck extends HeuristicTruck {
+	class TestTruck extends MyopicTruck {
 
 		// used to pass test variables
 		Parcel parcel;

@@ -17,6 +17,7 @@ import rinde.evo4mas.common.ExperimentUtil;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.jppf.ComputationTask;
 import rinde.sim.core.Simulator;
+import rinde.sim.problem.common.AddParcelEvent;
 import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.DynamicPDPTWProblem;
 import rinde.sim.problem.common.DynamicPDPTWProblem.Creator;
@@ -36,16 +37,31 @@ import rinde.sim.ui.renderers.Renderer;
  */
 public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<GendreauContext>> {
 
+	public enum SolutionType {
+		MYOPIC, AUCTION;
+
+		public static boolean hasValue(String s) {
+			try {
+				valueOf(s);
+				return true;
+			} catch (final Exception e) {
+				return false;
+			}
+		}
+	}
+
 	private static final long serialVersionUID = -4669749528059234353L;
 	protected final String scenarioKey;
 	protected final int numVehicles;
 	protected final long tickSize;
+	protected final SolutionType solutionType;
 
-	public GSimulationTask(String scenario, Heuristic<GendreauContext> p, int vehicles, long tick) {
+	public GSimulationTask(String scenario, Heuristic<GendreauContext> p, int vehicles, long tick, SolutionType t) {
 		super(p);
 		scenarioKey = scenario;
 		numVehicles = vehicles;
 		tickSize = tick;
+		solutionType = t;
 	}
 
 	// extension hook
@@ -61,11 +77,25 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 			final Gendreau06Scenario scenario = Gendreau06Parser.parse(new BufferedReader(new StringReader(
 					scenarioString)), scenarioKey, numVehicles, tickSize);
 			final DynamicPDPTWProblem problem = new DynamicPDPTWProblem(scenario, 123, new CoordinationModel());
-			problem.addCreator(AddVehicleEvent.class, new Creator<AddVehicleEvent>() {
-				public boolean create(Simulator sim, AddVehicleEvent event) {
-					return sim.register(new HeuristicTruck(event.vehicleDTO, taskData));
-				}
-			});
+
+			if (solutionType == SolutionType.MYOPIC) {
+				problem.addCreator(AddVehicleEvent.class, new Creator<AddVehicleEvent>() {
+					public boolean create(Simulator sim, AddVehicleEvent event) {
+						return sim.register(new MyopicTruck(event.vehicleDTO, taskData));
+					}
+				});
+			} else {
+				problem.addCreator(AddParcelEvent.class, new Creator<AddParcelEvent>() {
+					public boolean create(Simulator sim, AddParcelEvent event) {
+						return sim.register(new AuctionParcel(event.parcelDTO));
+					}
+				});
+				problem.addCreator(AddVehicleEvent.class, new Creator<AddVehicleEvent>() {
+					public boolean create(Simulator sim, AddVehicleEvent event) {
+						return sim.register(new AuctionTruck(event.vehicleDTO, taskData));
+					}
+				});
+			}
 			problem.addStopCondition(new StopCondition() {
 				@Override
 				public boolean isSatisfiedBy(SimulationInfo context) {
@@ -106,10 +136,10 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 	}
 
 	public static GSimulationTask createTestableTask(final String fileName, Heuristic<GendreauContext> p, int vehicles,
-			final boolean showGui, long tickSize) {
+			final boolean showGui, long tickSize, SolutionType st) {
 		try {
 			final String scenarioString = ExperimentUtil.textFileToString(fileName);
-			final GSimulationTask task = new GSimulationTask(new File(fileName).getName(), p, vehicles, tickSize) {
+			final GSimulationTask task = new GSimulationTask(new File(fileName).getName(), p, vehicles, tickSize, st) {
 				@Override
 				protected void preSimulate(DynamicPDPTWProblem problem) {
 					if (showGui) {

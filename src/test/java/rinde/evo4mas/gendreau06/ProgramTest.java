@@ -9,6 +9,7 @@ import java.util.Collection;
 import rinde.ecj.GPFunc;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
+import rinde.evo4mas.gendreau06.GSimulationTask.SolutionType;
 import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
 
 /**
@@ -51,7 +52,7 @@ public class ProgramTest {
 		final GPProgram<GendreauContext> prog = GPProgramParser.parseProgramFunc(progString, funcs);
 
 		final GSimulationTask task = GSimulationTask
-				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, true, 1000);
+				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, true, 1000, SolutionType.MYOPIC);
 
 		task.run();
 

@@ -25,7 +25,7 @@ import rinde.sim.problem.common.VehicleDTO;
 import rinde.sim.util.fsm.StateMachine;
 import rinde.sim.util.fsm.StateMachine.State;
 
-public class HeuristicTruck extends DefaultVehicle implements Listener {
+public abstract class HeuristicTruck extends DefaultVehicle implements Listener {
 
 	protected final Heuristic<GendreauContext> program;
 	protected boolean hasChanged = true;
@@ -66,89 +66,32 @@ public class HeuristicTruck extends DefaultVehicle implements Listener {
 
 	}
 
-	// protected Parcel next(long time) {
-	// return next(program, dto, , pdpModel.getContents(this), coordinationModel
-	// .getClaims(), roadModel.getPosition(this), time, coordinationModel);
-	// }
-
-	// creates a generic context obj
-	// protected GendreauContext createContext(long time) {
-	// return new GendreauContext(dto, roadModel.getPosition(this),
-	// convert(pdpModel.getContents(this)), null, time,
-	// false, -1);
-	// }
-
 	// uses a generic context obj to create a parcel specific context
 	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
 		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
 				isInCargo, isInCargo ? coordinationModel.getNumWaitersFor(p) : 0, gc.otherVehiclePositions);
 	}
 
-	protected static TimeUntilAvailable tua = new TimeUntilAvailable();
-
-	protected Parcel next(long time) {
-		final Collection<Parcel> todo = pdpModel.getParcels(ParcelState.ANNOUNCED, ParcelState.AVAILABLE);
-		final Set<Parcel> alreadyClaimed = coordinationModel.getClaims();
+	protected GendreauContext createGenericContext(long time) {
 		final Collection<Parcel> contents = pdpModel.getContents(this);
-
-		final Set<Vehicle> vehicles = pdpModel.getVehicles();
 		final List<Point> positions = newArrayList();
+		final Set<Vehicle> vehicles = pdpModel.getVehicles();
 		for (final Vehicle v : vehicles) {
 			if (v != this) {
 				positions.add(roadModel.getPosition(v));
 			}
 		}
-
-		final GendreauContext genericContext = new GendreauContext(dto, roadModel.getPosition(this), convert(contents),
-				null, time, false, -1, positions);
-		return nextLoop(todo, alreadyClaimed, contents, genericContext);
+		return new GendreauContext(dto, roadModel.getPosition(this), convert(contents), null, time, false, -1,
+				positions);
 	}
 
-	protected Parcel nextLoop(Collection<Parcel> todo, Set<Parcel> alreadyClaimed, Collection<Parcel> contents,
-			GendreauContext genericContext) {
-		Parcel best = null;
-		double bestValue = Double.POSITIVE_INFINITY;
-
-		final StringBuilder sb = new StringBuilder();
-		for (final Parcel p : todo) {
-			// filter out the already claimed parcels
-			if (!alreadyClaimed.contains(p)) {
-				final GendreauContext gc = createContext(genericContext, p, false);
-				final double res = tua.execute(null, gc);
-
-				// TODO this should be a differnt value? similar to isEarly
-				if (res < 1000) {
-					final double v = program.compute(gc);
-
-					sb.append(p).append(" ").append(v).append("\n");
-					if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
-						best = p;
-						bestValue = v;
-					}
-				}
-			}
-		}
-		// if (best == null) {
-		// System.err.println(sb.toString());
-		// System.err.println(bestValue);
-		// }
-		for (final Parcel p : contents) {
-
-			final GendreauContext gc = createContext(genericContext, p, true);
-
-			final double v = program.compute(gc);
-			if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
-				best = p;
-				bestValue = v;
-			}
-		}
-		if (best == null) {
-			// System.out.println("todo: " + todo + "\ncontents: " + contents +
-			// "\nclaimed: " + alreadyClaimed);
-		}
-
-		return best;
+	protected GendreauContext createFullContext(long time, Parcel p, boolean isInCargo) {
+		return createContext(createGenericContext(time), p, isInCargo);
 	}
+
+	protected static TimeUntilAvailable tua = new TimeUntilAvailable();
+
+	protected abstract Parcel next(long time);
 
 	protected boolean isTooEarly(Parcel p, Point truckPos, TimeLapse time) {
 		final boolean isPickup = pdpModel.getParcelState(p) != ParcelState.IN_CARGO;
