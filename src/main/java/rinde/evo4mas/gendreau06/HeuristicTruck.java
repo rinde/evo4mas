@@ -4,6 +4,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -46,7 +47,7 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 	}
 
 	static StateMachine<TruckEvent, HeuristicTruck> createStateMachine(State<TruckEvent, HeuristicTruck> earlyTarget,
-			State<TruckEvent, HeuristicTruck> gotoPickup) {
+			State<TruckEvent, HeuristicTruck> gotoPickup, State<TruckEvent, HeuristicTruck> pickup) {
 
 		final State<TruckEvent, HeuristicTruck> idle = new Idle();
 		final State<TruckEvent, HeuristicTruck> hasTarget = new HasTarget();
@@ -54,7 +55,6 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 		final State<TruckEvent, HeuristicTruck> isInCargo = new IsInCargo();
 		final State<TruckEvent, HeuristicTruck> gotoDelivery = new GotoDelivery();
 		final State<TruckEvent, HeuristicTruck> deliver = new Deliver();
-		final State<TruckEvent, HeuristicTruck> pickup = new Pickup();
 		final State<TruckEvent, HeuristicTruck> goHome = new GoHome();
 
 		return StateMachine.create(idle)/* */
@@ -80,7 +80,7 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 	// uses a generic context obj to create a parcel specific context
 	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
 		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
-				isInCargo, 0, gc.otherVehiclePositions);
+				isInCargo, 0, gc.otherVehiclePositions, gc.todoList);
 
 	}
 
@@ -94,7 +94,7 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 			}
 		}
 		return new GendreauContext(dto, roadModel.getPosition(this), convert(contents), null, time, false, -1,
-				positions);
+				positions, new HashSet<Parcel>());
 	}
 
 	protected GendreauContext createFullContext(long time, Parcel p, boolean isInCargo) {
@@ -184,6 +184,16 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 		}
 	}
 
+	public static class EarlyTarget extends AbstractTruckState {
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			if (!context
+					.isTooEarly(context.currentTarget, context.getRoadModel().getPosition(context.truck), context.currentTime)) {
+				return TruckEvent.READY;
+			}
+			return null;
+		}
+	}
+
 	public static class IsInCargo extends AbstractTruckState {
 		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
 			return context.pdpModel.getParcelState(context.currentTarget) == ParcelState.IN_CARGO ? TruckEvent.YES
@@ -210,6 +220,16 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
 			if (context.currentTime.hasTimeLeft()) {
 				return TruckEvent.DONE;
+			}
+			return null;
+		}
+	}
+
+	public static class GotoPickup extends AbstractTruckState {
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			context.getRoadModel().moveTo(context.truck, context.currentTarget, context.currentTime);
+			if (context.getRoadModel().equalPosition(context.truck, context.currentTarget)) {
+				return TruckEvent.ARRIVE;
 			}
 			return null;
 		}

@@ -3,7 +3,7 @@
  */
 package rinde.evo4mas.gendreau06;
 
-import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -30,8 +30,8 @@ public class AuctionTruck extends HeuristicTruck {
 	 * @param p
 	 */
 	public AuctionTruck(VehicleDTO pDto, Heuristic<GendreauContext> p) {
-		super(pDto, p, createStateMachine(new AuctionEarlyTarget(), new AuctionGotoPickup()));
-		todo = newHashSet();
+		super(pDto, p, createStateMachine(new EarlyTarget(), new GotoPickup(), new AuctionPickup()));
+		todo = newLinkedHashSet();
 	}
 
 	public double getBidFor(AuctionParcel ap, long time) {
@@ -80,34 +80,18 @@ public class AuctionTruck extends HeuristicTruck {
 		return best;
 	}
 
-	public static class AuctionEarlyTarget extends AbstractTruckState {
-		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-			if (!context
-					.isTooEarly(context.currentTarget, context.getRoadModel().getPosition(context.truck), context.currentTime)) {
-				return TruckEvent.READY;
-			}
-			return null;
-		}
-	}
-
-	public static class AuctionGotoPickup extends AbstractTruckState {
+	public static class AuctionPickup extends Pickup {
 		@Override
 		public void onEntry(TruckEvent event, HeuristicTruck context) {
+			super.onEntry(event, context);
 			((AuctionTruck) context).todo.remove(context.currentTarget);
 		}
 
-		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-			context.getRoadModel().moveTo(context.truck, context.currentTarget, context.currentTime);
-			if (context.getRoadModel().equalPosition(context.truck, context.currentTarget)) {
-				return TruckEvent.ARRIVE;
-			}
-			return null;
-		}
 	}
 
 	@Override
 	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
 		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
-				isInCargo, 0, gc.otherVehiclePositions);
+				isInCargo, 0, gc.otherVehiclePositions, todo);
 	}
 }

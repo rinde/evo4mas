@@ -6,6 +6,9 @@ package rinde.evo4mas.gendreau06;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 import rinde.ecj.GPFunc;
 import rinde.ecj.GPFuncSet;
@@ -29,6 +32,10 @@ import rinde.evo4mas.gendreau06.GendreauFunctions.IsInCargo;
 import rinde.evo4mas.gendreau06.GendreauFunctions.Madc;
 import rinde.evo4mas.gendreau06.GendreauFunctions.Midc;
 import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
+import rinde.sim.core.graph.Point;
+import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.problem.common.ParcelDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -36,6 +43,9 @@ import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
  */
 public class AuctionFunctions extends GPFuncSet<GendreauContext> {
 
+	private static final long serialVersionUID = 155866319078208865L;
+
+	@SuppressWarnings("unchecked")
 	@Override
 	public Collection<GPFunc<GendreauContext>> create() {
 		return newArrayList(
@@ -62,8 +72,117 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
 				new Ttl<GendreauContext>(), /* */
 				new Adc<GendreauContext>(), /* */
 				new Midc<GendreauContext>(), /* */
-				new Madc<GendreauContext>() /* */
-		);
+				new Madc<GendreauContext>(), /* */
+
+				new Diameter(), new Radius(), new RelEcc());
 	}
 
+	/**
+	 * Computes the diameter of the current todo set. 'The diameter of a graph
+	 * is the maximum eccentricity of any vertex in the graph' and 'The
+	 * eccentricity <code>e</code> of a vertex <code>v</code> is the greatest
+	 * geodesic distance between <code>v</code> and any other vertex' definition
+	 * from <a
+	 * href="http://en.wikipedia.org/wiki/Distance_(graph_theory)">Wikipedia</a>
+	 */
+	public static class Diameter extends GPFunc<GendreauContext> {
+		private static final long serialVersionUID = -2612484686166148770L;
+
+		@Override
+		public double execute(double[] input, GendreauContext context) {
+			return Collections.max(distances(gatherListOfPointsToBeVisited(context)));
+		}
+	}
+
+	/**
+	 * Computes the radius of the current todo set. 'The radius of a graph is
+	 * the minimum eccentricity of any vertex.' and 'The eccentricity
+	 * <code>e</code> of a vertex <code>v</code> is the greatest geodesic
+	 * distance between <code>v</code> and any other vertex' definition from <a
+	 * href="http://en.wikipedia.org/wiki/Distance_(graph_theory)">Wikipedia</a>
+	 */
+	public static class Radius extends GPFunc<GendreauContext> {
+		private static final long serialVersionUID = 1901950830355444441L;
+
+		@Override
+		public double execute(double[] input, GendreauContext context) {
+			return Collections.min(distances(gatherListOfPointsToBeVisited(context)));
+		}
+	}
+
+	/**
+	 * Computes the relative eccentricity of the current parcel to the current
+	 * todo set, it is defined as:
+	 * <code>max(eccentricity(origin),eccentricity(destination)) / diameter</code>
+	 * . In case the current parcel is already in cargo, only the destination is
+	 * considered.
+	 * @see #eccentricity(Point, List)
+	 * @see Diameter
+	 */
+	public static class RelEcc extends GPFunc<GendreauContext> {
+		private static final long serialVersionUID = -4869939989385633591L;
+
+		@Override
+		public double execute(double[] input, GendreauContext context) {
+			final List<Point> points = gatherListOfPointsToBeVisited(context);
+			final double diameter = Collections.max(distances(points));
+
+			final double destEcc = eccentricity(context.parcel.destinationLocation, points);
+			if (context.isInCargo) {
+				return destEcc / diameter;
+			}
+			final double originEcc = eccentricity(context.parcel.pickupLocation, points);
+			if (destEcc > originEcc) {
+				return destEcc / diameter;
+			}
+			return originEcc / diameter;
+		}
+	}
+
+	protected static List<Point> gatherListOfPointsToBeVisited(GendreauContext context) {
+		final List<Point> points = newArrayList();
+		for (final ParcelDTO dto : context.truckContents) {
+			points.add(dto.destinationLocation);
+		}
+
+		for (final Parcel p : context.todoList) {
+			points.add(((DefaultParcel) p).dto.pickupLocation);
+			points.add(((DefaultParcel) p).dto.destinationLocation);
+		}
+
+		points.add(context.truckPosition);
+		points.add(context.vehicleDTO.startPosition);
+		return points;
+	}
+
+	protected static List<Double> distances(List<Point> points) {
+		final List<Double> distances = newArrayList();
+		for (int i = 0; i < points.size() - 1; i++) {
+			for (int j = i + 1; j < points.size(); j++) {
+				distances.add(Point.distance(points.get(i), points.get(j)));
+			}
+		}
+		return distances;
+	}
+
+	/**
+	 * 'The eccentricity <code>e</code> of a vertex <code>v</code> is the
+	 * greatest geodesic distance between <code>v</code> and any other vertex'
+	 * definition from <a
+	 * href="http://en.wikipedia.org/wiki/Distance_(graph_theory)">Wikipedia</a>
+	 */
+	protected static double eccentricity(Point p, List<Point> points) {
+		if (points.isEmpty()) {
+			return 0d;
+		}
+		final Iterator<Point> pit = points.iterator();
+		double max = Point.distance(p, pit.next());
+		while (pit.hasNext()) {
+			final double dist = Point.distance(p, pit.next());
+			if (dist > max) {
+				max = dist;
+			}
+		}
+		return max;
+	}
 }

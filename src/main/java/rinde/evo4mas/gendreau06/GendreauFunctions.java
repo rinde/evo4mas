@@ -62,7 +62,7 @@ public class GendreauFunctions {
 	}
 
 	/**
-	 * Average distance of current parcels to all vehicles.
+	 * Average distance of current parcel to all vehicles.
 	 * 
 	 * From Beham: 'specifies the average distance of the service point to the
 	 * other couriers'.
