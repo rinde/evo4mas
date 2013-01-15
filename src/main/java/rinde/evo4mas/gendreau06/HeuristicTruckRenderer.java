@@ -58,7 +58,7 @@ public class HeuristicTruckRenderer extends PDPModelRenderer {
 			final int y = vp.toCoordY(p.y);
 
 			final HeuristicTruck ht = (HeuristicTruck) v;
-			gc.drawText(ht.stateMachine.getCurrentState().toString(), x, y + 20);
+			gc.drawText(ht.stateMachine.getCurrentState().name(), x, y + 20);
 
 			if (ht.currentTarget != null && posMap.containsKey(ht.currentTarget)) {
 				final Point targetPoint = posMap.get(ht.currentTarget);

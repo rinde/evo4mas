@@ -141,7 +141,7 @@ public class FunctionTest {
 
 		public TestTruck(VehicleDTO pDto) {
 			// the supplied program is ignored
-			super(pDto, GPProgramParser.parseProgramFunc("(urge)", new GendreauFunctions().create()));
+			super(pDto, GPProgramParser.parseProgramFunc("(urge)", new MyopicFunctions().create()));
 		}
 
 		@Override

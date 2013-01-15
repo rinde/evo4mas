@@ -11,6 +11,7 @@ import java.util.Set;
 
 import rinde.ecj.Heuristic;
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.problem.common.DefaultParcel;
 import rinde.sim.problem.common.VehicleDTO;
 
 import com.google.common.base.Predicate;
@@ -29,10 +30,8 @@ public class AuctionTruck extends HeuristicTruck {
 	 * @param p
 	 */
 	public AuctionTruck(VehicleDTO pDto, Heuristic<GendreauContext> p) {
-		super(pDto, p);
-
+		super(pDto, p, createStateMachine(new AuctionEarlyTarget(), new AuctionGotoPickup()));
 		todo = newHashSet();
-
 	}
 
 	public double getBidFor(AuctionParcel ap, long time) {
@@ -79,5 +78,36 @@ public class AuctionTruck extends HeuristicTruck {
 		}
 
 		return best;
+	}
+
+	public static class AuctionEarlyTarget extends AbstractTruckState {
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			if (!context
+					.isTooEarly(context.currentTarget, context.getRoadModel().getPosition(context.truck), context.currentTime)) {
+				return TruckEvent.READY;
+			}
+			return null;
+		}
+	}
+
+	public static class AuctionGotoPickup extends AbstractTruckState {
+		@Override
+		public void onEntry(TruckEvent event, HeuristicTruck context) {
+			((AuctionTruck) context).todo.remove(context.currentTarget);
+		}
+
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			context.getRoadModel().moveTo(context.truck, context.currentTarget, context.currentTime);
+			if (context.getRoadModel().equalPosition(context.truck, context.currentTarget)) {
+				return TruckEvent.ARRIVE;
+			}
+			return null;
+		}
+	}
+
+	@Override
+	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
+		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
+				isInCargo, 0, gc.otherVehiclePositions);
 	}
 }

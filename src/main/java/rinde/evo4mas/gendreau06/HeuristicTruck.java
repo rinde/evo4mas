@@ -28,48 +28,60 @@ import rinde.sim.util.fsm.StateMachine.State;
 public abstract class HeuristicTruck extends DefaultVehicle implements Listener {
 
 	protected final Heuristic<GendreauContext> program;
+	protected final TimeUntilAvailable<GendreauContext> tua;
 	protected boolean hasChanged = true;
 	protected Parcel currentTarget;
 
-	protected CoordinationModel coordinationModel;
-
 	protected final StateMachine<TruckEvent, HeuristicTruck> stateMachine;
 
-	enum TruckEvent {
+	public enum TruckEvent {
 		CHANGE, END_OF_DAY, READY, ARRIVE, DONE, CONTINUE, YES, NO;
 	}
 
-	public HeuristicTruck(VehicleDTO pDto, Heuristic<GendreauContext> p) {
+	protected HeuristicTruck(VehicleDTO pDto, Heuristic<GendreauContext> p, StateMachine<TruckEvent, HeuristicTruck> sm) {
 		super(pDto);
 		program = p;
+		stateMachine = sm;
+		tua = new TimeUntilAvailable<GendreauContext>();
+	}
 
-		stateMachine = StateMachine.create(TruckState.IDLE)/* */
-		.addTransition(TruckState.IDLE, TruckEvent.CHANGE, TruckState.HAS_TARGET) /* */
-		.addTransition(TruckState.IDLE, TruckEvent.END_OF_DAY, TruckState.GO_HOME) /* */
-		.addTransition(TruckState.HAS_TARGET, TruckEvent.YES, TruckState.IS_EARLY) /* */
-		.addTransition(TruckState.HAS_TARGET, TruckEvent.NO, TruckState.IDLE) /* */
-		.addTransition(TruckState.IS_EARLY, TruckEvent.YES, TruckState.EARLY_TARGET) /* */
-		.addTransition(TruckState.IS_EARLY, TruckEvent.NO, TruckState.IS_IN_CARGO) /* */
-		.addTransition(TruckState.IS_IN_CARGO, TruckEvent.YES, TruckState.GOTO_DELIVERY) /* */
-		.addTransition(TruckState.IS_IN_CARGO, TruckEvent.NO, TruckState.GOTO_PICKUP) /* */
-		.addTransition(TruckState.EARLY_TARGET, TruckEvent.CHANGE, TruckState.HAS_TARGET) /* */
-		.addTransition(TruckState.EARLY_TARGET, TruckEvent.READY, TruckState.HAS_TARGET) /* */
-		.addTransition(TruckState.GOTO_DELIVERY, TruckEvent.ARRIVE, TruckState.DELIVER) /* */
-		.addTransition(TruckState.GOTO_PICKUP, TruckEvent.ARRIVE, TruckState.PICKUP) /* */
-		.addTransition(TruckState.DELIVER, TruckEvent.DONE, TruckState.HAS_TARGET) /* */
-		.addTransition(TruckState.PICKUP, TruckEvent.DONE, TruckState.HAS_TARGET) /* */
-		.addTransition(TruckState.GO_HOME, TruckEvent.CHANGE, TruckState.HAS_TARGET) /* */
-		.addTransition(TruckState.GO_HOME, TruckEvent.ARRIVE, TruckState.IDLE) /* */
+	static StateMachine<TruckEvent, HeuristicTruck> createStateMachine(State<TruckEvent, HeuristicTruck> earlyTarget,
+			State<TruckEvent, HeuristicTruck> gotoPickup) {
+
+		final State<TruckEvent, HeuristicTruck> idle = new Idle();
+		final State<TruckEvent, HeuristicTruck> hasTarget = new HasTarget();
+		final State<TruckEvent, HeuristicTruck> isEarly = new IsEarly();
+		final State<TruckEvent, HeuristicTruck> isInCargo = new IsInCargo();
+		final State<TruckEvent, HeuristicTruck> gotoDelivery = new GotoDelivery();
+		final State<TruckEvent, HeuristicTruck> deliver = new Deliver();
+		final State<TruckEvent, HeuristicTruck> pickup = new Pickup();
+		final State<TruckEvent, HeuristicTruck> goHome = new GoHome();
+
+		return StateMachine.create(idle)/* */
+		.addTransition(idle, TruckEvent.CHANGE, hasTarget) /* */
+		.addTransition(idle, TruckEvent.END_OF_DAY, goHome) /* */
+		.addTransition(hasTarget, TruckEvent.YES, isEarly) /* */
+		.addTransition(hasTarget, TruckEvent.NO, idle) /* */
+		.addTransition(isEarly, TruckEvent.YES, earlyTarget) /* */
+		.addTransition(isEarly, TruckEvent.NO, isInCargo) /* */
+		.addTransition(isInCargo, TruckEvent.YES, gotoDelivery) /* */
+		.addTransition(isInCargo, TruckEvent.NO, gotoPickup) /* */
+		.addTransition(earlyTarget, TruckEvent.CHANGE, hasTarget) /* */
+		.addTransition(earlyTarget, TruckEvent.READY, hasTarget) /* */
+		.addTransition(gotoDelivery, TruckEvent.ARRIVE, deliver) /* */
+		.addTransition(gotoPickup, TruckEvent.ARRIVE, pickup) /* */
+		.addTransition(deliver, TruckEvent.DONE, hasTarget) /* */
+		.addTransition(pickup, TruckEvent.DONE, hasTarget) /* */
+		.addTransition(goHome, TruckEvent.CHANGE, hasTarget) /* */
+		.addTransition(goHome, TruckEvent.ARRIVE, idle) /* */
 		.build();
-
-		// System.out.println(stateMachine.toDot());
-
 	}
 
 	// uses a generic context obj to create a parcel specific context
 	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
 		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
-				isInCargo, isInCargo ? coordinationModel.getNumWaitersFor(p) : 0, gc.otherVehiclePositions);
+				isInCargo, 0, gc.otherVehiclePositions);
+
 	}
 
 	protected GendreauContext createGenericContext(long time) {
@@ -88,8 +100,6 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 	protected GendreauContext createFullContext(long time, Parcel p, boolean isInCargo) {
 		return createContext(createGenericContext(time), p, isInCargo);
 	}
-
-	protected static TimeUntilAvailable tua = new TimeUntilAvailable();
 
 	protected abstract Parcel next(long time);
 
@@ -121,9 +131,15 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 		} else {
 			stateMachine.handle(this);
 		}
-		if (time.hasTimeLeft() && !stateMachine.stateIsOneOf(TruckState.IDLE, TruckState.EARLY_TARGET)) {
-			System.err.println(time.getTimeLeft() + " not used");
-		}
+		// if (time.hasTimeLeft() && !stateMachine.stateIsOneOf(TruckState.IDLE,
+		// TruckState.EARLY_TARGET)) {
+		// System.err.println(time.getTimeLeft() + " not used");
+		// }
+	}
+
+	@Override
+	protected RoadModel getRoadModel() {
+		return roadModel;
 	}
 
 	protected boolean isEndOfDay(TimeLapse time) {
@@ -132,164 +148,95 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 						- ((Point.distance(roadModel.getPosition(this), dto.startPosition) / getSpeed()) * 3600000);
 	}
 
-	enum TruckState implements State<TruckEvent, HeuristicTruck> {
-		IDLE {
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				if (context.isEndOfDay(context.currentTime)
-						&& !context.roadModel.getPosition(context).equals(context.dto.startPosition)) {
-					return TruckEvent.END_OF_DAY;
-				}
-				return null;
-			}
-		},
-		HAS_TARGET {
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				context.currentTarget = context.next(context.currentTime.getTime());
-				return context.currentTarget != null ? TruckEvent.YES : TruckEvent.NO;
-			}
-		},
-		// IS_END_OF_DAY {
-		// @Override
-		// public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-		//
-		// }
-		// },
-		IS_EARLY {
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				return context
-						.isTooEarly(context.currentTarget, context.roadModel.getPosition(context), context.currentTime) ? TruckEvent.YES
-						: TruckEvent.NO;
-			}
-		},
-		IS_IN_CARGO {
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				return context.pdpModel.getParcelState(context.currentTarget) == ParcelState.IN_CARGO ? TruckEvent.YES
-						: TruckEvent.NO;
-			}
-		},
-		// DECIDE {
-		// @Override
-		// public TruckEvent handle(TruckEvent event, Truck context) {
-		// context.currentTarget = context.next(context.currentTime.getTime());
-		// if (context.currentTarget == null) {
-		// if (context.isEndOfDay(context.currentTime)) {
-		// return TruckEvent.END_OF_DAY;
-		// } else {
-		// return TruckEvent.NO_TARGET;
-		// }
-		// } else if (context
-		// .isTooEarly(context.currentTarget,
-		// context.roadModel.getPosition(context), context.currentTime
-		// .getTime())) {
-		// return TruckEvent.EARLY;
-		// } else if (context.pdpModel.getParcelState(context.currentTarget) ==
-		// ParcelState.IN_CARGO) {
-		// return TruckEvent.IN_CARGO;
-		// } else {
-		// return TruckEvent.IS_AVAILABLE;
-		// }
-		// }
-		// },
-		EARLY_TARGET {
-
-			@Override
-			public void onEntry(TruckEvent event, HeuristicTruck context) {
-				context.coordinationModel.waitFor(context, context.currentTarget);
-			}
-
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				if (!context
-						.isTooEarly(context.currentTarget, context.roadModel.getPosition(context.truck), context.currentTime)) {
-					return TruckEvent.READY;
-				}
-				return null;
-			}
-
-			@Override
-			public void onExit(TruckEvent event, HeuristicTruck context) {
-				context.coordinationModel.unwaitFor(context, context.currentTarget);
-			}
-		},
-		GOTO_DELIVERY {
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				context.roadModel.moveTo(context.truck, context.currentTarget.getDestination(), context.currentTime);
-				if (context.roadModel.getPosition(context.truck).equals(context.currentTarget.getDestination())) {
-					return TruckEvent.ARRIVE;
-				}
-				return null;
-			}
-
-		},
-		DELIVER {
-			@Override
-			public void onEntry(TruckEvent event, HeuristicTruck context) {
-				context.pdpModel.deliver(context.truck, context.currentTarget, context.currentTime);
-			}
-
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				if (context.currentTime.hasTimeLeft()) {
-					return TruckEvent.DONE;
-				}
-				return null;
-			}
-		},
-		GOTO_PICKUP {
-			@Override
-			public void onEntry(TruckEvent event, HeuristicTruck context) {
-				context.coordinationModel.claim(context.currentTarget);
-			}
-
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				context.roadModel.moveTo(context.truck, context.currentTarget, context.currentTime);
-				if (context.roadModel.equalPosition(context.truck, context.currentTarget)) {
-					return TruckEvent.ARRIVE;
-				}
-				return null;
-			}
-		},
-		PICKUP {
-			@Override
-			public void onEntry(TruckEvent event, HeuristicTruck context) {
-				context.pdpModel.pickup(context.truck, context.currentTarget, context.currentTime);
-			}
-
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				if (context.currentTime.hasTimeLeft()) {
-					return TruckEvent.DONE;
-				}
-				return null;
-			}
-		},
-		GO_HOME {
-			@Override
-			public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
-				context.roadModel.moveTo(context.truck, context.dto.startPosition, context.currentTime);
-				if (context.roadModel.getPosition(context.truck).equals(context.dto.startPosition)) {
-					return TruckEvent.ARRIVE;
-				}
-				return null;
-			}
-		};
-
-		public abstract TruckEvent handle(TruckEvent event, HeuristicTruck context);
+	public static abstract class AbstractTruckState implements State<TruckEvent, HeuristicTruck> {
 
 		public void onEntry(TruckEvent event, HeuristicTruck context) {}
 
 		public void onExit(TruckEvent event, HeuristicTruck context) {}
 
+		public String name() {
+			return this.getClass().getSimpleName();
+		}
 	}
 
-	public void setCoordinationModel(CoordinationModel cm) {
-		coordinationModel = cm;
+	public static class Idle extends AbstractTruckState {
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			if (context.isEndOfDay(context.currentTime)
+					&& !context.roadModel.getPosition(context).equals(context.dto.startPosition)) {
+				return TruckEvent.END_OF_DAY;
+			}
+			return null;
+		}
+	}
+
+	public static class HasTarget extends AbstractTruckState {
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			context.currentTarget = context.next(context.currentTime.getTime());
+			return context.currentTarget != null ? TruckEvent.YES : TruckEvent.NO;
+		}
+	}
+
+	public static class IsEarly extends AbstractTruckState {
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			return context
+					.isTooEarly(context.currentTarget, context.roadModel.getPosition(context), context.currentTime) ? TruckEvent.YES
+					: TruckEvent.NO;
+		}
+	}
+
+	public static class IsInCargo extends AbstractTruckState {
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			return context.pdpModel.getParcelState(context.currentTarget) == ParcelState.IN_CARGO ? TruckEvent.YES
+					: TruckEvent.NO;
+		}
+	}
+
+	public static class GotoDelivery extends AbstractTruckState {
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			context.roadModel.moveTo(context.truck, context.currentTarget.getDestination(), context.currentTime);
+			if (context.roadModel.getPosition(context.truck).equals(context.currentTarget.getDestination())) {
+				return TruckEvent.ARRIVE;
+			}
+			return null;
+		}
+	}
+
+	public static class Deliver extends AbstractTruckState {
+		@Override
+		public void onEntry(TruckEvent event, HeuristicTruck context) {
+			context.pdpModel.deliver(context.truck, context.currentTarget, context.currentTime);
+		}
+
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			if (context.currentTime.hasTimeLeft()) {
+				return TruckEvent.DONE;
+			}
+			return null;
+		}
+	}
+
+	public static class Pickup extends AbstractTruckState {
+		@Override
+		public void onEntry(TruckEvent event, HeuristicTruck context) {
+			context.pdpModel.pickup(context.truck, context.currentTarget, context.currentTime);
+		}
+
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			if (context.currentTime.hasTimeLeft()) {
+				return TruckEvent.DONE;
+			}
+			return null;
+		}
+	}
+
+	public static class GoHome extends AbstractTruckState {
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			context.roadModel.moveTo(context.truck, context.dto.startPosition, context.currentTime);
+			if (context.roadModel.getPosition(context.truck).equals(context.dto.startPosition)) {
+				return TruckEvent.ARRIVE;
+			}
+			return null;
+		}
 	}
 
 	public Heuristic<GendreauContext> getProgram() {

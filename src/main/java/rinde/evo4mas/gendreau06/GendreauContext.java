@@ -14,16 +14,17 @@ import rinde.sim.problem.common.ParcelDTO;
 import rinde.sim.problem.common.VehicleDTO;
 
 /**
+ * Context object used in GP.
+ * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
 public class GendreauContext extends TruckContext {
 
-	public final int numWaiters;
 	public List<Point> otherVehiclePositions;
+	public final int numWaiters;
 
 	/**
-	 * 
 	 * @param v Vehicle info
 	 * @param tp Current position of vehicle
 	 * @param tc Contents of vehicle

@@ -9,6 +9,7 @@ import java.util.Set;
 import rinde.ecj.Heuristic;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.problem.common.DefaultParcel;
 import rinde.sim.problem.common.VehicleDTO;
 
 /**
@@ -17,13 +18,10 @@ import rinde.sim.problem.common.VehicleDTO;
  */
 public class MyopicTruck extends HeuristicTruck {
 
-	/**
-	 * @param pDto
-	 * @param p
-	 */
+	protected CoordinationModel coordinationModel;
+
 	public MyopicTruck(VehicleDTO pDto, Heuristic<GendreauContext> p) {
-		super(pDto, p);
-		// TODO Auto-generated constructor stub
+		super(pDto, p, createStateMachine(new EarlyTarget(), new GotoPickup()));
 	}
 
 	@Override
@@ -80,4 +78,49 @@ public class MyopicTruck extends HeuristicTruck {
 		return best;
 	}
 
+	public void setCoordinationModel(CoordinationModel cm) {
+		coordinationModel = cm;
+	}
+
+	public static class EarlyTarget extends AbstractTruckState {
+		@Override
+		public void onEntry(TruckEvent event, HeuristicTruck context) {
+			((MyopicTruck) context).coordinationModel.waitFor(((MyopicTruck) context), context.currentTarget);
+		}
+
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			if (!context
+					.isTooEarly(context.currentTarget, context.getRoadModel().getPosition(context.truck), context.currentTime)) {
+				return TruckEvent.READY;
+			}
+			return null;
+		}
+
+		@Override
+		public void onExit(TruckEvent event, HeuristicTruck context) {
+			((MyopicTruck) context).coordinationModel.unwaitFor(((MyopicTruck) context), context.currentTarget);
+		}
+	}
+
+	public static class GotoPickup extends AbstractTruckState {
+		@Override
+		public void onEntry(TruckEvent event, HeuristicTruck context) {
+			((MyopicTruck) context).coordinationModel.claim(context.currentTarget);
+		}
+
+		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
+			context.getRoadModel().moveTo(context.truck, context.currentTarget, context.currentTime);
+			if (context.getRoadModel().equalPosition(context.truck, context.currentTarget)) {
+				return TruckEvent.ARRIVE;
+			}
+			return null;
+		}
+	}
+
+	@Override
+	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
+		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
+				isInCargo, isInCargo ? coordinationModel.getNumWaitersFor(p) : 0, gc.otherVehiclePositions);
+
+	}
 }

@@ -20,10 +20,10 @@ import com.google.common.collect.Multimap;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class CoordinationModel implements Model<HeuristicTruck> {
+public class CoordinationModel implements Model<MyopicTruck> {
 
 	protected final HashSet<Parcel> claims;
-	protected final Multimap<Parcel, HeuristicTruck> waiting;
+	protected final Multimap<Parcel, MyopicTruck> waiting;
 
 	public CoordinationModel() {
 		claims = newHashSet();
@@ -40,12 +40,12 @@ public class CoordinationModel implements Model<HeuristicTruck> {
 		claims.remove(target);
 	}
 
-	public void waitFor(HeuristicTruck t, Parcel p) {
+	public void waitFor(MyopicTruck t, Parcel p) {
 		checkArgument(!waiting.containsEntry(p, t));
 		waiting.put(p, t);
 	}
 
-	public void unwaitFor(HeuristicTruck t, Parcel p) {
+	public void unwaitFor(MyopicTruck t, Parcel p) {
 		checkArgument(waiting.containsEntry(p, t));
 		waiting.remove(p, t);
 	}
@@ -58,16 +58,16 @@ public class CoordinationModel implements Model<HeuristicTruck> {
 		return unmodifiableSet(claims);
 	}
 
-	public boolean register(HeuristicTruck element) {
+	public boolean register(MyopicTruck element) {
 		element.setCoordinationModel(this);
 		return true;
 	}
 
-	public boolean unregister(HeuristicTruck element) {
+	public boolean unregister(MyopicTruck element) {
 		return false;
 	}
 
-	public Class<HeuristicTruck> getSupportedType() {
-		return HeuristicTruck.class;
+	public Class<MyopicTruck> getSupportedType() {
+		return MyopicTruck.class;
 	}
 }
