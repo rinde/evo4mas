@@ -26,6 +26,8 @@ import rinde.evo4mas.common.GPFunctions.Mado;
 import rinde.evo4mas.common.GPFunctions.Mido;
 import rinde.evo4mas.common.GPFunctions.Ttl;
 import rinde.evo4mas.common.GPFunctions.Urge;
+import rinde.evo4mas.common.TimeWindowLoadUtil;
+import rinde.evo4mas.common.TimeWindowLoadUtil.TimeWindowLoad;
 import rinde.evo4mas.gendreau06.GendreauFunctions.Adc;
 import rinde.evo4mas.gendreau06.GendreauFunctions.CargoSize;
 import rinde.evo4mas.gendreau06.GendreauFunctions.IsInCargo;
@@ -185,4 +187,40 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
 		}
 		return max;
 	}
+
+	/**
+	 * 
+	 */
+	protected static class TimeWindowOverlap extends GPFunc<GendreauContext> {
+
+		@Override
+		public double execute(double[] input, GendreauContext context) {
+
+			final List<TimeWindowLoad> timeWindows = newArrayList();
+			for (final ParcelDTO dto : context.truckContents) {
+				timeWindows.add(new TimeWindowLoad(dto.deliveryTimeWindow, dto.deliveryDuration
+						/ dto.deliveryTimeWindow.length()));
+			}
+			for (final Parcel p : context.todoList) {
+				timeWindows.add(new TimeWindowLoad(p.getDeliveryTimeWindow(), p.getDeliveryDuration()
+						/ p.getDeliveryTimeWindow().length()));
+				timeWindows.add(new TimeWindowLoad(p.getPickupTimeWindow(), p.getPickupDuration()
+						/ p.getPickupTimeWindow().length()));
+			}
+
+			final TimeWindowLoad deliveryTWL = new TimeWindowLoad(context.parcel.deliveryTimeWindow,
+					context.parcel.deliveryDuration);
+			final double deliveryLoad = TimeWindowLoadUtil.getOverlapLoad(deliveryTWL, timeWindows);
+
+			if (context.isInCargo) {
+				return deliveryLoad;
+			}
+			final TimeWindowLoad pickupTWL = new TimeWindowLoad(context.parcel.pickupTimeWindow,
+					context.parcel.pickupDuration);
+			final double pickupLoad = TimeWindowLoadUtil.getOverlapLoad(pickupTWL, timeWindows);
+
+			return (deliveryLoad + pickupLoad) / 2;
+		}
+	}
+
 }
