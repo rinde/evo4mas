@@ -196,14 +196,32 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
 
 	/**
 	 * Computes the overlap of the timewindows of the current parcel with all
-	 * parcels in the todo list and in cargo. The total load of the current
-	 * parcel is computed.
+	 * parcels which are already assigned to this vehicle. The total load of the
+	 * current parcel is computed.
+	 * <p>
+	 * <b>Definition of load</b> We define an action
+	 * <code>A = (begin,end,duration)</code> where <code>begin</code> is the
+	 * beginning time of the action, <code>end</code> is the end time of the
+	 * action, and <code>duration</code> is the time the action will take. An
+	 * action is either a pickup or delivery. Now we define load such that
+	 * <code>load(A) = A.duration / (A.end - A.begin)</code>. Essentially, the
+	 * load of an action is the fraction of the time required and the total
+	 * available time.
+	 * <p>
+	 * <b>Definition of overlapping load</b> A new parcel can have overlapping
+	 * {@link rinde.sim.util.TimeWindow}s with its currently assigned set. We
+	 * compute the total load (a sum of all intersections) in the interval
+	 * defined by the time window of the new parcel.
+	 * 
 	 */
 	public static class TotalTimeWindowOverlapLoad extends GPFunc<GendreauContext> {
 		private static final long serialVersionUID = -7743385324252475008L;
 
 		@Override
 		public double execute(double[] input, GendreauContext context) {
+			if (context.isAssignedToVehicle) {
+				return 0d;
+			}
 			final List<TimeWindowLoad> timeWindows = gatherTimeWindowLoads(context);
 			final TimeWindowLoad deliveryTWL = new TimeWindowLoad(context.parcel.deliveryTimeWindow,
 					context.parcel.deliveryDuration);
@@ -225,6 +243,10 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
 
 		@Override
 		public double execute(double[] input, GendreauContext context) {
+			if (context.isAssignedToVehicle) {
+				return 0d;
+			}
+
 			final List<TimeWindowLoad> timeWindows = gatherTimeWindowLoads(context);
 			final TimeWindowLoad deliveryTWL = new TimeWindowLoad(context.parcel.deliveryTimeWindow,
 					context.parcel.deliveryDuration);
@@ -246,6 +268,10 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
 
 		@Override
 		public double execute(double[] input, GendreauContext context) {
+			if (context.isAssignedToVehicle) {
+				return 0d;
+			}
+
 			final List<TimeWindowLoad> timeWindows = gatherTimeWindowLoads(context);
 			final TimeWindowLoad deliveryTWL = new TimeWindowLoad(context.parcel.deliveryTimeWindow,
 					context.parcel.deliveryDuration);
