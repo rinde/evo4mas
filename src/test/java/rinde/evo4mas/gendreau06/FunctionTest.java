@@ -155,7 +155,7 @@ public class FunctionTest {
 		@Override
 		protected Parcel nextLoop(Collection<Parcel> todo, Set<Parcel> alreadyClaimed, Collection<Parcel> contents,
 				GendreauContext genericContext) {
-			final GendreauContext gc = createContext(genericContext, parcel, isInCargo);
+			final GendreauContext gc = createContext(genericContext, parcel, isInCargo, false);
 			value = testFunc.execute(null, gc);
 			return null;
 		}

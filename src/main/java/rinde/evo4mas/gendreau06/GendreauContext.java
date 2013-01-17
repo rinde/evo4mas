@@ -24,9 +24,15 @@ import rinde.sim.problem.common.VehicleDTO;
  */
 public class GendreauContext extends TruckContext {
 
+	/**
+	 * Indicates whether the current parcel is already assigned to this vehicle.
+	 * If <code>true</code>, it means that the parcel is either in the todo list
+	 * or in the cargo.
+	 */
+	public final boolean isAssignedToVehicle;
+	public final int numWaiters;
 	public final List<Point> otherVehiclePositions;
 	public final Set<Parcel> todoList;
-	public final int numWaiters;
 
 	/**
 	 * @param v Vehicle info
@@ -35,12 +41,14 @@ public class GendreauContext extends TruckContext {
 	 * @param p Info of current parcel
 	 * @param tm Current time
 	 * @param c Is in cargo
+	 * @param a {@link #isAssignedToVehicle}
 	 * @param w Number of waiters
 	 * @param ovp Other vehicle positions
 	 */
-	public GendreauContext(VehicleDTO v, Point tp, Collection<ParcelDTO> tc, ParcelDTO p, long tm, boolean c, int w,
-			List<Point> ovp, Set<Parcel> tl) {
+	public GendreauContext(VehicleDTO v, Point tp, Collection<ParcelDTO> tc, ParcelDTO p, long tm, boolean c,
+			boolean a, int w, List<Point> ovp, Set<Parcel> tl) {
 		super(v, tp, tc, p, tm, c);
+		isAssignedToVehicle = a;
 		numWaiters = w;
 		otherVehiclePositions = unmodifiableList(ovp);
 		todoList = unmodifiableSet(tl);

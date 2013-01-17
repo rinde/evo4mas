@@ -78,9 +78,9 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 	}
 
 	// uses a generic context obj to create a parcel specific context
-	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
+	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo, boolean isAssignedToVehicle) {
 		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
-				isInCargo, 0, gc.otherVehiclePositions, gc.todoList);
+				isInCargo, isAssignedToVehicle, 0, gc.otherVehiclePositions, gc.todoList);
 
 	}
 
@@ -93,12 +93,12 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 				positions.add(roadModel.getPosition(v));
 			}
 		}
-		return new GendreauContext(dto, roadModel.getPosition(this), convert(contents), null, time, false, -1,
+		return new GendreauContext(dto, roadModel.getPosition(this), convert(contents), null, time, false, false, -1,
 				positions, new HashSet<Parcel>());
 	}
 
-	protected GendreauContext createFullContext(long time, Parcel p, boolean isInCargo) {
-		return createContext(createGenericContext(time), p, isInCargo);
+	protected GendreauContext createFullContext(long time, Parcel p, boolean isInCargo, boolean isAssignedToVehicle) {
+		return createContext(createGenericContext(time), p, isInCargo, isAssignedToVehicle);
 	}
 
 	protected abstract Parcel next(long time);

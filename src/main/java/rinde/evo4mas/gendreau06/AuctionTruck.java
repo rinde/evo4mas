@@ -35,7 +35,7 @@ public class AuctionTruck extends HeuristicTruck {
 	}
 
 	public double getBidFor(AuctionParcel ap, long time) {
-		return program.compute(createFullContext(time, ap, false));
+		return program.compute(createFullContext(time, ap, false, false));
 	}
 
 	public void receiveParcel(AuctionParcel ap) {
@@ -49,7 +49,7 @@ public class AuctionTruck extends HeuristicTruck {
 
 		final Iterator<Parcel> todoIterator = Collections2.filter(todo, new Predicate<Parcel>() {
 			public boolean apply(Parcel input) {
-				return tua.execute(null, createContext(genericContext, input, false)) < 1000;
+				return tua.execute(null, createContext(genericContext, input, false, true)) < 1000;
 			}
 		}).iterator();
 		final Iterator<Parcel> contentsIterator = contents.iterator();
@@ -58,10 +58,10 @@ public class AuctionTruck extends HeuristicTruck {
 			return null;
 		}
 		Parcel best = todoIterator.hasNext() ? todoIterator.next() : contentsIterator.next();
-		double bestValue = program.compute(createContext(genericContext, best, !todoIterator.hasNext()));
+		double bestValue = program.compute(createContext(genericContext, best, !todoIterator.hasNext(), true));
 		while (todoIterator.hasNext()) {
 			final Parcel cur = todoIterator.next();
-			final double curValue = program.compute(createContext(genericContext, cur, false));
+			final double curValue = program.compute(createContext(genericContext, cur, false, true));
 			if (curValue < bestValue) {
 				best = cur;
 				bestValue = curValue;
@@ -70,7 +70,7 @@ public class AuctionTruck extends HeuristicTruck {
 
 		while (contentsIterator.hasNext()) {
 			final Parcel cur = contentsIterator.next();
-			final double curValue = program.compute(createContext(genericContext, cur, true));
+			final double curValue = program.compute(createContext(genericContext, cur, true, true));
 			if (curValue < bestValue) {
 				best = cur;
 				bestValue = curValue;
@@ -90,8 +90,8 @@ public class AuctionTruck extends HeuristicTruck {
 	}
 
 	@Override
-	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
+	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo, boolean isAssignedToVehicle) {
 		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
-				isInCargo, 0, gc.otherVehiclePositions, todo);
+				isInCargo, isAssignedToVehicle, 0, gc.otherVehiclePositions, todo);
 	}
 }

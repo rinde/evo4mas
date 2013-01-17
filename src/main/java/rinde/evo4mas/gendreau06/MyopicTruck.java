@@ -42,7 +42,7 @@ public class MyopicTruck extends HeuristicTruck {
 		for (final Parcel p : todo) {
 			// filter out the already claimed parcels
 			if (!alreadyClaimed.contains(p)) {
-				final GendreauContext gc = createContext(genericContext, p, false);
+				final GendreauContext gc = createContext(genericContext, p, false, false);
 				final double res = tua.execute(null, gc);
 
 				// TODO this should be a differnt value? similar to isEarly
@@ -63,7 +63,7 @@ public class MyopicTruck extends HeuristicTruck {
 		// }
 		for (final Parcel p : contents) {
 
-			final GendreauContext gc = createContext(genericContext, p, true);
+			final GendreauContext gc = createContext(genericContext, p, true, false);
 
 			final double v = program.compute(gc);
 			if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
@@ -103,10 +103,10 @@ public class MyopicTruck extends HeuristicTruck {
 	}
 
 	@Override
-	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo) {
+	protected GendreauContext createContext(GendreauContext gc, Parcel p, boolean isInCargo, boolean isAssignedToVehicle) {
 		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
-				isInCargo, isInCargo ? coordinationModel.getNumWaitersFor(p) : 0, gc.otherVehiclePositions,
-				new HashSet<Parcel>());
+				isInCargo, isAssignedToVehicle, isInCargo ? coordinationModel.getNumWaitersFor(p) : 0,
+				gc.otherVehiclePositions, new HashSet<Parcel>());
 
 	}
 }
