@@ -77,7 +77,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 		System.out.println("test: " + removeDirPrefix(testSet) + "\ntrain: " + removeDirPrefix(trainSet));
 
 		final String sv = state.parameters.getString(base.push(P_SOLUTION_VARIANT), null);
-		checkArgument(SolutionType.hasValue(sv), base.push(P_TRAIN_SET_DIR)
+		checkArgument(SolutionType.hasValue(sv), base.push(P_SOLUTION_VARIANT)
 				+ " should be assigned one of the following values: " + Arrays.toString(SolutionType.values()));
 		solutionType = SolutionType.valueOf(sv);
 
