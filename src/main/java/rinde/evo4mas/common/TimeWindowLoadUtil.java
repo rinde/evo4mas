@@ -60,15 +60,6 @@ public final class TimeWindowLoadUtil {
 		return getOverlapLoadPoints(twl, getLoads(twl, list));
 	}
 
-	static List<Point> getLoads(TimeWindowLoad twl, List<TimeWindowLoad> list) {
-		final List<Point> overlappingTWs = gatherOverlappingTimeWindows(twl, list);
-
-		// merge points with same x
-		final List<Point> mergedDifferentials = mergePointsWithSameX(overlappingTWs);
-		// convert to actual loads
-		return convertDifferentialsToLoads(mergedDifferentials);
-	}
-
 	// test all boundary conditions, e.g. with just one TW in the list?
 
 	public static double getMaxOverlapLoad(final TimeWindowLoad twl, List<TimeWindowLoad> list) {
@@ -77,7 +68,31 @@ public final class TimeWindowLoadUtil {
 		}
 		final List<Point> loads = getLoads(twl, list);
 		final Collection<Point> intersection = Collections2.filter(loads, new LoadInTWPredicate(twl.timeWindow));
+		if (intersection.isEmpty()) {
+			return twl.load;
+		}
 		return Collections.max(intersection, LOAD_COMPARATOR).y;
+	}
+
+	public static double getMinOverlapLoad(TimeWindowLoad twl, List<TimeWindowLoad> list) {
+		if (list.isEmpty()) {
+			return twl.load;
+		}
+		final List<Point> loads = getLoads(twl, list);
+		final Collection<Point> intersection = Collections2.filter(loads, new LoadInTWPredicate(twl.timeWindow));
+		if (intersection.isEmpty()) {
+			return twl.load;
+		}
+		return Collections.min(intersection, LOAD_COMPARATOR).y;
+	}
+
+	static List<Point> getLoads(TimeWindowLoad twl, List<TimeWindowLoad> list) {
+		final List<Point> overlappingTWs = gatherOverlappingTimeWindows(twl, list);
+
+		// merge points with same x
+		final List<Point> mergedDifferentials = mergePointsWithSameX(overlappingTWs);
+		// convert to actual loads
+		return convertDifferentialsToLoads(mergedDifferentials);
 	}
 
 	private static final Comparator<Point> LOAD_COMPARATOR = new Comparator<Point>() {
@@ -96,15 +111,6 @@ public final class TimeWindowLoadUtil {
 		public boolean apply(Point input) {
 			return input.x >= timeWindow.begin && input.x < timeWindow.end;
 		}
-	}
-
-	public static double getMinOverlapLoad(TimeWindowLoad twl, List<TimeWindowLoad> list) {
-		if (list.isEmpty()) {
-			return twl.load;
-		}
-		final List<Point> loads = getLoads(twl, list);
-		final Collection<Point> intersection = Collections2.filter(loads, new LoadInTWPredicate(twl.timeWindow));
-		return Collections.min(intersection, LOAD_COMPARATOR).y;
 	}
 
 	static List<Point> gatherOverlappingTimeWindows(TimeWindowLoad twl, List<TimeWindowLoad> list) {
