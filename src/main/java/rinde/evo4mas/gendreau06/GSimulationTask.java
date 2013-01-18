@@ -118,15 +118,37 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 
 			System.out
 					.println(fitness + " valid:" + isValid + " task done: " + objFunc.printHumanReadableFormat(stats));
-			if (!isValid) {
-
-				System.out.println(stats);
-				throw new RuntimeException("Fail: simtime:" + stats.simulationTime + " comptime:"
-						+ stats.computationTime + " scenarioKey: " + scenarioKey + " numVehicles: " + numVehicles
-						+ " tickSize: " + tickSize);
-			}
+			// we don't throw an exception when just one vehicle has moved, this
+			// usually just indicates a very bad solution and is the reason why
+			// it didn't finish in time
+			// if (!isValid && stats.movedVehicles > 1) {
+			// throw new SimulationException("Fail: " + taskData, taskData,
+			// stats, scenarioKey);
+			// }
+		} catch (final SimulationException e) {
+			throw e;
 		} catch (final Exception e) {
 			throw new RuntimeException("Failed simulation task: " + taskData, e);
+		}
+	}
+
+	public static class SimulationException extends RuntimeException {
+		private static final long serialVersionUID = 1915728035625621454L;
+
+		public final StatisticsDTO stats;
+		public final Heuristic<GendreauContext> heuristic;
+		public final String scenarioKey;
+
+		public SimulationException(String message, Heuristic<GendreauContext> h, StatisticsDTO s, String sk) {
+			super(message);
+			heuristic = h;
+			stats = s;
+			scenarioKey = sk;
+		}
+
+		@Override
+		public String toString() {
+			return "SimulationException " + scenarioKey + " " + stats + " " + heuristic;
 		}
 	}
 
