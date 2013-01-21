@@ -5,7 +5,7 @@ gp.tree.print-style = lisp
 
 gp.fs.0.size = 1
 gp.fs.0.name = f0
-gp.fs.0 = rinde.evo4mas.gendreau06.GendreauFunctions
+gp.fs.0 = rinde.evo4mas.gendreau06.AuctionFunctions
 
 breed.elite.0 = 1
 
@@ -26,6 +26,7 @@ pop.subpop.0.species.fitness = rinde.ecj.GPFitness
 #checkpoint = true
 #checkpoint-modulo = 1
 
+eval.solution-variant = AUCTION
 eval.host = distributed
 
 eval.test-set-dir = files/scenarios/gendreau06/
@@ -34,5 +35,5 @@ eval.train-set-dir = files/scenarios/gendreau06/train/
 eval.num-scenarios-per-generation = 5
 eval.num-scenarios-at-last-generation = 10 
 
-pop.subpop.0.size 	= 200
-generations 		= 11
+pop.subpop.0.size 	= 1000
+generations 		= 51
