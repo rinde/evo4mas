@@ -238,7 +238,13 @@ public abstract class HeuristicTruck extends DefaultVehicle implements Listener 
 	public static class Pickup extends AbstractTruckState {
 		@Override
 		public void onEntry(TruckEvent event, HeuristicTruck context) {
-			context.pdpModel.pickup(context.truck, context.currentTarget, context.currentTime);
+			if (context.pdpModel.getParcelState(context.currentTarget) == ParcelState.AVAILABLE) {
+				context.pdpModel.pickup(context.truck, context.currentTarget, context.currentTime);
+			} else {
+				// if it is not available, we assume it will be next tick, we
+				// consume all time to ensure that we stay in this state
+				context.currentTime.consumeAll();
+			}
 		}
 
 		public TruckEvent handle(TruckEvent event, HeuristicTruck context) {
