@@ -184,7 +184,7 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 				throw new RuntimeException(e);
 			}
 			final int numVehicles = s.contains("_450_") ? 20 : 10;
-			list.add(new GSimulationTask(s, heuristic.clone(), numVehicles, 60000, SolutionType.AUCTION));
+			list.add(new GSimulationTask(s, heuristic.clone(), numVehicles, -1, SolutionType.AUCTION));
 		}
 		return list;
 	}
