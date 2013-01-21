@@ -106,7 +106,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 			problem.addStopCondition(new StopCondition() {
 				@Override
 				public boolean isSatisfiedBy(SimulationInfo context) {
-					return context.stats.simulationTime > 24 * 60 * 60 * 1000;
+					return context.stats.simulationTime > 8 * 60 * 60 * 1000;
 				}
 			});
 			preSimulate(problem);
@@ -128,7 +128,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 		} catch (final SimulationException e) {
 			throw e;
 		} catch (final Exception e) {
-			throw new RuntimeException("Failed simulation task: " + taskData, e);
+			throw new RuntimeException("Failed simulation task: " + taskData + " " + scenarioKey, e);
 		}
 	}
 
