@@ -26,10 +26,11 @@ import rinde.sim.problem.common.DynamicPDPTWProblem.SimulationInfo;
 import rinde.sim.problem.common.DynamicPDPTWProblem.StopCondition;
 import rinde.sim.problem.common.ObjectiveFunction;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
+import rinde.sim.problem.common.TimeLinePanel;
 import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
 import rinde.sim.problem.gendreau06.Gendreau06Parser;
 import rinde.sim.problem.gendreau06.Gendreau06Scenario;
-import rinde.sim.ui.renderers.Renderer;
+import rinde.sim.ui.renderers.CanvasRenderer;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -165,7 +166,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 				@Override
 				protected void preSimulate(DynamicPDPTWProblem problem) {
 					if (showGui) {
-						problem.enableUI(new GendreauUI());
+						problem.enableUI(new GendreauUI(problem));
 					}
 				}
 			};
@@ -184,8 +185,14 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 	}
 
 	static class GendreauUI extends DefaultUICreator {
+
+		public GendreauUI(DynamicPDPTWProblem p) {
+			super(p);
+			addRenderer(new TimeLinePanel());
+		}
+
 		@Override
-		protected Renderer pdpModelRenderer() {
+		protected CanvasRenderer pdpModelRenderer() {
 			return new HeuristicTruckRenderer();
 		}
 

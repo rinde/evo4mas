@@ -26,6 +26,14 @@ public class HeuristicTruckRenderer extends PDPModelRenderer {
 
 	protected CoordinationModel coordinationModel;
 
+	protected Color targetLineColor;
+
+	@Override
+	protected void initialize(GC gc) {
+		super.initialize(gc);
+		targetLineColor = new Color(gc.getDevice(), new RGB(0, 0, 125));
+	}
+
 	@Override
 	public void renderDynamic(GC gc, ViewPort vp, long time) {
 		super.renderDynamic(gc, vp, time);
@@ -65,7 +73,7 @@ public class HeuristicTruckRenderer extends PDPModelRenderer {
 				final int tx = vp.toCoordX(targetPoint.x);
 				final int ty = vp.toCoordY(targetPoint.y);
 				gc.setLineWidth(5);
-				gc.setForeground(new Color(gc.getDevice(), new RGB(0, 0, 125)));
+				gc.setForeground(targetLineColor);
 				gc.drawLine(x, y, tx, ty);
 				gc.setLineWidth(1);
 			}
