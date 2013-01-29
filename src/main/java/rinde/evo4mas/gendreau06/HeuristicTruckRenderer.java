@@ -6,9 +6,9 @@ package rinde.evo4mas.gendreau06;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.RGB;
 
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.ModelProvider;
@@ -31,7 +31,7 @@ public class HeuristicTruckRenderer extends PDPModelRenderer {
 	@Override
 	protected void initialize(GC gc) {
 		super.initialize(gc);
-		targetLineColor = new Color(gc.getDevice(), new RGB(0, 0, 125));
+		targetLineColor = gc.getDevice().getSystemColor(SWT.COLOR_DARK_BLUE);
 	}
 
 	@Override
