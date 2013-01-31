@@ -23,8 +23,8 @@ import rinde.sim.problem.common.DefaultParcel;
 import rinde.sim.problem.common.DefaultVehicle;
 import rinde.sim.problem.common.ParcelDTO;
 import rinde.sim.problem.common.VehicleDTO;
+import rinde.sim.util.fsm.State;
 import rinde.sim.util.fsm.StateMachine;
-import rinde.sim.util.fsm.StateMachine.State;
 
 public abstract class HeuristicTruck extends DefaultVehicle implements Listener {
 

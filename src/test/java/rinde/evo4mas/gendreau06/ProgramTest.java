@@ -11,6 +11,7 @@ import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
 import rinde.evo4mas.gendreau06.GSimulationTask.SolutionType;
 import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
+import rinde.sim.ui.View;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -45,23 +46,33 @@ public class ProgramTest {
 		// final String progString =
 		// "(div (add isincargo midc) (add (if4 (add (mul waiters ttl) (div (div (add 0.0 (sub timeuntilavailable est)) (pow (pow (add waiters 0.0) (mul midc midc)) (div (mul midc midc) (mul 0.0 cargosize)))) (add (if4 (add (add (mul waiters ttl) (add waiters timeuntilavailable)) (add waiters timeuntilavailable)) (mul (div 1.0 urge) (if4 (add mido (pow adc madc)) (div (pow cargosize (add (mul 1.0 timeuntilavailable) (pow adc madc))) (mul midc midc)) (pow dist (if4 ado mido est urge)) (pow adc madc))) (sub (mul (if4 1.0 est dist mido) (add adc (sub (pow adc madc) (pow 1.0 madc)))) (pow 1.0 madc)) (pow (div mado ttl) (sub madc 1.0))) (div (mul (div (div (add 0.0 urge) (pow (pow (add waiters 0.0) (add isincargo midc)) (div (mul (div mado ttl) (add adc timeuntilavailable)) (div urge dist)))) (add (if4 (add (mul waiters ttl) (add waiters timeuntilavailable)) (mul (div 1.0 urge) (pow dist (if4 ado mido est urge))) (sub (div urge mido) (pow (if4 (mul (if4 1.0 est dist mido) (add adc timeuntilavailable)) cargosize (pow dist (if4 ado mido est urge)) (mul (div urge dist) (mul midc midc))) madc)) (mul midc midc)) (div (pow (div mado ttl) (sub madc 1.0)) (add timeuntilavailable 0.0)))) (mul 1.0 timeuntilavailable)) (add timeuntilavailable 0.0))))) (mul (div 1.0 urge) (add 0.0 urge)) (sub (sub timeuntilavailable est) (pow 1.0 madc)) (pow (mul midc midc) (mul (div urge dist) (mul (add (add (mul waiters ttl) (add waiters timeuntilavailable)) (add waiters timeuntilavailable)) midc)))) (div (mul (if4 1.0 est dist mido) (add adc timeuntilavailable)) (add (div urge mido) (div (sub 1.0 est) urge)))))";
 
-		// first evo result
-		final String progString = "(add (div (mul (add (pow (pow (sub est timeuntilavailable) (div est timeuntilavailable)) (mul mido waiters)) (add (add (div (mul (pow (if4 (sub (if4 (sub (mul 1.0 0.0) (if4 0.0 urge mado 1.0)) (mul cargosize (sub est timeuntilavailable)) (mul cargosize (if4 midc madc mado madc)) (sub est timeuntilavailable)) (sub isincargo urge)) urge mado 1.0) (mul mido waiters)) (mul waiters dist)) waiters) (add (sub (add (add 0.0 ttl) (sub est timeuntilavailable)) (mul (pow (if4 (sub (sub (sub est ado) adc) (pow (if4 ttl est mido mado) (sub est timeuntilavailable))) urge mado 1.0) (mul mido waiters)) (mul waiters dist))) (if4 (add mado (div isincargo mido)) (div ttl isincargo) (if4 ttl est mido mado) (mul cargosize (if4 midc madc (mul cargosize (if4 midc madc mado (if4 ttl (sub est ado) mido mado))) madc))))) (if4 (if4 ttl est mido mado) (div ttl isincargo) (pow (div isincargo mido) 1.0) (sub (if4 (add (if4 ttl est mido mado) (mul madc cargosize)) (div isincargo mido) (mul cargosize (if4 midc madc mado madc)) (sub est timeuntilavailable)) 1.0)))) (if4 midc madc mado madc)) (if4 ttl (pow mado ado) est (sub isincargo urge))) (add (add (div (mul (sub est timeuntilavailable) (mul waiters dist)) waiters) (add (sub (add (add 0.0 ttl) (sub est timeuntilavailable)) (if4 0.0 urge mado 1.0)) (if4 (add mado (div isincargo mido)) (div ttl isincargo) (if4 ttl est mido mado) (sub (if4 (if4 (add mado (if4 ttl est mido mado)) dist (pow (add (if4 (add madc (mul madc cargosize)) mado (if4 (if4 ttl est mido mado) (sub (sub (sub est ado) adc) (sub isincargo urge)) (pow (div isincargo mido) 1.0) (if4 (add madc (mul madc cargosize)) (pow (if4 ttl est mido mado) (div est timeuntilavailable)) (if4 ttl est mido mado) (sub est timeuntilavailable))) (sub est timeuntilavailable)) (sub est ado)) 1.0) (sub (if4 (add (sub isincargo urge) (mul madc cargosize)) (add mado (pow adc madc)) (mul cargosize (if4 midc madc mado madc)) (div est timeuntilavailable)) 1.0)) (pow (div urge adc) (div est timeuntilavailable)) (mul cargosize (add (pow (pow (if4 ttl est mido mado) (div est timeuntilavailable)) (mul mido waiters)) (pow adc madc))) (sub est timeuntilavailable)) 1.0)))) (if4 (if4 ttl est mido (mul (add (pow (pow (if4 ttl est mido mado) (div est timeuntilavailable)) (mul mido waiters)) (pow (div isincargo mido) 1.0)) (if4 midc madc mado madc))) (div ttl isincargo) (pow (div isincargo mido) 1.0) (sub (if4 (add madc (mul madc cargosize)) (pow (if4 ttl est mido (add mado (div est timeuntilavailable))) (sub est timeuntilavailable)) (if4 (if4 ttl est mido mado) (div ttl isincargo) (if4 ttl est mido mado) (sub (if4 (add madc (sub est timeuntilavailable)) (pow (if4 ttl est mido mado) (sub est timeuntilavailable)) (if4 ttl est mido mado) (sub est timeuntilavailable)) 1.0)) (sub est timeuntilavailable)) 1.0))))";
+		final String progString = "(add (add (sub (add est (add dist diameter)) (pow mindisttoservicepoints madc)) (sub madc timeuntilavailable)) (if4 (if4 (if4 (sub radius mado) (sub (if4 (pow mado mido) (if4 (sub mido diameter) (sub relecc radius) (if4 radius (pow cargosize mido) (pow diameter radius) (if4 relecc adc 0.0 adc)) (add (pow radius timeuntilavailable) (add est 0.0))) (add dist 1.0) (mul 1.0 0.0)) (pow maxtimewindowoverlapload urge)) (div (sub radius totaltimewindowoverlapload) est) (mul radius madc)) (pow cargosize mido) (if4 (pow mindisttoservicepoints madc) (div relecc isincargo) (div (pow relecc mado) dist) (if4 (pow relecc mado) (pow cargosize mido) (pow diameter radius) (if4 (sub mido diameter) (sub relecc radius) (mul adc 0.0) (mul mido mintimewindowoverlapload)))) (pow relecc mado)) (pow cargosize mido) (div (pow relecc mado) dist) (sub radius (pow diameter radius))))";
 
-		final Collection<GPFunc<GendreauContext>> funcs = new MyopicFunctions().create();
+		final Collection<GPFunc<GendreauContext>> funcs = new AuctionFunctions().create();
 		final GPProgram<GendreauContext> prog = GPProgramParser.parseProgramFunc(progString, funcs);
 
+		// for (int i = -1; i < 19; i++) {
+
+		// System.out.println("files/scenarios/gendreau06/train/train_req_rapide_1"
+		// + ((i < 10 && i >= 0) ? "0" : "")
+		// + (i < 0 ? 0 : i) + "_240_24");
+		// final GSimulationTask task = GSimulationTask
+		// .createTestableTask("files/scenarios/gendreau06/train/train_req_rapide_1"
+		// + ((i < 10 && i >= 0) ? "0" : "") + (i < 0 ? 0 : i) + "_240_24",
+		// prog, 10, false, 60000, SolutionType.AUCTION);
+
+		View.setTestingMode(true);
+
 		final GSimulationTask task = GSimulationTask
-				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, true, 1000, SolutionType.MYOPIC);
+				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, true, 1000, SolutionType.AUCTION);
 
 		task.run();
 
 		final Gendreau06ObjectiveFunction obj = new Gendreau06ObjectiveFunction();
-
 		System.out.println(obj.computeCost(task.getComputationResult().stats));
 		System.out.println(obj.printHumanReadableFormat(task.getComputationResult().stats));
-
 		System.out.println(task.getComputationResult());
+		// }
 
 	}
 }
