@@ -18,17 +18,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.github.rinde</groupId>
-			<artifactId>rinsim-core</artifactId>
-			<version>${rinsim.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.rinde</groupId>
 			<artifactId>rinsim-problem</artifactId>
-			<version>${rinsim.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>com.github.rinde</groupId>
-			<artifactId>rinsim-ui</artifactId>
 			<version>${rinsim.version}</version>
 		</dependency>
 		<dependency>
@@ -66,6 +56,17 @@
 
 	</dependencies>
 
+	<repositories>
+		<repository>
+			<id>sonatype-snapshots</id>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>always</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
 	<build>
 		<plugins>
 			<plugin>
@@ -81,8 +82,8 @@
 					</descriptorRefs>
 				</configuration>
 			</plugin>
-			
-			
+
+
 		</plugins>
 	</build>
 </project>
