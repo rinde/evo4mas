@@ -8,6 +8,9 @@ import java.util.Set;
 
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.event.Event;
+import rinde.sim.event.EventAPI;
+import rinde.sim.event.EventDispatcher;
 import rinde.sim.problem.common.DefaultParcel;
 import rinde.sim.problem.common.ParcelDTO;
 
@@ -17,8 +20,16 @@ import rinde.sim.problem.common.ParcelDTO;
  */
 public class AuctionParcel extends DefaultParcel {
 
+	protected AuctionTruck assignedTruck;
+	protected EventDispatcher eventDispatcher;
+
+	enum AuctionParcelEvent {
+		AUCTION_FINISHED;
+	}
+
 	public AuctionParcel(ParcelDTO pDto) {
 		super(pDto);
+		eventDispatcher = new EventDispatcher(AuctionParcelEvent.AUCTION_FINISHED);
 	}
 
 	@Override
@@ -38,5 +49,15 @@ public class AuctionParcel extends DefaultParcel {
 			}
 		}
 		bestTruck.receiveParcel(this);
+		assignedTruck = bestTruck;
+		eventDispatcher.dispatchEvent(new Event(AuctionParcelEvent.AUCTION_FINISHED, this));
+	}
+
+	public EventAPI getEventAPI() {
+		return eventDispatcher.getPublicEventAPI();
+	}
+
+	public AuctionTruck getAssignedTruck() {
+		return assignedTruck;
 	}
 }

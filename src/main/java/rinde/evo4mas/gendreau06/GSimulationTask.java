@@ -189,6 +189,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 		public GendreauUI(DynamicPDPTWProblem p) {
 			super(p);
 			addRenderer(new TimeLinePanel());
+			addRenderer(new AuctionPanel());
 		}
 
 		@Override
