@@ -122,6 +122,6 @@ public class AuctionPanel implements PanelRenderer, ModelReceiver {
 					public void handleEvent(Event ev) {
 						handleParcelStatusUpdate((AuctionParcel) ((PDPModelEvent) ev).parcel);
 					}
-				}, PDPModelEventType.START_DELIVERY, PDPModelEventType.END_DELIVERY, PDPModelEventType.START_PICKUP, PDPModelEventType.END_PICKUP);
+				}, PDPModelEventType.START_DELIVERY, PDPModelEventType.END_DELIVERY, PDPModelEventType.START_PICKUP, PDPModelEventType.END_PICKUP, PDPModelEventType.PARCEL_AVAILABLE);
 	}
 }
