@@ -66,19 +66,19 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 	public void setup(final EvolutionState state, final Parameter base) {
 		super.setup(state, base);
 		final String testSetDir = state.parameters.getString(base.push(P_TEST_SET_DIR), null);
-		checkArgument(testSetDir != null && new File(testSetDir).isDirectory(), "A valid test set directory should be specified, "
-				+ base.push(P_TEST_SET_DIR) + "=" + testSetDir);
+		checkArgument(testSetDir != null && new File(testSetDir).isDirectory(), "A valid test set directory should be specified, %s=%s", base
+				.push(P_TEST_SET_DIR), testSetDir);
 		final String trainSetDir = state.parameters.getString(base.push(P_TRAIN_SET_DIR), null);
-		checkArgument(trainSetDir != null && new File(trainSetDir).isDirectory(), "A valid train set directory should be specified, "
-				+ base.push(P_TRAIN_SET_DIR) + "=" + trainSetDir);
+		checkArgument(trainSetDir != null && new File(trainSetDir).isDirectory(), "A valid train set directory should be specified, %s=%s", base
+				.push(P_TRAIN_SET_DIR), trainSetDir);
 
 		testSet = unmodifiableList(ExperimentUtil.getFilesFromDir(testSetDir, "_240_24"));
 		trainSet = unmodifiableList(ExperimentUtil.getFilesFromDir(trainSetDir, "_240_24"));
 		System.out.println("test: " + removeDirPrefix(testSet) + "\ntrain: " + removeDirPrefix(trainSet));
 
 		final String sv = state.parameters.getString(base.push(P_SOLUTION_VARIANT), null);
-		checkArgument(SolutionType.hasValue(sv), base.push(P_SOLUTION_VARIANT)
-				+ " should be assigned one of the following values: " + Arrays.toString(SolutionType.values()));
+		checkArgument(SolutionType.hasValue(sv), "%s should be assigned one of the following values: %s", base.push(P_SOLUTION_VARIANT), Arrays
+				.toString(SolutionType.values()));
 		solutionType = SolutionType.valueOf(sv);
 
 		try {
@@ -95,15 +95,14 @@ public class Gendreau06Evaluator extends GPEvaluator<GSimulationTask, ResultDTO,
 		}
 
 		numScenariosPerGeneration = state.parameters.getInt(base.push(P_NUM_SCENARIOS_PER_GENERATION), null, 0);
-		checkArgument(numScenariosPerGeneration > 0, "Number of scenarios per generation must be defined, found "
-				+ base.push(P_NUM_SCENARIOS_PER_GENERATION) + "="
-				+ (numScenariosPerGeneration == -1 ? "undefined" : numScenariosPerGeneration));
+		checkArgument(numScenariosPerGeneration > 0, "Number of scenarios per generation must be defined, found %s=%s", base
+				.push(P_NUM_SCENARIOS_PER_GENERATION), (numScenariosPerGeneration == -1 ? "undefined"
+				: numScenariosPerGeneration));
 
 		numScenariosAtLastGeneration = state.parameters.getInt(base.push(P_NUM_SCENARIOS_AT_LAST_GENERATION), null, 0);
-		checkArgument(numScenariosAtLastGeneration > 0, "Number of scenarios at last generation must be defined, found "
-				+ base.push(P_NUM_SCENARIOS_AT_LAST_GENERATION)
-				+ "="
-				+ (numScenariosAtLastGeneration == -1 ? "undefined" : numScenariosAtLastGeneration));
+		checkArgument(numScenariosAtLastGeneration > 0, "Number of scenarios at last generation must be defined, found %s=%s", base
+				.push(P_NUM_SCENARIOS_AT_LAST_GENERATION), (numScenariosAtLastGeneration == -1 ? "undefined"
+				: numScenariosAtLastGeneration));
 
 	}
 

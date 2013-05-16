@@ -42,7 +42,7 @@ public class EvoStatistics extends GPStats {
 
 		final String dirName = new SimpleDateFormat("yyyyMMdd-HHmmss").format(new Date());
 		path = "runs/" + dirName;
-		checkState(new File(path).mkdir(), "dir " + path + " could not be created");
+		checkState(new File(path).mkdir(), "dir %s could not be created", path);
 		createSymbolicLink(path, "runs/latest");
 	}
 
@@ -51,7 +51,7 @@ public class EvoStatistics extends GPStats {
 		int exitCode;
 		try {
 			exitCode = Runtime.getRuntime().exec(cmd).waitFor();
-			checkState(exitCode == 0, "ln signaled an error with exit code " + exitCode);
+			checkState(exitCode == 0, "ln signaled an error with exit code %s", exitCode);
 		} catch (final Exception e) {
 			throw new RuntimeException("Symbolic link creation failed.", e);
 		}

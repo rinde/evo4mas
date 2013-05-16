@@ -45,8 +45,8 @@ public class SubSimulation extends Simulation {
 			// problemInstance.getSimulator().addTickListener(this);
 
 		}
-		checkState(problemInstance.getStatistics().simulationTime == startTime, "time is: "
-				+ problemInstance.getStatistics().simulationTime + " should be: " + startTime);
+		checkState(problemInstance.getStatistics().simulationTime == startTime, "time is: %s should be: %s", problemInstance
+				.getStatistics().simulationTime, startTime);
 
 		// move truck to current position
 		final SubTruck newT = new SubTruck(t.getDTO(), t.getProgram(), srcScenario);

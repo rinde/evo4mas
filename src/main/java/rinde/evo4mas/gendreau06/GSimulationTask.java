@@ -179,7 +179,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 			});
 			return task;
 		} catch (final IOException e) {
-			checkArgument(false, "something was wrong while reading " + fileName + " : " + e.getMessage());
+			checkArgument(false, "something was wrong while reading %s : %s", fileName, e.getMessage());
 		}
 		return null;
 	}
