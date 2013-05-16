@@ -131,6 +131,7 @@ public class GPFunctions {
 		}
 	}
 
+	// TODO too similar to timeUntilAvailable?
 	/**
 	 * As defined by Beham et al. 'is the earliest start time in the form of the
 	 * difference to the current time that a new order is available at the
