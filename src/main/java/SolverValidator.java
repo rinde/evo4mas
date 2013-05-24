@@ -77,18 +77,10 @@ public class SolverValidator {
 		checkArgument(obj.arrivalTimes.length == n, "number of arrival times should equal number of locations");
 		checkArgument(obj.arrivalTimes[0] == 0, "the first arrival time should always be 0");
 
-		// simple: check is increasing
-		int prevTime = 0;
-		for (int i = 0; i < n; i++) {
-			checkArgument(obj.arrivalTimes[obj.serviceSequence[i]] >= prevTime, "the arrival times should be an increasing array");
-			prevTime = obj.arrivalTimes[obj.serviceSequence[i]];
-		}
-
 		// check feasibility
 		for (int i = 1; i < n; i++) {
-			final int minArrivalTime = obj.arrivalTimes[i - 1]
+			final int minArrivalTime = obj.arrivalTimes[obj.serviceSequence[i - 1]]
 					+ travelTime[obj.serviceSequence[i - 1]][obj.serviceSequence[i]] + (i > 1 ? serviceTime : 0);
-
 			checkArgument(obj.arrivalTimes[obj.serviceSequence[i]] >= minArrivalTime, "index %s arrivalTime %s minArrivalTime %s", i, obj.arrivalTimes[i], minArrivalTime);
 		}
 
@@ -96,12 +88,24 @@ public class SolverValidator {
 		 * CHECK OBJECTIVE VALUE
 		 */
 
-		// sum distance
+		// sum travel time
+		int totalTravelTime = 0;
+		for (int i = 1; i < n; i++) {
+			totalTravelTime += travelTime[obj.serviceSequence[i - 1]][obj.serviceSequence[i]];
+		}
 
 		// sum tardiness
-
-		// check that last node has NO processing time!
-
+		int tardiness = 0;
+		for (int i = 0; i < n; i++) {
+			// leaving at first point and arriving at depot costs no service
+			// time
+			final int st = i == 0 || i == n - 1 ? 0 : serviceTime;
+			final int lateness = (obj.arrivalTimes[i] + st) - dueDates[i];
+			if (lateness > 0) {
+				tardiness += lateness;
+			}
+		}
+		checkArgument(obj.objectiveValue == totalTravelTime + tardiness, "travel time %s, tardiness %s", totalTravelTime, tardiness);
 	}
 
 	static Set<Integer> toSet(int[] arr) {

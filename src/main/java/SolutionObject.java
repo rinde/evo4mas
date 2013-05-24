@@ -17,8 +17,9 @@ public class SolutionObject {
 	public final int[] serviceSequence;
 
 	/**
-	 * Array of times at which every location servicing starts. Always starts
-	 * with 0
+	 * Array of times at which every location servicing starts. The number at
+	 * arrivalTimes[i] indicates the arrival time at location i, where i refers
+	 * to the location as specified in the <i>input</i>. Always starts with 0.
 	 */
 	public final int[] arrivalTimes;
 
