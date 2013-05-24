@@ -1,3 +1,4 @@
+package rinde.solver.spdptw;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
 

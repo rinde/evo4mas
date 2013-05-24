@@ -1,3 +1,6 @@
+package rinde.solver.spdptw.mip;
+import rinde.solver.spdptw.SolutionObject;
+import rinde.solver.spdptw.SolverAPI;
 import ilog.concert.IloException;
 import ilog.concert.IloIntVar;
 import ilog.concert.IloLinearIntExpr;
