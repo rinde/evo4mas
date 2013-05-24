@@ -47,6 +47,7 @@ public class AuctionTruck extends HeuristicTruck {
 		final Collection<Parcel> contents = pdpModel.getContents(this);
 		final GendreauContext genericContext = createGenericContext(time);
 
+		// filter out all parcels which are not soon available
 		final Iterator<Parcel> todoIterator = Collections2.filter(todo, new Predicate<Parcel>() {
 			public boolean apply(Parcel input) {
 				return tua.execute(null, createContext(genericContext, input, false, true)) < 1000;
