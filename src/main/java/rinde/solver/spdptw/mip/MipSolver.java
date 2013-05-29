@@ -1,12 +1,12 @@
 package rinde.solver.spdptw.mip;
 import rinde.solver.spdptw.SolutionObject;
-import rinde.solver.spdptw.SolverAPI;
+import rinde.solver.spdptw.Solver;
 import ilog.concert.IloException;
 import ilog.concert.IloIntVar;
 import ilog.concert.IloLinearIntExpr;
 import ilog.cplex.IloCplex;
 
-public class MipSolver implements SolverAPI {
+public class MipSolver implements Solver {
 
 	public static final int TRAVEL_TIME_WEIGHT = 1;
 	public static final int TARDINESS_WEIGHT = 1;

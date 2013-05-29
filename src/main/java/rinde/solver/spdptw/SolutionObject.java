@@ -1,4 +1,5 @@
 package rinde.solver.spdptw;
+
 import java.util.Arrays;
 
 /**
@@ -15,7 +16,7 @@ public class SolutionObject {
 	 * Array of locations which have to be serviced in the specified sequence,
 	 * starts with the begin location and ends with depot.
 	 */
-	public final int[] serviceSequence;
+	public final int[] route;
 
 	/**
 	 * Array of times at which every location servicing starts. The number at
@@ -31,23 +32,21 @@ public class SolutionObject {
 
 	/**
 	 * 
-	 * @param serviceSequence {@link #serviceSequence}
+	 * @param route {@link #route}
 	 * @param arrivalTimes {@link #arrivalTimes}
 	 * @param objectiveValue {@link #objectiveValue}
 	 */
-	public SolutionObject(int[] serviceSequence, int[] arrivalTimes, int objectiveValue) {
-		this.serviceSequence = serviceSequence;
+	public SolutionObject(int[] route, int[] arrivalTimes, int objectiveValue) {
+		this.route = route;
 		this.arrivalTimes = arrivalTimes;
 		this.objectiveValue = objectiveValue;
 	}
 
 	@Override
 	public String toString() {
-		String s = "Route: ";
-		s += Arrays.toString(serviceSequence) + "\n";
-		s += "Arrival times: " + Arrays.toString(arrivalTimes) + "\n";
-		s += "Objective: " + objectiveValue;
-		return s;
+		return new StringBuilder("Route: ").append(Arrays.toString(route)).append("\n").append("Arrival times: ")
+				.append(Arrays.toString(arrivalTimes)).append("\n").append("Objective: ").append(objectiveValue)
+				.toString();
 	}
 
 }

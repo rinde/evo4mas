@@ -1,13 +1,10 @@
 package rinde.solver.spdptw;
-/**
- * 
- */
 
 /**
- * API for single pickup-and-delivery problem with time windows (SPDPTW).
+ * Interface for single pickup-and-delivery problem with time windows (SPDPTW).
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
-public interface SolverAPI {
+public interface Solver {
 
 	/**
 	 * 
