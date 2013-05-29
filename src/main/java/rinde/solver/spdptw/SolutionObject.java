@@ -3,11 +3,8 @@ package rinde.solver.spdptw;
 import java.util.Arrays;
 
 /**
- * 
- */
-
-/**
- * Solution object for single pickup-and-delivery problem with time windows.
+ * Solution object for single vehicle pickup-and-delivery problem with time
+ * windows.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public class SolutionObject {

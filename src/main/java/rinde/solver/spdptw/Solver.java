@@ -1,19 +1,23 @@
 package rinde.solver.spdptw;
 
 /**
- * Interface for single pickup-and-delivery problem with time windows (SPDPTW).
+ * Interface for solvers for the single vehicle pickup-and-delivery problem with
+ * time windows (SPDPTW).
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public interface Solver {
 
 	/**
-	 * 
+	 * Gives a solution for the SPDPTW as specified by the parameters. The
+	 * returned solution does not necessary need to be optimal but it needs to
+	 * be feasible. The {@link SolverValidator} can check whether a
+	 * {@link Solver} produces a valid solution and it can check whether the
+	 * parameters for the {@link Solver} are valid.
+	 * <p>
 	 * All times are in seconds relative to the current time (0). All
 	 * constraints are soft, i.e. lateness at service locations and at depot are
 	 * allowed. The start location has index 0, the end location (depot) has
 	 * index n-1.
-	 * 
-	 * The depot is a location with index 0.
 	 * 
 	 * @param dist n x n distance matrix expressed in time: travelTime[i][j]
 	 *            specifies travelTime from location i to location j.
@@ -29,8 +33,8 @@ public interface Solver {
 	 *            location, all customer interactions are done.
 	 * @param serviceTime specifies the service time for all locations (both
 	 *            pickups and deliveries).
-	 * @return The solution object which indicates the best found solution for
-	 *         the SPDPTW.
+	 * @return The solution object which indicates a (usually the best found)
+	 *         solution for the SPDPTW.
 	 */
 	SolutionObject solve(int[][] travelTime, int[] releaseDates, int[] dueDates, int[][] servicePairs, int serviceTime);
 

@@ -46,6 +46,22 @@ public final class SolverValidator implements Solver {
 		return new SolverValidator(delegate);
 	}
 
+	/**
+	 * Validates the inputs for the {@link Solver}. This method checks all
+	 * properties as defined in
+	 * {@link Solver#solve(int[][], int[], int[], int[][], int)}. If the inputs
+	 * do are not correct an {@link IllegalArgumentException} is thrown.
+	 * @param travelTime Parameter as specified by
+	 *            {@link Solver#solve(int[][], int[], int[], int[][], int)}.
+	 * @param releaseDates Parameter as specified by
+	 *            {@link Solver#solve(int[][], int[], int[], int[][], int)}.
+	 * @param dueDates Parameter as specified by
+	 *            {@link Solver#solve(int[][], int[], int[], int[][], int)}.
+	 * @param servicePairs Parameter as specified by
+	 *            {@link Solver#solve(int[][], int[], int[], int[][], int)}.
+	 * @param serviceTime Parameter as specified by
+	 *            {@link Solver#solve(int[][], int[], int[], int[][], int)}.
+	 */
 	public static void validateInputs(int[][] travelTime, int[] releaseDates, int[] dueDates, int[][] servicePairs,
 			int serviceTime) {
 
@@ -81,6 +97,23 @@ public final class SolverValidator implements Solver {
 
 	}
 
+	/**
+	 * Validates the {@link SolutionObject} that is produced by a {@link Solver}
+	 * . If the {@link SolutionObject} is infeasible, an
+	 * {@link IllegalArgumentException} is thrown.
+	 * @param sol The {@link SolutionObject} that is validated.
+	 * @param travelTime Parameter as specified by
+	 *            {@link Solver#solve(int[][], int[], int[], int[][], int)}.
+	 * @param releaseDates Parameter as specified by
+	 *            {@link Solver#solve(int[][], int[], int[], int[][], int)}.
+	 * @param dueDates Parameter as specified by
+	 *            {@link Solver#solve(int[][], int[], int[], int[][], int)}.
+	 * @param servicePairs Parameter as specified by
+	 *            {@link Solver#solve(int[][], int[], int[], int[][], int)}.
+	 * @param serviceTime Parameter as specified by
+	 *            {@link Solver#solve(int[][], int[], int[], int[][], int)}.
+	 * @return The solution as is supplied, used for method chaining.
+	 */
 	public static SolutionObject validate(SolutionObject sol, int[][] travelTime, int[] releaseDates, int[] dueDates,
 			int[][] servicePairs, int serviceTime) {
 		final int n = travelTime.length;
