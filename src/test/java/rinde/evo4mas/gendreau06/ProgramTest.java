@@ -64,7 +64,7 @@ public class ProgramTest {
 		View.setTestingMode(true);
 
 		final GSimulationTask task = GSimulationTask
-				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, true, 1000, SolutionType.AUCTION);
+				.createTestableTask("files/scenarios/gendreau06/req_rapide_1_240_24", prog, 10, false, 1000, SolutionType.AUCTION_OPT);
 
 		task.run();
 

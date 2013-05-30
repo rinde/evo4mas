@@ -3,6 +3,8 @@
  */
 package rinde.evo4mas.gendreau06;
 
+import static com.google.common.base.Preconditions.checkState;
+
 import java.util.Iterator;
 import java.util.Set;
 
@@ -35,7 +37,7 @@ public class AuctionParcel extends DefaultParcel {
 	@Override
 	public void initRoadPDP(RoadModel pRoadModel, PDPModel pPdpModel) {
 		final Set<AuctionTruck> trucks = pRoadModel.getObjectsOfType(AuctionTruck.class);
-
+		checkState(!trucks.isEmpty(), "there are no vehicles..");
 		final Iterator<AuctionTruck> it = trucks.iterator();
 		AuctionTruck bestTruck = it.next();
 		double bestValue = bestTruck.getBidFor(this, dto.orderArrivalTime);

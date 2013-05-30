@@ -1,18 +1,28 @@
 package rinde.solver.spdptw.mip;
-import rinde.solver.spdptw.SolutionObject;
-import rinde.solver.spdptw.Solver;
+
 import ilog.concert.IloException;
 import ilog.concert.IloIntVar;
 import ilog.concert.IloLinearIntExpr;
 import ilog.cplex.IloCplex;
+import rinde.solver.spdptw.SolutionObject;
+import rinde.solver.spdptw.Solver;
 
 public class MipSolver implements Solver {
 
 	public static final int TRAVEL_TIME_WEIGHT = 1;
 	public static final int TARDINESS_WEIGHT = 1;
-	public static final int M = 10000; // BIG number! Must be bigger than
-										// start_time of a job i + service time+
-										// travel time from i to j, for all i,j!
+
+	// max travel time = (7.08/30) * 3600 = 849,6
+	// max start time = 27000
+	// max service time = 300
+	// ---------------------- +
+	// total = 28149,6
+
+	public static final int M = 28150; // BIG number! Must be bigger than
+										// start_time of a job i + service
+										// time+
+										// travel time from i to j, for all
+										// i,j!
 	public static final double EPSILON = 0.000001; // precision
 	public static final int TIMELIMIT = 100000; // time limit in seconds
 	public static final int MAXTHREADS = 8; // number of threads used by the
@@ -71,7 +81,7 @@ public class MipSolver implements Solver {
 		cplex.setParam(IloCplex.IntParam.Threads, MAXTHREADS);
 
 		// supress output
-		// cplex.setOut(null);
+		cplex.setOut(null);
 
 		// build the variables
 		flowVars = new IloIntVar[nrOfVertices][nrOfVertices];

@@ -96,7 +96,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 						if (solutionType == SolutionType.AUCTION) {
 							return sim.register(new AuctionTruck(event.vehicleDTO, taskData));
 						} else /* if( solutionType == SolutionType.AUCTION_OPT) */{
-							return sim.register(new AuctionOptTruck(event.vehicleDTO));
+							return sim.register(new AuctionOptTruck(event.vehicleDTO, taskData));
 						}
 					}
 				});

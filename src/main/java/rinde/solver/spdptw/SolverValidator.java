@@ -142,7 +142,7 @@ public final class SolverValidator implements Solver {
 		for (int i = 1; i < n; i++) {
 			final int minArrivalTime = sol.arrivalTimes[sol.route[i - 1]] + travelTime[sol.route[i - 1]][sol.route[i]]
 					+ (i > 1 ? serviceTime : 0);
-			checkArgument(sol.arrivalTimes[sol.route[i]] >= minArrivalTime, "Index %s, arrivalTime (%s) needs to be greater or equal to minArrivalTime (%s).", i, sol.arrivalTimes[sol.route[i]], minArrivalTime);
+			checkArgument(sol.arrivalTimes[sol.route[i]] >= minArrivalTime, "Route index %s, arrivalTime (%s) needs to be greater or equal to minArrivalTime (%s).", i, sol.arrivalTimes[sol.route[i]], minArrivalTime);
 		}
 
 		/*
