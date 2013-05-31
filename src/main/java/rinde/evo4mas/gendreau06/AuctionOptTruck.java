@@ -4,10 +4,13 @@
 package rinde.evo4mas.gendreau06;
 
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Collections.unmodifiableList;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -29,9 +32,13 @@ import com.google.common.primitives.Ints;
  */
 public class AuctionOptTruck extends AuctionTruck {
 
+	// TODO state machine should be simplified, this truck is mostly just
+	// following its plan
+
 	protected Solver solver;
 	protected boolean changed;
 	protected Queue<Parcel> route;
+	protected SolutionObject solutionObject;
 
 	/**
 	 * @param pDto
@@ -45,6 +52,7 @@ public class AuctionOptTruck extends AuctionTruck {
 
 	@Override
 	public void receiveParcel(AuctionParcel ap) {
+		System.out.println("receive parcel");
 		super.receiveParcel(ap);
 		changed = true;
 	}
@@ -132,11 +140,13 @@ public class AuctionOptTruck extends AuctionTruck {
 
 			// fill the distance matrix
 			for (int i = 0; i < numLocations; i++) {
-				for (int j = 0; j < numLocations; j++) {
+				for (int j = 0; j < i; j++) {
 					if (i != j) {
 						final double dist = Point.distance(locations[i], locations[j]);
 						// travel times are ceiled
-						travelTime[i][j] = (int) Math.ceil((dist / dto.speed) * 3600.0);
+						final int tt = (int) Math.ceil((dist / dto.speed) * 3600.0);
+						travelTime[i][j] = tt;
+						travelTime[j][i] = tt;
 					}
 				}
 			}
@@ -144,15 +154,58 @@ public class AuctionOptTruck extends AuctionTruck {
 			final SolutionObject sol = solver.solve(travelTime, releaseDates, dueDates, servicePairs, serviceTime);
 
 			final Queue<Parcel> newRoute = newLinkedList();
-			for (final int i : sol.route) {
-				newRoute.add(point2parcel.get(locations[i]));
+			// ignore first (current pos) and last (depot)
+			for (int i = 1; i < sol.route.length - 1; i++) {
+				newRoute.add(point2parcel.get(locations[sol.route[i]]));
 			}
 			route = newRoute;
+			solutionObject = sol;
 		}
+
+		// when too early the next() method can be called repeatedly, parcels
+		// which are not yet handled should not be removed until operation is
+		// complete.
+
+		// final Parcel cur = route.peek();
+		// if (pdpModel.getParcelState(cur) == ParcelState.ANNOUNCED
+		// || pdpModel.getParcelState(cur) == ParcelState.AVAILABLE) {
+		// return cur;
+		// }
+		// else if( pdpModel.getParcelState(cur) ==)
 
 		// returns and removes the Parcel that will be visited next, returns
 		// null when empty
 		return route.poll();
+	}
+
+	/**
+	 * 
+	 * @return A list of Parcels that will be visited in that order. Parcels can
+	 *         appear twice in the list, the first occurence is a pickup, the
+	 *         second occurence is a delivery. The list is empty if there is no
+	 *         route.
+	 */
+	public List<Parcel> getRoute() {
+		final List<Parcel> list = newArrayList();
+		if (currentTarget != null) {
+			list.add(currentTarget);
+		}
+		if (!route.isEmpty()) {
+			list.addAll(route);
+		}
+		return unmodifiableList(list);
+	}
+
+	/**
+	 * @return A copy of the {@link SolutionObject} that was used to find the
+	 *         current route. Or <code>null</code> if no {@link Solver} was used
+	 *         to find the current route (or there is no route).
+	 */
+	public SolutionObject getSolutionObject() {
+		if (solutionObject == null) {
+			return null;
+		}
+		return new SolutionObject(solutionObject.route, solutionObject.arrivalTimes, solutionObject.objectiveValue);
 	}
 
 	static int fixTWstart(long start, long time) {

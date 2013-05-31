@@ -69,7 +69,7 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 	protected void preSimulate(DynamicPDPTWProblem problem) {}
 
 	public void run() {
-		final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
+
 		final DataProvider dataProvider = getDataProvider();
 		String scenarioString;
 		try {
@@ -77,6 +77,15 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 			System.out.println(taskData.getId());
 			final Gendreau06Scenario scenario = Gendreau06Parser.parse(new BufferedReader(new StringReader(
 					scenarioString)), scenarioKey, numVehicles, tickSize);
+			runOnScenario(scenario);
+		} catch (final Exception e) {
+			throw new RuntimeException("Failed loading scenario for task: " + taskData + " " + scenarioKey, e);
+		}
+	}
+
+	protected void runOnScenario(Gendreau06Scenario scenario) {
+		try {
+			final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
 			final DynamicPDPTWProblem problem = new DynamicPDPTWProblem(scenario, 123, new CoordinationModel());
 
 			if (solutionType == SolutionType.MYOPIC) {
@@ -101,13 +110,13 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 					}
 				});
 			}
-			problem.addStopCondition(new StopCondition() {
-				@Override
-				public boolean isSatisfiedBy(SimulationInfo context) {
-					return false;// context.stats.computationTime > 5 * 60 *
-									// 1000;
-				}
-			});
+			// problem.addStopCondition(new StopCondition() {
+			// @Override
+			// public boolean isSatisfiedBy(SimulationInfo context) {
+			// return false;// context.stats.computationTime > 5 * 60 *
+			// // 1000;
+			// }
+			// });
 			problem.addStopCondition(new StopCondition() {
 				@Override
 				public boolean isSatisfiedBy(SimulationInfo context) {
@@ -121,8 +130,9 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 			final float fitness = isValid ? (float) objFunc.computeCost(stats) : Float.MAX_VALUE;
 			setResult(new ResultDTO(scenarioKey, taskData.getId(), stats, fitness));
 
-			System.out
-					.println(fitness + " valid:" + isValid + " task done: " + objFunc.printHumanReadableFormat(stats));
+			// System.out
+			// .println(fitness + " valid:" + isValid + " task done: " +
+			// objFunc.printHumanReadableFormat(stats));
 			// we don't throw an exception when just one vehicle has moved, this
 			// usually just indicates a very bad solution and is the reason why
 			// it didn't finish in time
@@ -188,12 +198,20 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 		return null;
 	}
 
-	static class GendreauUI extends DefaultUICreator {
+	public static class GendreauUI extends DefaultUICreator {
+
+		public GendreauUI(DynamicPDPTWProblem p, boolean enableTimeLine, boolean enableAuctionPanel) {
+			super(p);
+			if (enableTimeLine) {
+				addRenderer(new TimeLinePanel());
+			}
+			if (enableAuctionPanel) {
+				addRenderer(new AuctionPanel());
+			}
+		}
 
 		public GendreauUI(DynamicPDPTWProblem p) {
-			super(p);
-			addRenderer(new TimeLinePanel());
-			addRenderer(new AuctionPanel());
+			this(p, true, true);
 		}
 
 		@Override

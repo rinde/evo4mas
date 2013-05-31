@@ -40,14 +40,18 @@ public class AuctionParcel extends DefaultParcel {
 		checkState(!trucks.isEmpty(), "there are no vehicles..");
 		final Iterator<AuctionTruck> it = trucks.iterator();
 		AuctionTruck bestTruck = it.next();
-		double bestValue = bestTruck.getBidFor(this, dto.orderArrivalTime);
+		// if there are no other trucks, there is no need to use the heuristic
+		// at all (mainly used in test cases)
+		if (it.hasNext()) {
+			double bestValue = bestTruck.getBidFor(this, dto.orderArrivalTime);
 
-		while (it.hasNext()) {
-			final AuctionTruck cur = it.next();
-			final double curValue = cur.getBidFor(this, dto.orderArrivalTime);
-			if (curValue < bestValue) {
-				bestValue = curValue;
-				bestTruck = cur;
+			while (it.hasNext()) {
+				final AuctionTruck cur = it.next();
+				final double curValue = cur.getBidFor(this, dto.orderArrivalTime);
+				if (curValue < bestValue) {
+					bestValue = curValue;
+					bestTruck = cur;
+				}
 			}
 		}
 		bestTruck.receiveParcel(this);

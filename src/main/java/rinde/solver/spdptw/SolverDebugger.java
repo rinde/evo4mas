@@ -34,6 +34,12 @@ public class SolverDebugger implements Solver {
 		System.out.println("arrivalTimes: " + Arrays.toString(sol.arrivalTimes));
 		System.out.println("objectiveValue: " + sol.objectiveValue);
 
+		int totalTravelTime = 0;
+		for (int i = 1; i < travelTime.length; i++) {
+			totalTravelTime += travelTime[sol.route[i - 1]][sol.route[i]];
+		}
+		System.out.println("travel time :  " + totalTravelTime);
+
 		// code for debugging arrival times
 		// for (int i = 1; i < travelTime.length; i++) {
 		// System.out.println(sol.route[i - 1] + " -> " + sol.route[i] + " = " +
