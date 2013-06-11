@@ -21,6 +21,7 @@ import com.google.common.collect.Multimap;
  * 
  */
 public class CoordinationModel implements Model<MyopicTruck> {
+	// Blackboard communication model
 
 	protected final HashSet<Parcel> claims;
 	protected final Multimap<Parcel, MyopicTruck> waiting;
