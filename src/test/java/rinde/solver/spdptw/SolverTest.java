@@ -65,7 +65,7 @@ public class SolverTest {
 		sim.run();
 
 		final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
-		assertTrue(objFunc.isValidResult(sim.getComputationResult().stats));
+		assertTrue("invalid result", objFunc.isValidResult(sim.getComputationResult().stats));
 		final double simObj = objFunc.computeCost(sim.getComputationResult().stats);
 		final double solverObj = sim.truck.getSolutionObject().objectiveValue / 60.0;
 

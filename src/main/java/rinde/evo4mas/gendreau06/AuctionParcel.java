@@ -22,7 +22,7 @@ import rinde.sim.problem.common.ParcelDTO;
  */
 public class AuctionParcel extends DefaultParcel {
 
-	protected AuctionTruck assignedTruck;
+	protected Bidder assignedTruck;
 	protected EventDispatcher eventDispatcher;
 
 	enum AuctionParcelEvent {
@@ -36,17 +36,17 @@ public class AuctionParcel extends DefaultParcel {
 
 	@Override
 	public void initRoadPDP(RoadModel pRoadModel, PDPModel pPdpModel) {
-		final Set<AuctionTruck> trucks = pRoadModel.getObjectsOfType(AuctionTruck.class);
+		final Set<Bidder> trucks = pRoadModel.getObjectsOfType(Bidder.class);
 		checkState(!trucks.isEmpty(), "there are no vehicles..");
-		final Iterator<AuctionTruck> it = trucks.iterator();
-		AuctionTruck bestTruck = it.next();
+		final Iterator<Bidder> it = trucks.iterator();
+		Bidder bestTruck = it.next();
 		// if there are no other trucks, there is no need to use the heuristic
 		// at all (mainly used in test cases)
 		if (it.hasNext()) {
 			double bestValue = bestTruck.getBidFor(this, dto.orderArrivalTime);
 
 			while (it.hasNext()) {
-				final AuctionTruck cur = it.next();
+				final Bidder cur = it.next();
 				final double curValue = cur.getBidFor(this, dto.orderArrivalTime);
 				if (curValue < bestValue) {
 					bestValue = curValue;
@@ -63,7 +63,7 @@ public class AuctionParcel extends DefaultParcel {
 		return eventDispatcher.getPublicEventAPI();
 	}
 
-	public AuctionTruck getAssignedTruck() {
+	public Bidder getAssignedTruck() {
 		return assignedTruck;
 	}
 }
