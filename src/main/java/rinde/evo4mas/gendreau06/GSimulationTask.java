@@ -39,7 +39,7 @@ import rinde.sim.ui.renderers.CanvasRenderer;
 public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<GendreauContext>> {
 
 	public enum SolutionType {
-		MYOPIC, AUCTION, AUCTION_OPT;
+		MYOPIC, AUCTION, AUCTION_OPT, RANDOM;
 
 		public static boolean hasValue(String s) {
 			try {
@@ -92,6 +92,13 @@ public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<Gendre
 				problem.addCreator(AddVehicleEvent.class, new Creator<AddVehicleEvent>() {
 					public boolean create(Simulator sim, AddVehicleEvent event) {
 						return sim.register(new MyopicTruck(event.vehicleDTO, taskData));
+					}
+				});
+			} else if (solutionType == SolutionType.RANDOM) {
+				problem.addCreator(AddVehicleEvent.class, new Creator<AddVehicleEvent>() {
+					public boolean create(Simulator sim, AddVehicleEvent event) {
+						// TODO parameterize the seed
+						return sim.register(new RandomTruck(event.vehicleDTO, 123));
 					}
 				});
 			} else {
