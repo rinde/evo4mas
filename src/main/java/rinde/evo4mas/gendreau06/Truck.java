@@ -87,11 +87,11 @@ public class Truck extends DefaultVehicle {
 		public Event handle(Event event, Truck context) {
 			if (changed) {
 				changed = false;
-				routePlanner.update(null, currentTime.getTime());
-				communicator.waitFor(routePlanner.peek());
+				routePlanner.update(null, null, currentTime.getTime());
+				communicator.waitFor(routePlanner.current());
 			}
 
-			if (!routePlanner.hasNext() && !isTooEarly(routePlanner.peek())) {
+			if (!routePlanner.hasNext() && !isTooEarly(routePlanner.current())) {
 				return Event.DONE;
 			}
 
@@ -110,11 +110,11 @@ public class Truck extends DefaultVehicle {
 
 		@Override
 		public void onEntry(Event event, Truck context) {
-			if (pdpModel.getParcelState(routePlanner.peek()) == ParcelState.IN_CARGO) {
-				destination = routePlanner.peek().getDestination();
+			if (pdpModel.getParcelState(routePlanner.current()) == ParcelState.IN_CARGO) {
+				destination = routePlanner.current().getDestination();
 			} else {
-				communicator.claim(routePlanner.peek());
-				destination = roadModel.getPosition(routePlanner.peek());
+				communicator.claim(routePlanner.current());
+				destination = roadModel.getPosition(routePlanner.current());
 			}
 		}
 
@@ -133,13 +133,13 @@ public class Truck extends DefaultVehicle {
 
 		@Override
 		public void onEntry(Event event, Truck context) {
-			if (pdpModel.getParcelState(routePlanner.peek()) == ParcelState.IN_CARGO) {
+			if (pdpModel.getParcelState(routePlanner.current()) == ParcelState.IN_CARGO) {
 				// deliver
-				pdpModel.deliver(context, routePlanner.peek(), currentTime);
+				pdpModel.deliver(context, routePlanner.current(), currentTime);
 			} else {
-				pdpModel.pickup(context, routePlanner.peek(), currentTime);
+				pdpModel.pickup(context, routePlanner.current(), currentTime);
 			}
-			routePlanner.remove();
+			routePlanner.next(currentTime.getTime());
 		}
 
 		@Override

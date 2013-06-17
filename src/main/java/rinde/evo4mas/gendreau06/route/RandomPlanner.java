@@ -3,13 +3,16 @@
  */
 package rinde.evo4mas.gendreau06.route;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Lists.newLinkedList;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Random;
 
 import org.apache.commons.math3.random.MersenneTwister;
-import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.RandomAdaptor;
 
 import rinde.sim.core.model.pdp.Parcel;
 
@@ -19,44 +22,38 @@ import rinde.sim.core.model.pdp.Parcel;
  */
 public class RandomPlanner extends AbstractRoutePlanner {
 
-	protected List<Parcel> assignedParcels;
-	protected Parcel current;
-
-	protected final RandomGenerator rng;
+	protected Queue<Parcel> assignedParcels;
+	protected final Random rng;
 
 	public RandomPlanner(long seed) {
-		rng = new MersenneTwister(seed);
+		rng = new RandomAdaptor(new MersenneTwister(seed));
+		assignedParcels = newLinkedList();
 	}
 
 	@Override
-	public void update(Set<Parcel> parcels, long time) {
-		// TODO also use parcels in cargo!
-		if (parcels.isEmpty()) {
-			assignedParcels = newArrayList();
-			current = null;
+	protected void doUpdate(Collection<Parcel> onMap, Collection<Parcel> inCargo, long time) {
+		if (onMap.isEmpty() && inCargo.isEmpty()) {
+			assignedParcels = newLinkedList();
 		} else {
-			assignedParcels = newArrayList(parcels);
-			next();
+			final LinkedList<Parcel> ps = newLinkedList(onMap);
+			ps.addAll(onMap);
+			ps.addAll(inCargo);
+			Collections.shuffle(ps, rng);
+			assignedParcels = ps;
 		}
 	}
 
-	protected void next() {
-		current = assignedParcels.remove(rng.nextInt(assignedParcels.size()));
+	@Override
+	public void nextImpl(long time) {
+		assignedParcels.poll();
 	}
 
-	@Override
-	public Parcel peek() {
-		return current;
-	}
-
-	@Override
-	public void remove() {
-		next();
-	}
-
-	@Override
 	public boolean hasNext() {
 		return !assignedParcels.isEmpty();
+	}
+
+	public Parcel current() {
+		return assignedParcels.peek();
 	}
 
 }
