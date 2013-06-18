@@ -4,6 +4,7 @@
 package rinde.evo4mas.gendreau06.route;
 
 import static com.google.common.collect.Lists.newLinkedList;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -46,6 +47,8 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
 import rinde.sim.problem.gendreau06.GendreauTestUtil;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
+
+import com.google.common.collect.ImmutableSet;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -96,11 +99,9 @@ public class RoutePlannerTest {
 		int numOnMap = 10;
 		int numInCargo = 10;
 		if (routePlanner instanceof OptimalPlanner) {
-
 			numOnMap = 2;
 			numInCargo = 4;
 		}
-		System.out.println(numOnMap + " " + numInCargo);
 
 		final RandomGenerator rng = new MersenneTwister(123);
 		final List<TimedEvent> events = newLinkedList();
@@ -149,8 +150,10 @@ public class RoutePlannerTest {
 			assertEquals("current must keep the same value during repeated invocations", routePlanner.current(), routePlanner
 					.current());
 			routePlanner.next(0);
+			assertEquals(visited.get(visited.size() - 1), routePlanner.prev());
 		}
 
+		assertEquals(visited, routePlanner.getHistory());
 		assertNull(routePlanner.current());
 		assertNull(routePlanner.next(0));
 
@@ -165,19 +168,57 @@ public class RoutePlannerTest {
 
 	}
 
-	@Test(expected = IllegalStateException.class)
-	public void testNotInitializedNext() {
-		routePlanner.next(0);
+	@Test
+	public void testMultiUpdate() {
+		routePlanner.init(roadModel, pdpModel, sim.truck);
+
+		final Collection<Parcel> empty = ImmutableSet.of();
+		final Collection<Parcel> singleCargo = ImmutableSet.of(pdpModel.getContents(sim.truck).iterator().next());
+		final Parcel mapParcel = roadModel.getObjectsOfType(Parcel.class).iterator().next();
+		final Collection<Parcel> singleOnMap = ImmutableSet.of(mapParcel);
+
+		routePlanner.update(empty, singleCargo, 0);
+		assertNull(routePlanner.prev());
+
+		assertEquals(1, singleOnMap.size());
+		assertEquals(1, singleCargo.size());
+		routePlanner.update(singleOnMap, empty, 0);
+		assertEquals(0, routePlanner.getHistory().size());
+
+		assertEquals(mapParcel, routePlanner.next(0));
+		assertTrue(routePlanner.hasNext());
+		assertNull(routePlanner.next(0));
+
+		assertEquals(asList(mapParcel, mapParcel), routePlanner.getHistory());
 	}
 
+	// init can be called only once
+	@Test(expected = IllegalStateException.class)
+	public void testInitTwice() {
+		routePlanner.init(roadModel, pdpModel, sim.truck);
+		routePlanner.init(roadModel, pdpModel, sim.truck);
+	}
+
+	// init needs to be called before update
 	@Test(expected = IllegalStateException.class)
 	public void testNotInitializedUpdate() {
 		routePlanner.update(null, null, 0);
 	}
 
-	// TODO add test where data changes in between
+	// update needs to be called before next
+	@Test(expected = IllegalStateException.class)
+	public void testNotInitializedNext() {
+		routePlanner.next(0);
+	}
 
-	// TODO next() can only be called when update() has been called before
+	@Test
+	public void testEmpty() {
+		routePlanner.init(roadModel, pdpModel, sim.truck);
+
+		final Collection<Parcel> s1 = ImmutableSet.of();
+		final Collection<Parcel> s2 = ImmutableSet.of();
+		routePlanner.update(s1, s2, 0);
+	}
 
 	static Parcel createParcel(RandomGenerator rng) {
 		final ParcelDTO dto = new ParcelDTO(/* */
@@ -245,21 +286,13 @@ public class RoutePlannerTest {
 	}
 
 	class TestTruck extends Truck {
-
-		/**
-		 * @param pDto
-		 * @param rp
-		 * @param c
-		 */
 		public TestTruck() {
 			super(new VehicleDTO(new Point(0, 0), 30, 1000, new TimeWindow(0, 1000000)), null, null);
-
 		}
 
 		@Override
 		protected void tickImpl(TimeLapse time) {
 			// do nothing
 		}
-
 	}
 }

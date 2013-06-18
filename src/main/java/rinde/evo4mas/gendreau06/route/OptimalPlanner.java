@@ -51,7 +51,10 @@ public class OptimalPlanner extends AbstractRoutePlanner {
 		} else if (onMap.size() + inCargo.size() == 1) {
 			// if there is only one order, the solution is trivial
 			if (!onMap.isEmpty()) {
+				// parcels on the map require two visits (one for pickup, one
+				// for delivery)
 				route = newLinkedList(onMap);
+				route.addAll(onMap);
 				return;
 			} else {
 				route = newLinkedList(inCargo);

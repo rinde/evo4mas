@@ -3,11 +3,12 @@
  */
 package rinde.evo4mas.gendreau06.route;
 
+import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import static com.google.common.collect.Lists.newLinkedList;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 
@@ -33,13 +34,16 @@ public class RandomPlanner extends AbstractRoutePlanner {
 	@Override
 	protected void doUpdate(Collection<Parcel> onMap, Collection<Parcel> inCargo, long time) {
 		if (onMap.isEmpty() && inCargo.isEmpty()) {
-			assignedParcels = newLinkedList();
+			assignedParcels.clear();
 		} else {
-			final LinkedList<Parcel> ps = newLinkedList(onMap);
+			final List<Parcel> ps = newArrayListWithCapacity((onMap.size() * 2) + inCargo.size());
+			// Parcels on map need to be visited twice, once for pickup, once
+			// for delivery.
+			ps.addAll(onMap);
 			ps.addAll(onMap);
 			ps.addAll(inCargo);
 			Collections.shuffle(ps, rng);
-			assignedParcels = ps;
+			assignedParcels = newLinkedList(ps);
 		}
 	}
 

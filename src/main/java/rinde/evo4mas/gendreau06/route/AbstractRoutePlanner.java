@@ -21,18 +21,20 @@ import rinde.sim.core.model.road.RoadModel;
  */
 public abstract class AbstractRoutePlanner implements RoutePlanner {
 
-	protected final List<Parcel> history;
+	private final List<Parcel> history;
+	private boolean initialized;
+	private boolean updated;
+
 	protected RoadModel roadModel;
 	protected PDPModel pdpModel;
 	protected Truck truck;
-	private boolean initialized;
-	private boolean updated;
 
 	protected AbstractRoutePlanner() {
 		history = newArrayList();
 	}
 
 	public void init(RoadModel rm, PDPModel pm, Truck t) {
+		checkState(!isInitialized(), "init shoud be called only once");
 		initialized = true;
 		roadModel = rm;
 		pdpModel = pm;
@@ -40,7 +42,7 @@ public abstract class AbstractRoutePlanner implements RoutePlanner {
 	}
 
 	public final void update(Collection<Parcel> onMap, Collection<Parcel> inCargo, long time) {
-		checkState(initialized, "RoutePlanner should be initialized before it can be used");
+		checkState(isInitialized(), "RoutePlanner should be initialized before it can be used, see init()");
 		updated = true;
 		doUpdate(onMap, inCargo, time);
 	}
@@ -48,8 +50,8 @@ public abstract class AbstractRoutePlanner implements RoutePlanner {
 	protected abstract void doUpdate(Collection<Parcel> onMap, Collection<Parcel> inCargo, long time);
 
 	public final Parcel next(long time) {
-		checkState(initialized, "RoutePlanner should be initialized before it can be used");
-		checkState(updated, "RoutePlanner should be udpated before it can be used");
+		checkState(isInitialized(), "RoutePlanner should be initialized before it can be used, see init()");
+		checkState(updated, "RoutePlanner should be udpated before it can be used, see update()");
 		history.add(current());
 		nextImpl(time);
 		return current();
