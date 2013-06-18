@@ -47,12 +47,14 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
 import rinde.sim.problem.gendreau06.GendreauTestUtil;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
+import rinde.solver.spdptw.SolverValidator;
+import rinde.solver.spdptw.mip.MipSolver;
 
 import com.google.common.collect.ImmutableSet;
 
 /**
+ * Tests all known implementations of the {@link RoutePlanner} interface.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
- * 
  */
 @RunWith(Parameterized.class)
 public class RoutePlannerTest {
@@ -73,17 +75,17 @@ public class RoutePlannerTest {
 		/* */
 		{ new RPBuilder() {
 			public RoutePlanner build() {
-				return new RandomPlanner(123);
+				return new RandomRoutePlanner(123);
 			}
 		} }, /* */
 		{ new RPBuilder() {
 			public RoutePlanner build() {
-				return new OptimalPlanner();
+				return new SolverRoutePlanner(SolverValidator.wrap(new MipSolver()));
 			}
 		} }, /* */
 		{ new RPBuilder() {
 			public RoutePlanner build() {
-				return new EvoHeuristicPlanner(DUMMY_HEURISTIC);
+				return new EvoHeuristicRoutePlanner(DUMMY_HEURISTIC);
 			}
 		} } });
 	}
@@ -98,7 +100,7 @@ public class RoutePlannerTest {
 
 		int numOnMap = 10;
 		int numInCargo = 10;
-		if (routePlanner instanceof OptimalPlanner) {
+		if (routePlanner instanceof SolverRoutePlanner) {
 			numOnMap = 2;
 			numInCargo = 4;
 		}

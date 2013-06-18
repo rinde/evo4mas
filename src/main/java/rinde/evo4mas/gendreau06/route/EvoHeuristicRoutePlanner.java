@@ -25,10 +25,12 @@ import rinde.sim.problem.common.ParcelDTO;
 import com.google.common.collect.ImmutableSet;
 
 /**
+ * A {@link RoutePlanner} implementation that uses a (evolved) {@link Heuristic}
+ * for determining its route. The route is build incrementally, one hop at a
+ * time.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
- * 
  */
-public class EvoHeuristicPlanner extends AbstractRoutePlanner {
+public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
 
 	protected final Heuristic<GendreauContext> heuristic;
 	protected final TimeUntilAvailable<GendreauContext> tua;
@@ -37,7 +39,7 @@ public class EvoHeuristicPlanner extends AbstractRoutePlanner {
 	protected Set<Parcel> onMapSet;
 	protected Set<Parcel> inCargoSet;
 
-	public EvoHeuristicPlanner(Heuristic<GendreauContext> h) {
+	public EvoHeuristicRoutePlanner(Heuristic<GendreauContext> h) {
 		heuristic = h;
 		tua = new TimeUntilAvailable<GendreauContext>();
 	}

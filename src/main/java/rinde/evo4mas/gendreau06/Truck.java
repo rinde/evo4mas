@@ -21,7 +21,7 @@ import rinde.sim.util.fsm.StateMachine;
  */
 public class Truck extends DefaultVehicle {
 
-	public enum Event {
+	protected enum Event {
 		DONE;
 	}
 
@@ -103,10 +103,7 @@ public class Truck extends DefaultVehicle {
 	}
 
 	class Goto extends AbstractTruckState {
-
-		Point destination;
-
-		protected Goto() {}
+		protected Point destination;
 
 		@Override
 		public void onEntry(Event event, Truck context) {

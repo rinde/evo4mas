@@ -18,15 +18,15 @@ import org.apache.commons.math3.random.RandomAdaptor;
 import rinde.sim.core.model.pdp.Parcel;
 
 /**
+ * A {@link RoutePlanner} implementation that creates random routes.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
- * 
  */
-public class RandomPlanner extends AbstractRoutePlanner {
+public class RandomRoutePlanner extends AbstractRoutePlanner {
 
 	protected Queue<Parcel> assignedParcels;
 	protected final Random rng;
 
-	public RandomPlanner(long seed) {
+	public RandomRoutePlanner(long seed) {
 		rng = new RandomAdaptor(new MersenneTwister(seed));
 		assignedParcels = newLinkedList();
 	}

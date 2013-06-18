@@ -17,24 +17,23 @@ import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.solver.spdptw.SolutionObject;
 import rinde.solver.spdptw.Solver;
-import rinde.solver.spdptw.SolverDebugger;
-import rinde.solver.spdptw.SolverValidator;
-import rinde.solver.spdptw.mip.MipSolver;
 
 import com.google.common.primitives.Ints;
 
 /**
+ * A {@link RoutePlanner} implementation that uses a {@link Solver} that
+ * computes a complete route each time
+ * {@link #update(Collection, Collection, long)} is called.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
- * 
  */
-public class OptimalPlanner extends AbstractRoutePlanner {
+public class SolverRoutePlanner extends AbstractRoutePlanner {
 
 	protected final Solver solver;
 	protected Queue<Parcel> route;
 	protected SolutionObject solutionObject;
 
-	public OptimalPlanner() {
-		solver = SolverValidator.wrap(SolverDebugger.wrap(new MipSolver()));
+	public SolverRoutePlanner(Solver s) {
+		solver = s;
 		route = newLinkedList();
 	}
 
