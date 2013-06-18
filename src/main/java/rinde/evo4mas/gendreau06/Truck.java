@@ -7,8 +7,10 @@ import rinde.evo4mas.gendreau06.comm.Communicator;
 import rinde.evo4mas.gendreau06.route.RoutePlanner;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
+import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.problem.common.DefaultParcel;
 import rinde.sim.problem.common.DefaultVehicle;
 import rinde.sim.problem.common.VehicleDTO;
@@ -50,6 +52,18 @@ public class Truck extends DefaultVehicle {
 	}
 
 	@Override
+	public void initRoadPDP(RoadModel pRoadModel, PDPModel pPdpModel) {
+		super.initRoadPDP(pRoadModel, pPdpModel);
+		// insert GendreauContextBuilder if needed
+		if (routePlanner instanceof GCBuilderReceiver) {
+			((GCBuilderReceiver) routePlanner).receive(new GendreauContextBuilder(roadModel, pdpModel, this));
+		}
+		if (communicator instanceof GCBuilderReceiver) {
+			((GCBuilderReceiver) communicator).receive(new GendreauContextBuilder(roadModel, pdpModel, this));
+		}
+	}
+
+	@Override
 	protected void tickImpl(TimeLapse time) {
 		currentTime = time;
 		stateMachine.handle(this);
@@ -87,7 +101,8 @@ public class Truck extends DefaultVehicle {
 		public Event handle(Event event, Truck context) {
 			if (changed) {
 				changed = false;
-				routePlanner.update(null, null, currentTime.getTime());
+
+				routePlanner.update(null, pdpModel.getContents(context), currentTime.getTime());
 				communicator.waitFor(routePlanner.current());
 			}
 
@@ -127,7 +142,6 @@ public class Truck extends DefaultVehicle {
 	}
 
 	class Service extends AbstractTruckState {
-
 		@Override
 		public void onEntry(Event event, Truck context) {
 			if (pdpModel.getParcelState(routePlanner.current()) == ParcelState.IN_CARGO) {

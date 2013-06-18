@@ -28,8 +28,10 @@ import rinde.ecj.GPFuncNode;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GenericFunctions;
 import rinde.ecj.Heuristic;
+import rinde.evo4mas.gendreau06.GCBuilderReceiver;
 import rinde.evo4mas.gendreau06.GSimulationTask;
 import rinde.evo4mas.gendreau06.GendreauContext;
+import rinde.evo4mas.gendreau06.GendreauContextBuilder;
 import rinde.evo4mas.gendreau06.Truck;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
@@ -58,7 +60,8 @@ import com.google.common.collect.ImmutableSet;
  */
 @RunWith(Parameterized.class)
 public class RoutePlannerTest {
-
+	// TODO decouple Truck class from this test, routePlanner should be usable
+	// without truck and other problem classes
 	protected final RPBuilder rpBuilder;
 	protected RoutePlanner routePlanner;
 	protected TestSimTask sim;
@@ -120,6 +123,10 @@ public class RoutePlannerTest {
 			final Parcel p = createParcel(rng);
 			pdpModel.register(p);
 			pdpModel.addParcelIn(sim.truck, p);
+		}
+
+		if (routePlanner instanceof GCBuilderReceiver) {
+			((GCBuilderReceiver) routePlanner).receive(new GendreauContextBuilder(roadModel, pdpModel, sim.truck));
 		}
 	}
 
