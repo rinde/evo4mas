@@ -9,9 +9,10 @@ import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.event.Listener;
 
 /**
- * Interface of communications. Facade for communication system. Implementations
- * of this are added to and 'live' on a truck. Via the communicator a truck
- * receives updates about the environment with regards to {@link Parcel}s.
+ * Interface of communications. Facade for communication system. acts on behalve
+ * of an 'agent'. Implementations of this are added to and 'live' on a truck.
+ * Via the communicator a truck receives updates about the environment with
+ * regards to {@link Parcel}s.
  * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */

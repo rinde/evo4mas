@@ -4,34 +4,38 @@
 package rinde.evo4mas.gendreau06.comm;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 import static java.util.Collections.unmodifiableSet;
 
-import java.util.List;
 import java.util.Set;
 
-import rinde.sim.core.model.Model;
 import rinde.sim.core.model.pdp.Parcel;
 
 /**
+ * This is an implementation of a blackboard communication model. It allows
+ * {@link BlackboardUser}s to claim {@link Parcel}s. Via the blackboard, all
+ * other {@link BlackboardUser}s are notified of claims. With this communication
+ * strategy race conditions between {@link BlackboardUser}s can be prevented.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
- * 
  */
-public class BlackboardCommModel extends AbstractCommModel implements Model<BlackboardUser> {
+public class BlackboardCommModel extends AbstractCommModel<BlackboardUser> {
 
-	protected final List<BlackboardUser> users;
 	protected final Set<Parcel> unclaimedParcels;
 
 	public BlackboardCommModel() {
-		users = newArrayList();
 		unclaimedParcels = newLinkedHashSet();
 	}
 
+	/**
+	 * Lays a claim on the specified {@link Parcel}. This means that this parcel
+	 * is no longer available to other {@link BlackboardUser}s.
+	 * @param claimer The user that claims the parcel.
+	 * @param p The parcel that is claimed.
+	 */
 	public void claim(BlackboardUser claimer, Parcel p) {
 		checkArgument(unclaimedParcels.contains(p));
 		unclaimedParcels.remove(p);
-		for (final BlackboardUser bu : users) {
+		for (final BlackboardUser bu : communicators) {
 			if (bu != claimer) {
 				bu.update();
 			}
@@ -42,23 +46,23 @@ public class BlackboardCommModel extends AbstractCommModel implements Model<Blac
 	protected void receiveParcel(Parcel p, long time) {
 		unclaimedParcels.add(p);
 		// notify all users of the new parcel
-		for (final BlackboardUser bu : users) {
+		for (final BlackboardUser bu : communicators) {
 			bu.update();
 		}
 	}
 
+	/**
+	 * @return All unclaimed parcels.
+	 */
 	public Set<Parcel> getUnclaimedParcels() {
 		return unmodifiableSet(unclaimedParcels);
 	}
 
+	@Override
 	public boolean register(BlackboardUser element) {
-		users.add(element);
+		super.register(element);
 		element.init(this);
 		return true;
-	}
-
-	public boolean unregister(BlackboardUser element) {
-		throw new UnsupportedOperationException();
 	}
 
 	public Class<BlackboardUser> getSupportedType() {

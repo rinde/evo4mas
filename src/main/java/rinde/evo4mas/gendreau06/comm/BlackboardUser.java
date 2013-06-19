@@ -11,8 +11,9 @@ import rinde.sim.event.EventDispatcher;
 import rinde.sim.event.Listener;
 
 /**
+ * This {@link Communicator} implementation allows communication via a
+ * blackboard system. It requires the {@link BlackboardCommModel}.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
- * 
  */
 public class BlackboardUser implements Communicator {
 
@@ -29,6 +30,10 @@ public class BlackboardUser implements Communicator {
 
 	public void waitFor(Parcel p) {}
 
+	/**
+	 * Lay a claim on the specified {@link Parcel}.
+	 * @param p The parcel to claim.
+	 */
 	public void claim(Parcel p) {
 		// forward call to model
 		bcModel.claim(this, p);
