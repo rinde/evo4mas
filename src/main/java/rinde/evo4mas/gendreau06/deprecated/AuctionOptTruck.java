@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.gendreau06;
+package rinde.evo4mas.gendreau06.deprecated;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newLinkedList;
@@ -14,7 +14,8 @@ import java.util.Queue;
 import java.util.Set;
 
 import rinde.ecj.Heuristic;
-import rinde.evo4mas.gendreau06.AuctionOptTruck.OptEvent;
+import rinde.evo4mas.gendreau06.GendreauContext;
+import rinde.evo4mas.gendreau06.deprecated.AuctionOptTruck.OptEvent;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;

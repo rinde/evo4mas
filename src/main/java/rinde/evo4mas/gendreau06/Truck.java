@@ -4,6 +4,7 @@
 package rinde.evo4mas.gendreau06;
 
 import rinde.evo4mas.gendreau06.comm.Communicator;
+import rinde.evo4mas.gendreau06.deprecated.AuctionParcel;
 import rinde.evo4mas.gendreau06.route.RoutePlanner;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;

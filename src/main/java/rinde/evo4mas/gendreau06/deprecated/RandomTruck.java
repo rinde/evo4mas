@@ -1,12 +1,13 @@
 /**
  * 
  */
-package rinde.evo4mas.gendreau06;
+package rinde.evo4mas.gendreau06.deprecated;
 
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import rinde.ecj.Heuristic;
+import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.sim.problem.common.VehicleDTO;
 
 /**

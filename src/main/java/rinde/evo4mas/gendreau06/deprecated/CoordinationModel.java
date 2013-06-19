@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.gendreau06;
+package rinde.evo4mas.gendreau06.deprecated;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;

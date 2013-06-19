@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.gendreau06;
+package rinde.evo4mas.gendreau06.deprecated;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -15,6 +15,7 @@ import org.jppf.task.storage.DataProvider;
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ExperimentUtil;
 import rinde.evo4mas.common.ResultDTO;
+import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.jppf.ComputationTask;
 import rinde.sim.core.Simulator;
 import rinde.sim.problem.common.AddParcelEvent;

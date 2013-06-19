@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.gendreau06;
+package rinde.evo4mas.gendreau06.deprecated;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newLinkedHashSet;
@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 
 import rinde.ecj.Heuristic;
+import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;

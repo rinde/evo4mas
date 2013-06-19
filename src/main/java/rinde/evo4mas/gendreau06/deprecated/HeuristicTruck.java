@@ -1,8 +1,10 @@
-package rinde.evo4mas.gendreau06;
+package rinde.evo4mas.gendreau06.deprecated;
 
 import rinde.ecj.Heuristic;
+import rinde.evo4mas.gendreau06.GendreauContext;
+import rinde.evo4mas.gendreau06.GendreauFunctions;
 import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
-import rinde.evo4mas.gendreau06.HeuristicTruck.TruckEvent;
+import rinde.evo4mas.gendreau06.deprecated.HeuristicTruck.TruckEvent;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;

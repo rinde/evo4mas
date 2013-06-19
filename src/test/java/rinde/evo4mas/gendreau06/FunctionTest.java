@@ -22,6 +22,8 @@ import rinde.ecj.GPProgramParser;
 import rinde.evo4mas.common.GPFunctions.Dist;
 import rinde.evo4mas.common.GPFunctions.Urge;
 import rinde.evo4mas.common.TruckContext;
+import rinde.evo4mas.gendreau06.deprecated.CoordinationModel;
+import rinde.evo4mas.gendreau06.deprecated.MyopicTruck;
 import rinde.sim.core.Simulator;
 import rinde.sim.core.TickListener;
 import rinde.sim.core.TimeLapse;

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.gendreau06;
+package rinde.evo4mas.gendreau06.deprecated;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Maps.newLinkedHashMap;
@@ -14,7 +14,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 
-import rinde.evo4mas.gendreau06.AuctionParcel.AuctionParcelEvent;
+import rinde.evo4mas.gendreau06.deprecated.AuctionParcel.AuctionParcelEvent;
 import rinde.sim.core.model.ModelProvider;
 import rinde.sim.core.model.ModelReceiver;
 import rinde.sim.core.model.pdp.PDPModel;

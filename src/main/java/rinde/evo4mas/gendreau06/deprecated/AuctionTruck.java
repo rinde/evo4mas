@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.evo4mas.gendreau06;
+package rinde.evo4mas.gendreau06.deprecated;
 
 import static com.google.common.collect.Sets.newLinkedHashSet;
 
@@ -10,6 +10,11 @@ import java.util.Iterator;
 import java.util.Set;
 
 import rinde.ecj.Heuristic;
+import rinde.evo4mas.gendreau06.GendreauContext;
+import rinde.evo4mas.gendreau06.deprecated.HeuristicTruck.EarlyTarget;
+import rinde.evo4mas.gendreau06.deprecated.HeuristicTruck.GotoPickup;
+import rinde.evo4mas.gendreau06.deprecated.HeuristicTruck.Pickup;
+import rinde.evo4mas.gendreau06.deprecated.HeuristicTruck.TruckEvent;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.problem.common.DefaultParcel;
 import rinde.sim.problem.common.VehicleDTO;
