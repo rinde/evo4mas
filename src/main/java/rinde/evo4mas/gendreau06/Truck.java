@@ -4,7 +4,7 @@
 package rinde.evo4mas.gendreau06;
 
 import rinde.evo4mas.gendreau06.comm.Communicator;
-import rinde.evo4mas.gendreau06.deprecated.AuctionParcel;
+import rinde.evo4mas.gendreau06.comm.Communicator.CommunicatorEventType;
 import rinde.evo4mas.gendreau06.route.RoutePlanner;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
@@ -12,6 +12,8 @@ import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.event.Event;
+import rinde.sim.event.Listener;
 import rinde.sim.problem.common.DefaultParcel;
 import rinde.sim.problem.common.DefaultVehicle;
 import rinde.sim.problem.common.VehicleDTO;
@@ -22,13 +24,13 @@ import rinde.sim.util.fsm.StateMachine;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class Truck extends DefaultVehicle {
+public class Truck extends DefaultVehicle implements Listener {
 
-	protected enum Event {
+	protected enum TruckEvent {
 		DONE;
 	}
 
-	protected final StateMachine<Event, Truck> stateMachine;
+	protected final StateMachine<TruckEvent, Truck> stateMachine;
 	protected final RoutePlanner routePlanner;
 	protected final Communicator communicator;
 	protected TimeLapse currentTime;
@@ -41,14 +43,15 @@ public class Truck extends DefaultVehicle {
 		super(pDto);
 		routePlanner = rp;
 		communicator = c;
+		communicator.addUpdateListener(this);
 
 		final AbstractTruckState wait = new Wait();
 		final AbstractTruckState go = new Goto();
 		final AbstractTruckState service = new Service();
 		stateMachine = StateMachine.create(wait)/* */
-		.addTransition(wait, Event.DONE, go)/* */
-		.addTransition(go, Event.DONE, service)/* */
-		.addTransition(service, Event.DONE, wait)/* */
+		.addTransition(wait, TruckEvent.DONE, go)/* */
+		.addTransition(go, TruckEvent.DONE, service)/* */
+		.addTransition(service, TruckEvent.DONE, wait)/* */
 		.build();
 	}
 
@@ -62,6 +65,7 @@ public class Truck extends DefaultVehicle {
 		if (communicator instanceof GCBuilderReceiver) {
 			((GCBuilderReceiver) communicator).receive(new GendreauContextBuilder(roadModel, pdpModel, this));
 		}
+		routePlanner.init(roadModel, pdpModel, this);
 	}
 
 	@Override
@@ -69,10 +73,6 @@ public class Truck extends DefaultVehicle {
 		currentTime = time;
 		stateMachine.handle(this);
 
-	}
-
-	public void receiveParcel(AuctionParcel ap) {
-		changed = true;
 	}
 
 	protected boolean isTooEarly(Parcel p) {
@@ -95,23 +95,24 @@ public class Truck extends DefaultVehicle {
 						- ((Point.distance(roadModel.getPosition(this), dto.startPosition) / getSpeed()) * 3600000);
 	}
 
-	abstract class AbstractTruckState extends AbstractState<Event, Truck> {}
+	abstract class AbstractTruckState extends AbstractState<TruckEvent, Truck> {}
 
 	class Wait extends AbstractTruckState {
 		@Override
-		public Event handle(Event event, Truck context) {
+		public TruckEvent handle(TruckEvent event, Truck context) {
 			if (changed) {
 				changed = false;
 
-				routePlanner.update(null, pdpModel.getContents(context), currentTime.getTime());
+				routePlanner.update(communicator.getParcels(), pdpModel.getContents(context), currentTime.getTime());
 				communicator.waitFor(routePlanner.current());
 			}
 
-			if (!routePlanner.hasNext() && !isTooEarly(routePlanner.current())) {
-				return Event.DONE;
+			if (routePlanner.current() != null && !isTooEarly(routePlanner.current())) {
+				return TruckEvent.DONE;
 			}
 
-			if (routePlanner.hasNext() && isEndOfDay() && !roadModel.getPosition(context).equals(dto.startPosition)) {
+			if (routePlanner.current() == null && isEndOfDay()
+					&& !roadModel.getPosition(context).equals(dto.startPosition)) {
 				roadModel.moveTo(context, dto.startPosition, context.currentTime);
 			}
 			return null;
@@ -122,7 +123,7 @@ public class Truck extends DefaultVehicle {
 		protected Point destination;
 
 		@Override
-		public void onEntry(Event event, Truck context) {
+		public void onEntry(TruckEvent event, Truck context) {
 			if (pdpModel.getParcelState(routePlanner.current()) == ParcelState.IN_CARGO) {
 				destination = routePlanner.current().getDestination();
 			} else {
@@ -132,11 +133,11 @@ public class Truck extends DefaultVehicle {
 		}
 
 		@Override
-		public Event handle(Event event, Truck context) {
+		public TruckEvent handle(TruckEvent event, Truck context) {
 			// move to service location
 			roadModel.moveTo(context, destination, currentTime);
 			if (roadModel.getPosition(context).equals(destination)) {
-				return Event.DONE;
+				return TruckEvent.DONE;
 			}
 			return null;
 		}
@@ -144,7 +145,7 @@ public class Truck extends DefaultVehicle {
 
 	class Service extends AbstractTruckState {
 		@Override
-		public void onEntry(Event event, Truck context) {
+		public void onEntry(TruckEvent event, Truck context) {
 			if (pdpModel.getParcelState(routePlanner.current()) == ParcelState.IN_CARGO) {
 				// deliver
 				pdpModel.deliver(context, routePlanner.current(), currentTime);
@@ -155,12 +156,19 @@ public class Truck extends DefaultVehicle {
 		}
 
 		@Override
-		public Event handle(Event event, Truck context) {
+		public TruckEvent handle(TruckEvent event, Truck context) {
 			if (context.currentTime.hasTimeLeft()) {
-				return Event.DONE;
+				return TruckEvent.DONE;
 			}
 			return null;
 		}
+	}
+
+	public void handleEvent(Event e) {
+		if (e.getEventType() == CommunicatorEventType.CHANGE) {
+			changed = true;
+		}
+
 	}
 
 }
