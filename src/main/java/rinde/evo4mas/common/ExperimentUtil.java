@@ -3,6 +3,7 @@
  */
 package rinde.evo4mas.common;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.io.BufferedReader;
@@ -21,7 +22,9 @@ import java.util.List;
 public class ExperimentUtil {
 
 	public static List<String> getFilesFromDir(String dir, final String suffix) {
-		final String[] names = new File(dir).list(new FilenameFilter() {
+		final File directory = new File(dir);
+		checkArgument(directory.isDirectory());
+		final String[] names = directory.list(new FilenameFilter() {
 			public boolean accept(File d, String name) {
 				return name.endsWith(suffix);
 			}
@@ -58,6 +61,7 @@ public class ExperimentUtil {
 		return set;
 	}
 
+	// TODO can be replaced with Files.readLines ?
 	public static String textFileToString(String file) throws IOException {
 		final StringBuilder sb = new StringBuilder();
 		final BufferedReader bf = new BufferedReader(new FileReader(file));
