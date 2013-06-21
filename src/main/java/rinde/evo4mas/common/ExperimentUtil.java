@@ -26,7 +26,7 @@ public class ExperimentUtil {
 		checkArgument(directory.isDirectory());
 		final String[] names = directory.list(new FilenameFilter() {
 			public boolean accept(File d, String name) {
-				return name.endsWith(suffix);
+				return name.endsWith(suffix) && new File(d + "/" + name).isFile();
 			}
 		});
 		// sort on file name such that order of returned list does not depend on

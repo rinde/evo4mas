@@ -102,7 +102,6 @@ public class Truck extends DefaultVehicle implements Listener {
 		public TruckEvent handle(TruckEvent event, Truck context) {
 			if (changed) {
 				changed = false;
-
 				routePlanner.update(communicator.getParcels(), pdpModel.getContents(context), currentTime.getTime());
 				communicator.waitFor(routePlanner.current());
 			}

@@ -3,6 +3,7 @@
  */
 package rinde.evo4mas.gendreau06.comm;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newLinkedHashSet;
 import static java.util.Collections.unmodifiableSet;
 
@@ -35,8 +36,10 @@ public abstract class AbstractBidder implements Bidder {
 	// ignore
 	public void waitFor(Parcel p) {}
 
-	// ignore
-	public void claim(Parcel p) {}
+	public void claim(Parcel p) {
+		checkArgument(assignedParcels.contains(p));
+		assignedParcels.remove(p);
+	}
 
 	public final Collection<Parcel> getParcels() {
 		return unmodifiableSet(assignedParcels);

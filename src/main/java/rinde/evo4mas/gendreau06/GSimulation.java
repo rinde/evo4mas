@@ -10,8 +10,6 @@ import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.DynamicPDPTWProblem;
 import rinde.sim.problem.common.DynamicPDPTWProblem.Creator;
 import rinde.sim.problem.common.DynamicPDPTWProblem.DefaultUICreator;
-import rinde.sim.problem.common.DynamicPDPTWProblem.SimulationInfo;
-import rinde.sim.problem.common.DynamicPDPTWProblem.StopCondition;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.common.TimeLinePanel;
 import rinde.sim.problem.gendreau06.Gendreau06Parser;
@@ -37,12 +35,12 @@ public final class GSimulation {
 	static DynamicPDPTWProblem init(Gendreau06Scenario scenario, Configurator config, boolean showGui) {
 		final DynamicPDPTWProblem problem = new DynamicPDPTWProblem(scenario, 123, config.createModels());
 		problem.addCreator(AddVehicleEvent.class, config);
-		problem.addStopCondition(new StopCondition() {
-			@Override
-			public boolean isSatisfiedBy(SimulationInfo context) {
-				return context.stats.simulationTime > 8 * 60 * 60 * 1000;
-			}
-		});
+		// problem.addStopCondition(new StopCondition() {
+		// @Override
+		// public boolean isSatisfiedBy(SimulationInfo context) {
+		// //return context.stats.simulationTime > 8 * 60 * 60 * 1000;
+		// }
+		// });
 		if (showGui) {
 			problem.enableUI(new GendreauUI(problem));
 		}

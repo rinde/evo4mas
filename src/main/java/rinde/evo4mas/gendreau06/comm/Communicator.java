@@ -31,7 +31,7 @@ public interface Communicator {
 	void claim(Parcel p);
 
 	/**
-	 * 
+	 * This method may only return {@link Parcel}s which are not yet picked up.
 	 * @return All parcels which this communicator may handle.
 	 */
 	Collection<Parcel> getParcels();

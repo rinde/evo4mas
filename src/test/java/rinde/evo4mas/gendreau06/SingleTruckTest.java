@@ -12,8 +12,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 
-import org.junit.Before;
+import org.junit.After;
 import org.junit.Test;
 
 import rinde.evo4mas.gendreau06.Experiments.RandomRandom;
@@ -47,16 +48,13 @@ public class SingleTruckTest {
 	protected PDPModel pdpModel;
 	protected Truck truck;
 
-	protected ParcelDTO parcel1dto;
-
-	@Before
-	public void setUp() {
-
+	// should be called in beginning of every test
+	public void setUp(List<ParcelDTO> parcels, int trucks) {
 		final Collection<TimedEvent> events = newArrayList();
-		parcel1dto = new ParcelDTO(new Point(1, 1), new Point(3, 3), new TimeWindow(0, 60000),
-				new TimeWindow(0, 60000), 0, 1, 3000, 3000);
-		events.add(new AddParcelEvent(parcel1dto));
-		final Gendreau06Scenario scen = GendreauTestUtil.create(events);
+		for (final ParcelDTO p : parcels) {
+			events.add(new AddParcelEvent(p));
+		}
+		final Gendreau06Scenario scen = GendreauTestUtil.create(events, trucks);
 
 		prob = GSimulation.init(scen, new RandomRandom(123), false);
 		simulator = prob.getSimulator();
@@ -67,9 +65,9 @@ public class SingleTruckTest {
 		assertEquals(0, simulator.getCurrentTime());
 		simulator.tick();
 		// check that there are no more (other) vehicles
-		assertEquals(1, roadModel.getObjectsOfType(Vehicle.class).size());
+		assertEquals(trucks, roadModel.getObjectsOfType(Vehicle.class).size());
 		// check that the vehicle is of type truck
-		assertEquals(1, roadModel.getObjectsOfType(Truck.class).size());
+		assertEquals(trucks, roadModel.getObjectsOfType(Truck.class).size());
 		// make sure there are no parcels yet
 		assertTrue(roadModel.getObjectsOfType(Parcel.class).isEmpty());
 
@@ -78,8 +76,22 @@ public class SingleTruckTest {
 		assertEquals(1000, simulator.getCurrentTime());
 	}
 
+	@After
+	public void tearDown() {
+		// to avoid accidental reuse of objects
+		prob = null;
+		simulator = null;
+		roadModel = null;
+		pdpModel = null;
+		truck = null;
+	}
+
 	@Test
-	public void test1() {
+	public void oneParcel() {
+		final ParcelDTO parcel1dto = new ParcelDTO(new Point(1, 1), new Point(3, 3), new TimeWindow(0, 60000),
+				new TimeWindow(0, 60000), 0, 1, 3000, 3000);
+
+		setUp(asList(parcel1dto), 1);
 
 		assertTrue(truck.stateMachine.getCurrentState() instanceof Wait);
 		assertEquals(truck.getDTO().startPosition, roadModel.getPosition(truck));
@@ -138,4 +150,19 @@ public class SingleTruckTest {
 		assertTrue(truck.stateMachine.getCurrentState() instanceof Wait);
 		assertEquals(truck.getDTO().startPosition, roadModel.getPosition(truck));
 	}
+
+	@Test
+	public void twoParcels() {
+		final ParcelDTO parcel1dto = new ParcelDTO(new Point(1, 1), new Point(3, 3), new TimeWindow(0, 60000),
+				new TimeWindow(0, 60000), 0, 1, 3000, 3000);
+		final ParcelDTO parcel2dto = new ParcelDTO(new Point(1, 1), new Point(3, 3), new TimeWindow(0, 60000),
+				new TimeWindow(0, 60000), 0, 1, 3000, 3000);
+		final ParcelDTO parcel3dto = new ParcelDTO(new Point(1, 1), new Point(3, 3), new TimeWindow(0, 60000),
+				new TimeWindow(0, 60000), 0, 1, 3000, 3000);
+
+		setUp(asList(parcel1dto, parcel2dto, parcel3dto), 2);
+
+		simulator.start();
+	}
+
 }
