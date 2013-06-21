@@ -29,20 +29,23 @@ import rinde.ecj.GPProgram;
 import rinde.ecj.GenericFunctions;
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.gendreau06.GCBuilderReceiver;
+import rinde.evo4mas.gendreau06.GSimulation.Configurator;
+import rinde.evo4mas.gendreau06.GSimulationTestUtil;
 import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.evo4mas.gendreau06.GendreauContextBuilder;
-import rinde.evo4mas.gendreau06.Truck;
-import rinde.evo4mas.gendreau06.deprecated.GSimulationTask;
+import rinde.sim.core.Simulator;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
+import rinde.sim.core.model.Model;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.core.model.pdp.Vehicle;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.problem.common.AddParcelEvent;
+import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.problem.common.DefaultVehicle;
 import rinde.sim.problem.common.DynamicPDPTWProblem;
-import rinde.sim.problem.common.DynamicPDPTWProblem.SimulationInfo;
-import rinde.sim.problem.common.DynamicPDPTWProblem.StopCondition;
 import rinde.sim.problem.common.ParcelDTO;
 import rinde.sim.problem.common.VehicleDTO;
 import rinde.sim.problem.gendreau06.Gendreau06Scenario;
@@ -60,13 +63,13 @@ import com.google.common.collect.ImmutableSet;
  */
 @RunWith(Parameterized.class)
 public class RoutePlannerTest {
-	// TODO decouple Truck class from this test, routePlanner should be usable
-	// without truck and other problem classes
 	protected final RPBuilder rpBuilder;
 	protected RoutePlanner routePlanner;
-	protected TestSimTask sim;
+	protected DynamicPDPTWProblem problem;
 	protected RoadModel roadModel;
 	protected PDPModel pdpModel;
+	protected Simulator simulator;
+	protected DefaultVehicle truck;
 
 	public RoutePlannerTest(RPBuilder rp) {
 		rpBuilder = rp;
@@ -89,6 +92,11 @@ public class RoutePlannerTest {
 		{ new RPBuilder() {
 			public RoutePlanner build() {
 				return new EvoHeuristicRoutePlanner(DUMMY_HEURISTIC);
+			}
+		} }, /* */
+		{ new RPBuilder() {
+			public RoutePlanner build() {
+				return new TestRoutePlanner();
 			}
 		} } });
 	}
@@ -115,18 +123,24 @@ public class RoutePlannerTest {
 					rng.nextDouble() * 5, rng.nextDouble() * 5)));
 		}
 		final Gendreau06Scenario scen = GendreauTestUtil.create(events);
-		sim = new TestSimTask(scen, false);
-		sim.run();
-		roadModel = sim.problem.getSimulator().getModelProvider().getModel(RoadModel.class);
-		pdpModel = sim.problem.getSimulator().getModelProvider().getModel(PDPModel.class);
+
+		problem = GSimulationTestUtil.init(scen, new TestConfigurator(), false);
+		simulator = problem.getSimulator();
+		roadModel = simulator.getModelProvider().getModel(RoadModel.class);
+		pdpModel = simulator.getModelProvider().getModel(PDPModel.class);
+		simulator.tick();
+
+		assertEquals(1, roadModel.getObjectsOfType(Vehicle.class).size());
+		truck = roadModel.getObjectsOfType(DefaultVehicle.class).iterator().next();
+
 		for (int i = 0; i < numInCargo; i++) {
 			final Parcel p = createParcel(rng);
 			pdpModel.register(p);
-			pdpModel.addParcelIn(sim.truck, p);
+			pdpModel.addParcelIn(truck, p);
 		}
 
 		if (routePlanner instanceof GCBuilderReceiver) {
-			((GCBuilderReceiver) routePlanner).receive(new GendreauContextBuilder(roadModel, pdpModel, sim.truck));
+			((GCBuilderReceiver) routePlanner).receive(new GendreauContextBuilder(roadModel, pdpModel, truck));
 		}
 	}
 
@@ -137,7 +151,7 @@ public class RoutePlannerTest {
 		assertFalse(routePlanner.hasNext());
 		assertTrue(routePlanner.getHistory().isEmpty());
 
-		routePlanner.init(roadModel, pdpModel, sim.truck);
+		routePlanner.init(roadModel, pdpModel, truck);
 
 		assertNull(routePlanner.prev());
 		assertNull(routePlanner.current());
@@ -145,7 +159,7 @@ public class RoutePlannerTest {
 		assertTrue(routePlanner.getHistory().isEmpty());
 
 		final Collection<Parcel> onMap = roadModel.getObjectsOfType(Parcel.class);
-		final Collection<Parcel> inCargo = pdpModel.getContents(sim.truck);
+		final Collection<Parcel> inCargo = pdpModel.getContents(truck);
 		final List<Parcel> visited = newLinkedList();
 		routePlanner.update(onMap, inCargo, 0);
 
@@ -179,10 +193,10 @@ public class RoutePlannerTest {
 
 	@Test
 	public void testMultiUpdate() {
-		routePlanner.init(roadModel, pdpModel, sim.truck);
+		routePlanner.init(roadModel, pdpModel, truck);
 
 		final Collection<Parcel> empty = ImmutableSet.of();
-		final Collection<Parcel> singleCargo = ImmutableSet.of(pdpModel.getContents(sim.truck).iterator().next());
+		final Collection<Parcel> singleCargo = ImmutableSet.of(pdpModel.getContents(truck).iterator().next());
 		final Parcel mapParcel = roadModel.getObjectsOfType(Parcel.class).iterator().next();
 		final Collection<Parcel> singleOnMap = ImmutableSet.of(mapParcel);
 
@@ -204,8 +218,8 @@ public class RoutePlannerTest {
 	// init can be called only once
 	@Test(expected = IllegalStateException.class)
 	public void testInitTwice() {
-		routePlanner.init(roadModel, pdpModel, sim.truck);
-		routePlanner.init(roadModel, pdpModel, sim.truck);
+		routePlanner.init(roadModel, pdpModel, truck);
+		routePlanner.init(roadModel, pdpModel, truck);
 	}
 
 	// init needs to be called before update
@@ -222,7 +236,7 @@ public class RoutePlannerTest {
 
 	@Test
 	public void testEmpty() {
-		routePlanner.init(roadModel, pdpModel, sim.truck);
+		routePlanner.init(roadModel, pdpModel, truck);
 
 		final Collection<Parcel> s1 = ImmutableSet.of();
 		final Collection<Parcel> s2 = ImmutableSet.of();
@@ -255,53 +269,23 @@ public class RoutePlannerTest {
 	static Heuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(new GPFuncNode<GendreauContext>(
 			new GenericFunctions.Constant<GendreauContext>(0d)));
 
-	class TestSimTask extends GSimulationTask {
-
-		private static final long serialVersionUID = -8787595237384109794L;
-		protected Gendreau06Scenario scenario;
-		protected DynamicPDPTWProblem problem;
-		protected Truck truck;
-
-		protected final boolean showGui;
-
-		public TestSimTask(Gendreau06Scenario scen, boolean showGui) {
-			super(null, DUMMY_HEURISTIC, -1, 1000, SolutionType.RANDOM);
-			this.showGui = showGui;
-			scenario = scen;
+	class TestConfigurator implements Configurator {
+		public boolean create(Simulator sim, AddVehicleEvent event) {
+			return sim.register(new TestTruck(event.vehicleDTO));
 		}
 
-		@Override
-		public void run() {
-			runOnScenario(scenario);
+		public Model<?>[] createModels() {
+			return new Model<?>[] {};
 		}
-
-		@Override
-		protected void preSimulate(DynamicPDPTWProblem p) {
-			problem = p;
-			truck = new TestTruck();
-			problem.getSimulator().register(truck);
-
-			problem.addStopCondition(new StopCondition() {
-				@Override
-				public boolean isSatisfiedBy(SimulationInfo context) {
-					return context.stats.simulationTime >= 0;
-				}
-			});
-			if (showGui) {
-				problem.enableUI(new GendreauUI(problem, true, false));
-			}
-		}
-
 	}
 
-	class TestTruck extends Truck {
-		public TestTruck() {
-			super(new VehicleDTO(new Point(0, 0), 30, 1000, new TimeWindow(0, 1000000)), null, null);
+	class TestTruck extends DefaultVehicle {
+		public TestTruck(VehicleDTO dto) {
+			super(dto);
 		}
 
+		// don't do anything
 		@Override
-		protected void tickImpl(TimeLapse time) {
-			// do nothing
-		}
+		protected void tickImpl(TimeLapse time) {}
 	}
 }
