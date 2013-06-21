@@ -53,7 +53,7 @@ public final class GSimulation {
 		return init(scenario, config, showGui).simulate();
 	}
 
-	interface Configurator extends Creator<AddVehicleEvent> {
+	public interface Configurator extends Creator<AddVehicleEvent> {
 		Model<?>[] createModels();
 	}
 

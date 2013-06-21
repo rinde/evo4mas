@@ -10,10 +10,10 @@ import static java.util.Collections.unmodifiableList;
 import java.util.Collection;
 import java.util.List;
 
-import rinde.evo4mas.gendreau06.Truck;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.problem.common.DefaultVehicle;
 
 /**
  * A partial {@link RoutePlanner} implementation, it already implements much of
@@ -29,18 +29,18 @@ public abstract class AbstractRoutePlanner implements RoutePlanner {
 
 	protected RoadModel roadModel;
 	protected PDPModel pdpModel;
-	protected Truck truck;
+	protected DefaultVehicle vehicle;
 
 	protected AbstractRoutePlanner() {
 		history = newArrayList();
 	}
 
-	public void init(RoadModel rm, PDPModel pm, Truck t) {
+	public void init(RoadModel rm, PDPModel pm, DefaultVehicle dv) {
 		checkState(!isInitialized(), "init shoud be called only once");
 		initialized = true;
 		roadModel = rm;
 		pdpModel = pm;
-		truck = t;
+		vehicle = dv;
 	}
 
 	public final void update(Collection<Parcel> onMap, Collection<Parcel> inCargo, long time) {

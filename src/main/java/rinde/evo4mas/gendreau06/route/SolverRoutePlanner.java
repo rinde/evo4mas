@@ -70,7 +70,7 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 
 		final Map<Point, Parcel> point2parcel = newHashMap();
 		final Point[] locations = new Point[numLocations];
-		locations[0] = roadModel.getPosition(truck);
+		locations[0] = roadModel.getPosition(vehicle);
 
 		int index = 1;
 		int spIndex = 0;
@@ -105,9 +105,9 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 		checkState(index == numLocations - 1);
 
 		// the start position of the truck is the depot
-		locations[index] = truck.getDTO().startPosition;
+		locations[index] = vehicle.getDTO().startPosition;
 		// end of the day
-		dueDates[index] = fixTWend(truck.getDTO().availabilityTimeWindow.end, time);
+		dueDates[index] = fixTWend(vehicle.getDTO().availabilityTimeWindow.end, time);
 
 		// fill the distance matrix
 		for (int i = 0; i < numLocations; i++) {
@@ -115,7 +115,7 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 				if (i != j) {
 					final double dist = Point.distance(locations[i], locations[j]);
 					// travel times are ceiled
-					final int tt = (int) Math.ceil((dist / truck.getDTO().speed) * 3600.0);
+					final int tt = (int) Math.ceil((dist / vehicle.getDTO().speed) * 3600.0);
 					travelTime[i][j] = tt;
 					travelTime[j][i] = tt;
 				}

@@ -4,12 +4,14 @@
 package rinde.evo4mas.gendreau06;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.LinkedHashSet;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -90,6 +92,7 @@ public class SingleTruckTest {
 		assertFalse(truck.getDTO().startPosition.equals(roadModel.getPosition(truck)));
 		assertEquals(parcel1dto.pickupLocation, ((Goto) truck.stateMachine.getCurrentState()).destination);
 
+		// move to pickup
 		while (truck.stateMachine.getCurrentState() instanceof Goto) {
 			assertEquals(ParcelState.AVAILABLE, pdpModel.getParcelState(parcel1));
 			simulator.tick();
@@ -98,6 +101,7 @@ public class SingleTruckTest {
 		assertEquals(ParcelState.PICKING_UP, pdpModel.getParcelState(parcel1));
 		assertEquals(parcel1dto.pickupLocation, roadModel.getPosition(truck));
 
+		// pickup
 		while (truck.stateMachine.getCurrentState() instanceof Service) {
 			assertEquals(parcel1dto.pickupLocation, roadModel.getPosition(truck));
 			assertEquals(ParcelState.PICKING_UP, pdpModel.getParcelState(parcel1));
@@ -105,6 +109,33 @@ public class SingleTruckTest {
 		}
 		assertTrue(truck.stateMachine.getCurrentState() instanceof Goto);
 		assertEquals(ParcelState.IN_CARGO, pdpModel.getParcelState(parcel1));
+		assertEquals(new LinkedHashSet<Parcel>(asList(parcel1)), pdpModel.getContents(truck));
 
+		// move to delivery
+		while (truck.stateMachine.getCurrentState() instanceof Goto) {
+			assertEquals(ParcelState.IN_CARGO, pdpModel.getParcelState(parcel1));
+			assertEquals(new LinkedHashSet<Parcel>(asList(parcel1)), pdpModel.getContents(truck));
+			simulator.tick();
+		}
+		assertTrue(truck.stateMachine.getCurrentState() instanceof Service);
+		assertEquals(parcel1dto.destinationLocation, roadModel.getPosition(truck));
+		assertEquals(ParcelState.DELIVERING, pdpModel.getParcelState(parcel1));
+
+		// deliver
+		while (truck.stateMachine.getCurrentState() instanceof Service) {
+			assertEquals(parcel1dto.destinationLocation, roadModel.getPosition(truck));
+			assertEquals(ParcelState.DELIVERING, pdpModel.getParcelState(parcel1));
+			simulator.tick();
+		}
+		assertEquals(ParcelState.DELIVERED, pdpModel.getParcelState(parcel1));
+		assertTrue(pdpModel.getContents(truck).isEmpty());
+		assertTrue(truck.stateMachine.getCurrentState() instanceof Wait);
+
+		while (truck.stateMachine.getCurrentState() instanceof Wait
+				&& !roadModel.getPosition(truck).equals(truck.getDTO().startPosition)) {
+			simulator.tick();
+		}
+		assertTrue(truck.stateMachine.getCurrentState() instanceof Wait);
+		assertEquals(truck.getDTO().startPosition, roadModel.getPosition(truck));
 	}
 }

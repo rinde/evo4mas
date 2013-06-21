@@ -10,6 +10,7 @@ import rinde.evo4mas.gendreau06.Truck;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.problem.common.DefaultVehicle;
 
 /**
  * This is a route planner interface. It is unusual in the sense that it reveals
@@ -23,7 +24,7 @@ import rinde.sim.core.model.road.RoadModel;
  * a uniform manner. The methods should be called in the following order:
  * <ol>
  * <li>constructor</li>
- * <li>{@link #init(RoadModel, PDPModel, Truck)}</li>
+ * <li>{@link #init(RoadModel, PDPModel, DefaultVehicle)}</li>
  * <li>{@link #update(Collection, Collection, long)}</li>
  * </ol>
  * Once these methods are called in this order, {@link #next(long)} may be
@@ -55,15 +56,15 @@ public interface RoutePlanner {
 	 * {@link RoadModel} and a {@link PDPModel}.
 	 * @param rm The {@link RoadModel} which the truck is on.
 	 * @param pm The {@link PDPModel} which manages the truck.
-	 * @param t The {@link Truck} for which routes will be planned.
+	 * @param dv The {@link Truck} for which routes will be planned.
 	 */
-	void init(RoadModel rm, PDPModel pm, Truck t);
+	void init(RoadModel rm, PDPModel pm, DefaultVehicle dv);
 
 	/**
 	 * Indicates a change in data (or sets it initially), this should update the
 	 * route. This is one of the <i>modifying</i> methods (see
 	 * {@link RoutePlanner} for more information). This method must be called
-	 * <i>after</i> {@link #init(RoadModel, PDPModel, Truck)} and should be
+	 * <i>after</i> {@link #init(RoadModel, PDPModel, DefaultVehicle)} and should be
 	 * called <i>before</i> any calls to {@link #next(long)}.
 	 * <p>
 	 * <b>Implementations of this method should treat the incoming collections

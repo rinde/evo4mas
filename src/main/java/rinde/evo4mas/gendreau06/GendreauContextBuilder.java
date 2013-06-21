@@ -17,6 +17,7 @@ import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.pdp.Vehicle;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.problem.common.DefaultVehicle;
 import rinde.sim.problem.common.ParcelDTO;
 
 /**
@@ -24,18 +25,17 @@ import rinde.sim.problem.common.ParcelDTO;
  * 
  */
 public class GendreauContextBuilder {
-
 	protected final RoadModel roadModel;
 	protected final PDPModel pdpModel;
-	protected final Truck truck;
+	protected final DefaultVehicle vehicle;
 
 	protected GendreauContext genericContext;
 
 	// TODO add Communicator?
-	public GendreauContextBuilder(RoadModel rm, PDPModel pm, Truck t) {
+	public GendreauContextBuilder(RoadModel rm, PDPModel pm, DefaultVehicle dv) {
 		roadModel = rm;
 		pdpModel = pm;
-		truck = t;
+		vehicle = dv;
 	}
 
 	public void initRepeatedUsage(long time) {
@@ -56,20 +56,19 @@ public class GendreauContextBuilder {
 									// coordinationModel.getNumWaitersFor(p) : 0
 		return new GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents, ((DefaultParcel) p).dto, gc.time,
 				isInCargo, isAssignedToVehicle, numWaiters, gc.otherVehiclePositions, new HashSet<Parcel>());
-
 	}
 
 	protected GendreauContext createGenericContext(long time) {
-		final Collection<Parcel> contents = pdpModel.getContents(truck);
+		final Collection<Parcel> contents = pdpModel.getContents(vehicle);
 		final List<Point> positions = newArrayList();
 		final Set<Vehicle> vehicles = pdpModel.getVehicles();
 		for (final Vehicle v : vehicles) {
-			if (v != truck) {
+			if (v != vehicle) {
 				positions.add(roadModel.getPosition(v));
 			}
 		}
-		return new GendreauContext(truck.getDTO(), roadModel.getPosition(truck), convert(contents), null, time, false,
-				false, -1, positions, new HashSet<Parcel>());
+		return new GendreauContext(vehicle.getDTO(), roadModel.getPosition(vehicle), convert(contents), null, time,
+				false, false, -1, positions, new HashSet<Parcel>());
 	}
 
 	protected static Set<ParcelDTO> convert(Collection<Parcel> parcels) {
