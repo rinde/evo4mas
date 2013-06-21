@@ -132,7 +132,7 @@ public class SolverTest {
 					.get(points.size() - 1 - i)));
 		}
 		final Gendreau06Scenario testScen = GendreauTestUtil.create(events);
-		final TestSimTask sim = new TestSimTask(testScen, true);
+		final TestSimTask sim = new TestSimTask(testScen, false);
 		sim.run();
 
 		final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
