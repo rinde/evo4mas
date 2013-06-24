@@ -56,7 +56,7 @@ public class SingleTruckTest {
 		}
 		final Gendreau06Scenario scen = GendreauTestUtil.create(events, trucks);
 
-		prob = GSimulation.init(scen, new RandomRandom(123), false);
+		prob = GSimulation.init(scen, new RandomRandom(), false);
 		simulator = prob.getSimulator();
 		roadModel = simulator.getModelProvider().getModel(RoadModel.class);
 		pdpModel = simulator.getModelProvider().getModel(PDPModel.class);
