@@ -33,22 +33,43 @@ public class Experiments {
 	public static void main(String[] args) {
 
 		System.out.println("RandomRoutePlanner + RandomBidder");
-		fullExperiment(new RandomRandom(123));
+		fullExperiment(new RandomRandom(), 123, 2);
 		System.out.println("RandomRoutePlanner + BlackboardUser");
-		fullExperiment(new RandomBB(123));
+		fullExperiment(new RandomBB(), 123, 10);
 
 	}
 
-	static void fullExperiment(Configurator c) {
-		final List<String> files = ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/", "");
-		for (final String file : files) {
-			final StatisticsDTO stats = GSimulation.simulate(file, 10, c, false);
-			final Gendreau06ObjectiveFunction obj = new Gendreau06ObjectiveFunction();
-			// System.out.println(stats);
-			checkState(obj.isValidResult(stats));
-			System.out.println(obj.computeCost(stats));
+	static void fullExperiment(Configurator c, long masterSeed, int repetitions) {
+		final List<String> files = ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/", "_450_24");
 
+		final RandomGenerator rng = new MersenneTwister(masterSeed);
+		final long[] seeds = new long[repetitions];
+		for (int i = 0; i < repetitions; i++) {
+			seeds[i] = rng.nextLong();
 		}
+
+		for (final String file : files) {
+			System.out.println(file);
+			for (int i = 0; i < repetitions; i++) {
+				if (c instanceof RandomSeed) {
+					((RandomSeed) c).setSeed(seeds[i]);
+				}
+
+				final StatisticsDTO stats = GSimulation.simulate(file, 20, c, false);
+				final Gendreau06ObjectiveFunction obj = new Gendreau06ObjectiveFunction();
+				checkState(obj.isValidResult(stats));
+
+				final StringBuilder sb = new StringBuilder().append(obj.computeCost(stats)).append(',')
+						.append(obj.tardiness(stats)).append(',').append(obj.travelTime(stats)).append(',')
+						.append(obj.overTime(stats));
+
+				System.out.println(sb.toString());
+			}
+		}
+	}
+
+	interface RandomSeed {
+		void setSeed(long seed);
 	}
 
 	/**
@@ -60,11 +81,11 @@ public class Experiments {
 	 * 
 	 * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
 	 */
-	public static class RandomRandom implements Configurator {
+	public static class RandomRandom implements Configurator, RandomSeed {
 		protected final RandomGenerator rng;
 
-		public RandomRandom(long seed) {
-			rng = new MersenneTwister(seed);
+		public RandomRandom() {
+			rng = new MersenneTwister(0L);
 		}
 
 		public boolean create(Simulator sim, AddVehicleEvent event) {
@@ -77,13 +98,17 @@ public class Experiments {
 			return new Model<?>[] { new AuctionCommModel() };
 		}
 
+		public void setSeed(long seed) {
+			rng.setSeed(seed);
+		}
+
 	}
 
-	public static class RandomBB implements Configurator {
+	public static class RandomBB implements Configurator, RandomSeed {
 		protected final RandomGenerator rng;
 
-		public RandomBB(long seed) {
-			rng = new MersenneTwister(seed);
+		public RandomBB() {
+			rng = new MersenneTwister(0L);
 		}
 
 		public boolean create(Simulator sim, AddVehicleEvent event) {
@@ -94,6 +119,10 @@ public class Experiments {
 
 		public Model<?>[] createModels() {
 			return new Model<?>[] { new BlackboardCommModel() };
+		}
+
+		public void setSeed(long seed) {
+			rng.setSeed(seed);
 		}
 	}
 
