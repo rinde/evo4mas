@@ -6,3 +6,4 @@ target/*
 *.ear
 runs/
 files/scenarios/gendreau06/train/
+/target
