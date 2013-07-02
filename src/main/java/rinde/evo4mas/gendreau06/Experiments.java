@@ -3,8 +3,11 @@
  */
 package rinde.evo4mas.gendreau06;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.math3.random.MersenneTwister;
@@ -24,47 +27,113 @@ import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
 public class Experiments {
 
-	public static void main(String[] args) {
+	enum ExperimentClass {
+		/**
+		 * _240_24
+		 */
+		SHORT_LOW_FREQ(240, 24, 10),
 
-		System.out.println("RandomRoutePlanner + RandomBidder");
-		fullExperiment(new RandomRandom(), 123, 2);
-		System.out.println("RandomRoutePlanner + BlackboardUser");
-		fullExperiment(new RandomBB(), 123, 10);
+		/**
+		 * _240_33
+		 */
+		SHORT_HIGH_FREQ(240, 33, 10),
 
+		/**
+		 * _450_24
+		 */
+		LONG_LOW_FREQ(450, 24, 20);
+
+		public final String fileId;
+		public final int duration;
+		public final int frequency;
+		public final int vehicles;
+
+		private ExperimentClass(int d, int f, int v) {
+			duration = d;
+			frequency = f;
+			vehicles = v;
+			fileId = "_" + duration + "_" + frequency;
+		}
 	}
 
-	static void fullExperiment(Configurator c, long masterSeed, int repetitions) {
-		final List<String> files = ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/", "_450_24");
+	public static void main(String[] args) {
 
+		experiments(123, 10, new RandomRandom(), new RandomBB());
+	}
+
+	static void experiments(long masterSeed, int repetitions, Configurator... configurators) {
+		for (final Configurator c : configurators) {
+			fullExperiment(c, masterSeed, repetitions, ExperimentClass.values());
+		}
+	}
+
+	static void fullExperiment(Configurator c, long masterSeed, int repetitions, ExperimentClass... claz) {
+		for (final ExperimentClass ec : claz) {
+			fullExperiment(c, masterSeed, repetitions, ec);
+		}
+	}
+
+	static void fullExperiment(Configurator c, long masterSeed, int repetitions, ExperimentClass claz) {
+		final List<String> files = ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/", claz.fileId);
 		final RandomGenerator rng = new MersenneTwister(masterSeed);
 		final long[] seeds = new long[repetitions];
 		for (int i = 0; i < repetitions; i++) {
 			seeds[i] = rng.nextLong();
 		}
-
+		final StringBuilder sb = new StringBuilder();
+		sb.append("seed,instance,duration,frequency,cost,tardiness,travelTime,overTime\n");
 		for (final String file : files) {
-			System.out.println(file);
 			for (int i = 0; i < repetitions; i++) {
 				if (c instanceof RandomSeed) {
 					((RandomSeed) c).setSeed(seeds[i]);
 				}
-
-				final StatisticsDTO stats = GSimulation.simulate(file, 20, c, false);
+				final StatisticsDTO stats = GSimulation.simulate(file, claz.vehicles, c, false);
 				final Gendreau06ObjectiveFunction obj = new Gendreau06ObjectiveFunction();
 				checkState(obj.isValidResult(stats));
 
-				final StringBuilder sb = new StringBuilder().append(obj.computeCost(stats)).append(',')
-						.append(obj.tardiness(stats)).append(',').append(obj.travelTime(stats)).append(',')
-						.append(obj.overTime(stats));
+				// example: req_rapide_1_240_24
+				final String[] name = new File(file).getName().split("_");
 
-				System.out.println(sb.toString());
+				final int instanceNumber = Integer.parseInt(name[2]);
+				final int duration = Integer.parseInt(name[3]);
+				final int frequency = Integer.parseInt(name[4]);
+				checkArgument(duration == claz.duration);
+				checkArgument(frequency == claz.frequency);
+
+				sb.append(seeds[i]).append(",")/* seed */
+				.append(instanceNumber).append(",")/* instance */
+				.append(duration).append(",") /* duration */
+				.append(frequency).append(",")/* frequency */
+				.append(obj.computeCost(stats)).append(',')/* cost */
+				.append(obj.tardiness(stats)).append(',')/* tardiness */
+				.append(obj.travelTime(stats)).append(',')/* travelTime */
+				.append(obj.overTime(stats))/* overTime */
+				.append("\n");
 			}
+		}
+		final File dir = new File("files/results/gendreau" + claz.fileId);
+		if (!dir.exists() || !dir.isDirectory()) {
+			dir.mkdir();
+		}
+		final File file = new File(dir.getPath() + "/" + c.getClass().getSimpleName() + "_" + masterSeed + claz.fileId
+				+ ".txt");
+		if (file.exists()) {
+			file.delete();
+		}
+
+		try {
+			Files.write(sb.toString(), file, Charsets.UTF_8);
+		} catch (final IOException e) {
+			throw new RuntimeException(e);
 		}
 	}
 
