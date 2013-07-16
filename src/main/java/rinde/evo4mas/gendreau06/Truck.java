@@ -3,6 +3,10 @@
  */
 package rinde.evo4mas.gendreau06;
 
+import static com.google.common.base.Preconditions.checkState;
+
+import javax.annotation.Nullable;
+
 import rinde.evo4mas.gendreau06.comm.Communicator;
 import rinde.evo4mas.gendreau06.comm.Communicator.CommunicatorEventType;
 import rinde.evo4mas.gendreau06.route.RoutePlanner;
@@ -37,8 +41,13 @@ public class Truck extends DefaultVehicle implements Listener {
 	protected boolean changed;
 
 	/**
-	 * @param pDto
+	 * Create a new Truck using the specified {@link RoutePlanner} and
+	 * {@link Communicator}.
+	 * @param pDto The truck properties.
+	 * @param rp The route planner used.
+	 * @param c The communicator used.
 	 */
+	@SuppressWarnings("null")
 	public Truck(VehicleDTO pDto, RoutePlanner rp, Communicator c) {
 		super(pDto);
 		routePlanner = rp;
@@ -72,7 +81,6 @@ public class Truck extends DefaultVehicle implements Listener {
 	protected void tickImpl(TimeLapse time) {
 		currentTime = time;
 		stateMachine.handle(this);
-
 	}
 
 	protected boolean isTooEarly(Parcel p) {
@@ -98,6 +106,7 @@ public class Truck extends DefaultVehicle implements Listener {
 	abstract class AbstractTruckState extends AbstractState<TruckEvent, Truck> {}
 
 	class Wait extends AbstractTruckState {
+		@Nullable
 		@Override
 		public TruckEvent handle(TruckEvent event, Truck context) {
 			if (changed) {
@@ -106,12 +115,12 @@ public class Truck extends DefaultVehicle implements Listener {
 				communicator.waitFor(routePlanner.current());
 			}
 
-			if (routePlanner.current() != null && !isTooEarly(routePlanner.current())) {
+			final Parcel cur = routePlanner.current();
+			if (cur != null && !isTooEarly(cur)) {
 				return TruckEvent.DONE;
 			}
 
-			if (routePlanner.current() == null && isEndOfDay()
-					&& !roadModel.getPosition(context).equals(dto.startPosition)) {
+			if (cur == null && isEndOfDay() && !roadModel.getPosition(context).equals(dto.startPosition)) {
 				roadModel.moveTo(context, dto.startPosition, context.currentTime);
 			}
 			return null;
@@ -119,22 +128,28 @@ public class Truck extends DefaultVehicle implements Listener {
 	}
 
 	class Goto extends AbstractTruckState {
+		@Nullable
 		protected Point destination;
 
 		@Override
 		public void onEntry(TruckEvent event, Truck context) {
-			if (pdpModel.getParcelState(routePlanner.current()) == ParcelState.IN_CARGO) {
-				destination = routePlanner.current().getDestination();
+			final Parcel cur = routePlanner.current();
+			checkState(cur != null, "RoutePlanner.current() can not be null");
+			if (pdpModel.getParcelState(cur) == ParcelState.IN_CARGO) {
+				destination = cur.getDestination();
 			} else {
 				communicator.claim(routePlanner.current());
-				destination = roadModel.getPosition(routePlanner.current());
+				destination = roadModel.getPosition(cur);
 			}
 		}
 
+		@Nullable
 		@Override
 		public TruckEvent handle(TruckEvent event, Truck context) {
+			final Point dest = destination;
+			checkState(dest != null, "Destination can not be null");
 			// move to service location
-			roadModel.moveTo(context, destination, currentTime);
+			roadModel.moveTo(context, dest, currentTime);
 			if (roadModel.getPosition(context).equals(destination)) {
 				return TruckEvent.DONE;
 			}
@@ -145,15 +160,18 @@ public class Truck extends DefaultVehicle implements Listener {
 	class Service extends AbstractTruckState {
 		@Override
 		public void onEntry(TruckEvent event, Truck context) {
-			if (pdpModel.getParcelState(routePlanner.current()) == ParcelState.IN_CARGO) {
+			final Parcel cur = routePlanner.current();
+			checkState(cur != null);
+			if (pdpModel.getParcelState(cur) == ParcelState.IN_CARGO) {
 				// deliver
-				pdpModel.deliver(context, routePlanner.current(), currentTime);
+				pdpModel.deliver(context, cur, currentTime);
 			} else {
-				pdpModel.pickup(context, routePlanner.current(), currentTime);
+				pdpModel.pickup(context, cur, currentTime);
 			}
 			routePlanner.next(currentTime.getTime());
 		}
 
+		@Nullable
 		@Override
 		public TruckEvent handle(TruckEvent event, Truck context) {
 			if (context.currentTime.hasTimeLeft()) {
@@ -163,7 +181,7 @@ public class Truck extends DefaultVehicle implements Listener {
 		}
 	}
 
-	public void handleEvent(Event e) {
+	public void handleEvent(@SuppressWarnings("null") Event e) {
 		if (e.getEventType() == CommunicatorEventType.CHANGE) {
 			changed = true;
 		}
