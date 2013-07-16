@@ -20,10 +20,16 @@ public class BlackboardUser implements Communicator {
 	protected BlackboardCommModel bcModel;
 	protected final EventDispatcher eventDispatcher;
 
+	/**
+	 * Constructor.
+	 */
 	public BlackboardUser() {
 		eventDispatcher = new EventDispatcher(CommunicatorEventType.values());
 	}
 
+	/**
+	 * @param model Injects the {@link BlackboardCommModel}.
+	 */
 	public void init(BlackboardCommModel model) {
 		bcModel = model;
 	}
@@ -39,6 +45,9 @@ public class BlackboardUser implements Communicator {
 		bcModel.claim(this, p);
 	}
 
+	/**
+	 * Notifies this blackboard user of a change in the environment.
+	 */
 	public void update() {
 		eventDispatcher.dispatchEvent(new Event(CommunicatorEventType.CHANGE, this));
 	}

@@ -16,14 +16,17 @@ import rinde.sim.event.EventDispatcher;
 import rinde.sim.event.Listener;
 
 /**
+ * Basic implementation for {@link Bidder}.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
- * 
  */
 public abstract class AbstractBidder implements Bidder {
 
 	protected final Set<Parcel> assignedParcels;
 	protected final EventDispatcher eventDispatcher;
 
+	/**
+	 * Initializes bidder.
+	 */
 	public AbstractBidder() {
 		assignedParcels = newLinkedHashSet();
 		eventDispatcher = new EventDispatcher(CommunicatorEventType.values());
@@ -49,5 +52,4 @@ public abstract class AbstractBidder implements Bidder {
 		assignedParcels.add(p);
 		eventDispatcher.dispatchEvent(new Event(CommunicatorEventType.CHANGE, this));
 	}
-
 }

@@ -23,6 +23,7 @@ import rinde.sim.event.Listener;
  * implementations, blackboard communication ({@link BlackboardCommModel}) and
  * auctioning ({@link AuctionCommModel}).
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @param <T> The type of {@link Communicator} this model expects.
  */
 public abstract class AbstractCommModel<T extends Communicator> implements ModelReceiver, Model<T> {
 	protected List<T> communicators;

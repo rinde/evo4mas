@@ -22,6 +22,9 @@ public class BlackboardCommModel extends AbstractCommModel<BlackboardUser> {
 
 	protected final Set<Parcel> unclaimedParcels;
 
+	/**
+	 * New empty blackboard comm model.
+	 */
 	public BlackboardCommModel() {
 		unclaimedParcels = newLinkedHashSet();
 	}
