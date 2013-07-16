@@ -41,6 +41,7 @@ public final class SolverValidator implements Solver {
 	 * output is detected a {@link IllegalArgumentException is thrown}.
 	 * @param delegate The {@link Solver} that will be used for the actual
 	 *            solving.
+	 * @return The wrapped solver.
 	 */
 	public static Solver wrap(Solver delegate) {
 		return new SolverValidator(delegate);

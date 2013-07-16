@@ -19,8 +19,9 @@ public interface Solver {
 	 * allowed. The start location has index 0, the end location (depot) has
 	 * index n-1.
 	 * 
-	 * @param dist n x n distance matrix expressed in time: travelTime[i][j]
-	 *            specifies travelTime from location i to location j.
+	 * @param travelTime n x n distance matrix expressed in time:
+	 *            travelTime[i][j] specifies travelTime from location i to
+	 *            location j.
 	 * @param releaseDates specifies the left side of the time window for every
 	 *            location (hard constraint, earlier is not allowed).
 	 * @param dueDates specifies the right side of the time window for every

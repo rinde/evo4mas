@@ -6,8 +6,8 @@ package rinde.solver.spdptw;
 import java.util.Arrays;
 
 /**
+ * A {@link Solver} wrapper that adds debugging.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
- * 
  */
 public class SolverDebugger implements Solver {
 
@@ -52,6 +52,13 @@ public class SolverDebugger implements Solver {
 		return sol;
 	}
 
+	/**
+	 * Wraps the specified {@link Solver} to allow easy debugging. Every
+	 * invocation of {@link Solver#solve(int[][], int[], int[], int[][], int)}
+	 * all inputs and outputs are printed to sys.out.
+	 * @param s The {@link Solver} to wrap.
+	 * @return The wrapped solver.
+	 */
 	public static Solver wrap(Solver s) {
 		return new SolverDebugger(s);
 	}
