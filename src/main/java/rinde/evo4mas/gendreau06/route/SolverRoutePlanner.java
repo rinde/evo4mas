@@ -13,8 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
+import javax.annotation.Nullable;
+
 import rinde.sim.core.graph.Point;
+import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.problem.common.DefaultVehicle;
 import rinde.solver.spdptw.SolutionObject;
 import rinde.solver.spdptw.Solver;
 
@@ -30,8 +35,14 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 
 	protected final Solver solver;
 	protected Queue<Parcel> route;
+	@Nullable
 	protected SolutionObject solutionObject;
 
+	/**
+	 * Create a route planner that uses the specified {@link Solver} to compute
+	 * the best route.
+	 * @param s {@link Solver} used for route planning.
+	 */
 	public SolverRoutePlanner(Solver s) {
 		solver = s;
 		route = newLinkedList();
@@ -55,12 +66,17 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 				route = newLinkedList(onMap);
 				route.addAll(onMap);
 				return;
-			} else {
-				route = newLinkedList(inCargo);
-				return;
-			}
+			} // else
+			route = newLinkedList(inCargo);
+			return;
+
 		}
 		// else, we are going to look for the optimal solution
+
+		final RoadModel rm = roadModel;
+		final PDPModel pm = pdpModel;
+		final DefaultVehicle v = vehicle;
+		checkState(rm != null && pm != null && v != null);
 
 		final int[][] travelTime = new int[numLocations][numLocations];
 		final int[] releaseDates = new int[numLocations];
@@ -70,13 +86,13 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 
 		final Map<Point, Parcel> point2parcel = newHashMap();
 		final Point[] locations = new Point[numLocations];
-		locations[0] = roadModel.getPosition(vehicle);
+		locations[0] = rm.getPosition(v);
 
 		int index = 1;
 		int spIndex = 0;
 		for (final Parcel p : onMap) {
 			// add pickup location and time window
-			locations[index] = pdpModel.getPosition(p);
+			locations[index] = pm.getPosition(p);
 			point2parcel.put(locations[index], p);
 			releaseDates[index] = fixTWstart(p.getPickupTimeWindow().begin, time);
 			dueDates[index] = fixTWend(p.getPickupTimeWindow().end, time);
@@ -105,9 +121,9 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 		checkState(index == numLocations - 1);
 
 		// the start position of the truck is the depot
-		locations[index] = vehicle.getDTO().startPosition;
+		locations[index] = v.getDTO().startPosition;
 		// end of the day
-		dueDates[index] = fixTWend(vehicle.getDTO().availabilityTimeWindow.end, time);
+		dueDates[index] = fixTWend(v.getDTO().availabilityTimeWindow.end, time);
 
 		// fill the distance matrix
 		for (int i = 0; i < numLocations; i++) {
@@ -115,7 +131,7 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 				if (i != j) {
 					final double dist = Point.distance(locations[i], locations[j]);
 					// travel times are ceiled
-					final int tt = (int) Math.ceil((dist / vehicle.getDTO().speed) * 3600.0);
+					final int tt = (int) Math.ceil((dist / v.getDTO().speed) * 3600.0);
 					travelTime[i][j] = tt;
 					travelTime[j][i] = tt;
 				}
@@ -138,11 +154,13 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 	 *         current route. Or <code>null</code> if no {@link Solver} was used
 	 *         to find the current route (or there is no route).
 	 */
+	@Nullable
 	public SolutionObject getSolutionObject() {
-		if (solutionObject == null) {
-			return null;
+		final SolutionObject so = solutionObject;
+		if (so != null) {
+			return new SolutionObject(so.route, so.arrivalTimes, so.objectiveValue);
 		}
-		return new SolutionObject(solutionObject.route, solutionObject.arrivalTimes, solutionObject.objectiveValue);
+		return null;
 	}
 
 	public boolean hasNext() {
@@ -157,6 +175,7 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 		return (int) Math.max((Math.floor(Ints.checkedCast(end - time) / 1000)), 0);
 	}
 
+	@Nullable
 	public Parcel current() {
 		return route.peek();
 	}

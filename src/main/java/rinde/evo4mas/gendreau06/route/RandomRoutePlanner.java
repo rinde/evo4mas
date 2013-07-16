@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Random;
 
+import javax.annotation.Nullable;
+
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomAdaptor;
 
@@ -26,6 +28,10 @@ public class RandomRoutePlanner extends AbstractRoutePlanner {
 	protected Queue<Parcel> assignedParcels;
 	protected final Random rng;
 
+	/**
+	 * Creates a random route planner using the specified random seed.
+	 * @param seed The random seed.
+	 */
 	public RandomRoutePlanner(long seed) {
 		rng = new RandomAdaptor(new MersenneTwister(seed));
 		assignedParcels = newLinkedList();
@@ -56,6 +62,7 @@ public class RandomRoutePlanner extends AbstractRoutePlanner {
 		return !assignedParcels.isEmpty();
 	}
 
+	@Nullable
 	public Parcel current() {
 		return assignedParcels.peek();
 	}

@@ -10,6 +10,8 @@ import static java.util.Collections.unmodifiableList;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
@@ -27,8 +29,11 @@ public abstract class AbstractRoutePlanner implements RoutePlanner {
 	private boolean initialized;
 	private boolean updated;
 
+	@Nullable
 	protected RoadModel roadModel;
+	@Nullable
 	protected PDPModel pdpModel;
+	@Nullable
 	protected DefaultVehicle vehicle;
 
 	protected AbstractRoutePlanner() {
@@ -63,6 +68,7 @@ public abstract class AbstractRoutePlanner implements RoutePlanner {
 	 */
 	protected abstract void doUpdate(Collection<Parcel> onMap, Collection<Parcel> inCargo, long time);
 
+	@Nullable
 	public final Parcel next(long time) {
 		checkState(isInitialized(), "RoutePlanner should be initialized before it can be used, see init()");
 		checkState(updated, "RoutePlanner should be udpated before it can be used, see update()");
@@ -80,6 +86,7 @@ public abstract class AbstractRoutePlanner implements RoutePlanner {
 	 */
 	protected abstract void nextImpl(long time);
 
+	@Nullable
 	public Parcel prev() {
 		if (history.isEmpty()) {
 			return null;

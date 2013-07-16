@@ -9,6 +9,8 @@ import static com.google.common.collect.Sets.newHashSet;
 import java.util.Collection;
 import java.util.Set;
 
+import javax.annotation.Nullable;
+
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.gendreau06.GCBuilderReceiver;
 import rinde.evo4mas.gendreau06.GendreauContext;
@@ -28,15 +30,23 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements GC
 
 	protected final Heuristic<GendreauContext> heuristic;
 	protected final TimeUntilAvailable<GendreauContext> tua;
+	@Nullable
 	protected Parcel current;
+	@Nullable
 	protected GendreauContextBuilder gendreauContextBuilder;
 
 	protected Set<Parcel> onMapSet;
 	protected Set<Parcel> inCargoSet;
 
+	/**
+	 * Create a new route planner using the specified {@link Heuristic}.
+	 * @param h The heuristic to use for planning routes.
+	 */
 	public EvoHeuristicRoutePlanner(Heuristic<GendreauContext> h) {
 		heuristic = h;
 		tua = new TimeUntilAvailable<GendreauContext>();
+		onMapSet = newHashSet();
+		inCargoSet = newHashSet();
 	}
 
 	@Override
@@ -51,18 +61,24 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements GC
 		current = nextLoop(onMapSet, claimed, inCargoSet, time);
 	}
 
+	@Nullable
 	protected Parcel nextLoop(Collection<Parcel> todo, Set<Parcel> alreadyClaimed, Collection<Parcel> contents,
 			long time) {
 		Parcel best = null;
 		double bestValue = Double.POSITIVE_INFINITY;
 
-		gendreauContextBuilder.initRepeatedUsage(time);
+		final GendreauContextBuilder gcb = gendreauContextBuilder;
+		if (gcb == null) {
+			throw new RuntimeException("GendreauContextBuilder has not been set via #receive(GendreauContextBuilder)");
+		}
+		gcb.initRepeatedUsage(time);
 
 		final StringBuilder sb = new StringBuilder();
 		for (final Parcel p : todo) {
 			// filter out the already claimed parcels
 			if (!alreadyClaimed.contains(p)) {
-				final GendreauContext gc = gendreauContextBuilder.buildInRepetition(p, false, false);
+				final GendreauContext gc = gcb.buildInRepetition(p, false, false);
+				@SuppressWarnings("null")
 				final double res = tua.execute(null, gc);
 
 				// TODO this should be a differnt value? similar to isEarly
@@ -83,7 +99,7 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements GC
 		// }
 		for (final Parcel p : contents) {
 
-			final GendreauContext gc = gendreauContextBuilder.buildInRepetition(p, true, false);
+			final GendreauContext gc = gcb.buildInRepetition(p, true, false);
 
 			final double v = heuristic.compute(gc);
 			if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
@@ -123,6 +139,7 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements GC
 		return !isUpdated() ? false : !(onMapSet.isEmpty() && inCargoSet.isEmpty());
 	}
 
+	@Nullable
 	public Parcel current() {
 		return current;
 	}

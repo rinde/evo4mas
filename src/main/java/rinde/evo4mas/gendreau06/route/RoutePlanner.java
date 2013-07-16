@@ -6,6 +6,8 @@ package rinde.evo4mas.gendreau06.route;
 import java.util.Collection;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import rinde.evo4mas.gendreau06.Truck;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
@@ -64,8 +66,8 @@ public interface RoutePlanner {
 	 * Indicates a change in data (or sets it initially), this should update the
 	 * route. This is one of the <i>modifying</i> methods (see
 	 * {@link RoutePlanner} for more information). This method must be called
-	 * <i>after</i> {@link #init(RoadModel, PDPModel, DefaultVehicle)} and should be
-	 * called <i>before</i> any calls to {@link #next(long)}.
+	 * <i>after</i> {@link #init(RoadModel, PDPModel, DefaultVehicle)} and
+	 * should be called <i>before</i> any calls to {@link #next(long)}.
 	 * <p>
 	 * <b>Implementations of this method should treat the incoming collections
 	 * as immutable.</b>
@@ -86,6 +88,7 @@ public interface RoutePlanner {
 	 * @return The current parcel that should be visited next, returns
 	 *         <code>null</code> when there are no parcels to go to.
 	 */
+	@Nullable
 	Parcel current();
 
 	/**
@@ -99,6 +102,7 @@ public interface RoutePlanner {
 	 * @return The new current parcel or <code>null</code> if there are no
 	 *         parcels to visit.
 	 */
+	@Nullable
 	Parcel next(long time);
 
 	/**
@@ -107,6 +111,7 @@ public interface RoutePlanner {
 	 *         returned by {@link #getHistory()}. Returns <code>null</code> if
 	 *         {@link #next(long)} has never been called.
 	 */
+	@Nullable
 	Parcel prev();
 
 	/**
