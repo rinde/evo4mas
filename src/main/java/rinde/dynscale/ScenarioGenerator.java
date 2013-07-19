@@ -3,12 +3,16 @@
  */
 package rinde.dynscale;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.nCopies;
 
 import java.math.RoundingMode;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.math3.distribution.ExponentialDistribution;
+import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import rinde.sim.core.graph.Point;
@@ -41,48 +45,82 @@ public class ScenarioGenerator {
 	}
 
 	public Scenario generate(RandomGenerator rng) {
-
 		final Point depotLocation = new Point(size / 2d, size / 2d);
-
 		for (int i = 0; i < vehicles; i++) {
 
 		}
+		return null;
+	}
 
-		// we model the announcements as a Poisson process, which means that the
-		// interarrival times are exponentially distributed.
-		final ExponentialDistribution ed = new ExponentialDistribution(1d / announcements);
-		double sum = 0;
-		final List<Integer> arrivalTimes = newArrayList();
-		while (sum < 1) {
-			sum += ed.sample();
-			arrivalTimes.add(DoubleMath.roundToInt(sum * 60d, RoundingMode.HALF_DOWN));
+	interface ArrivalTimesGenerator {
+		public List<Long> generate(RandomGenerator rng);
+	}
+
+	static class PoissonProcessArrivalTimes implements ArrivalTimesGenerator {
+
+		private final long length;
+		private final double gai;
+		private final double opa;
+
+		// scneario length in minutes
+		// intensity in announcements per hour
+		public PoissonProcessArrivalTimes(long scenarioLength, double globalAnnouncementIntensity,
+				double ordersPerAnnouncement) {
+			length = scenarioLength;
+			gai = globalAnnouncementIntensity;
+			opa = ordersPerAnnouncement;
 		}
-		// now we know the real number of announcements.
 
-		if (DoubleMath.isMathematicalInteger(ordersPerAnnouncement)) {
-			for (final int arrivalTime : arrivalTimes) {
-				for (int i = 0; i < ordersPerAnnouncement; i++) {
-					// TODO create AddParcelEvent at arrivalTime
-				}
+		public List<Long> generate(RandomGenerator rng) {
+			// we model the announcements as a Poisson process, which means that
+			// the
+			// interarrival times are exponentially distributed.
+			final ExponentialDistribution ed = new ExponentialDistribution(1d / gai);
+			ed.reseedRandomGenerator(rng.nextLong());
+			long sum = 0;
+			final List<Long> arrivalTimes = newArrayList();
+			while (sum < length) {
+				sum += DoubleMath.roundToInt(ed.sample() * 60d, RoundingMode.HALF_DOWN);
+				arrivalTimes.add(sum);
 			}
-		} else {
-			// in this case we need to make sure that some announcements contain
+			// now we know the real number of announcements.
+
+			if (DoubleMath.isMathematicalInteger(opa)) {
+				final List<Long> list = newArrayList();
+				for (final long arrivalTime : arrivalTimes) {
+					for (int i = 0; i < opa; i++) {
+						list.add(arrivalTime);
+					}
+				}
+				return list;
+			}
+			// in this case we need to make sure that some announcements
+			// contain
 			// floor(ordersPerAnnouncement) and some announcements contain
 			// ceil(ordersPerAnnouncement) in the right proportion
 
-			final int floor = DoubleMath.roundToInt(ordersPerAnnouncement, RoundingMode.FLOOR);
-			final int ceil = DoubleMath.roundToInt(ordersPerAnnouncement, RoundingMode.CEILING);
+			final int floor = DoubleMath.roundToInt(opa, RoundingMode.FLOOR);
+			final int ceiling = DoubleMath.roundToInt(opa, RoundingMode.CEILING);
+			final double ratio = opa - floor;
 
-			// how to find the right proportion?
+			System.out.println(ratio + " " + arrivalTimes.size());
+			final int floorTimes = DoubleMath.roundToInt((1 - ratio) * arrivalTimes.size(), RoundingMode.HALF_DOWN);
+			final int ceilTimes = DoubleMath.roundToInt(ratio * arrivalTimes.size(), RoundingMode.HALF_UP);
+			checkState(floorTimes + ceilTimes == arrivalTimes.size());
 
-			final double ratio = ordersPerAnnouncement - floor;
+			final List<Integer> orderCountList = newArrayList();
+			orderCountList.addAll(nCopies(floorTimes, floor));
+			orderCountList.addAll(nCopies(ceilTimes, ceiling));
+			Collections.shuffle(orderCountList, new RandomAdaptor(rng));
 
-			final int expectedNumOrders = DoubleMath
-					.roundToInt(arrivalTimes.size() * ordersPerAnnouncement, RoundingMode.HALF_DOWN);
-
+			final List<Long> list = newArrayList();
+			for (int i = 0; i < arrivalTimes.size(); i++) {
+				for (int j = 0; j < orderCountList.get(i); j++) {
+					list.add(arrivalTimes.get(i));
+				}
+			}
+			return list;
 		}
-
-		return null;
 	}
 
 	public static class Builder {
@@ -139,7 +177,7 @@ public class ScenarioGenerator {
 			final int numAnnouncements = DoubleMath
 					.roundToInt(area * scenarioLength * announcementIntensity, RoundingMode.HALF_DOWN);
 
-			return new ScenarioGenerator();
+			return null;// new ScenarioGenerator();
 		}
 	}
 
