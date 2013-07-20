@@ -80,8 +80,22 @@ public class ScenarioGenerator {
 			long sum = 0;
 			final List<Long> arrivalTimes = newArrayList();
 			while (sum < length) {
-				sum += DoubleMath.roundToInt(ed.sample() * 60d, RoundingMode.HALF_DOWN);
-				arrivalTimes.add(sum);
+				final long nt = DoubleMath.roundToLong(ed.sample() * 60d, RoundingMode.HALF_DOWN);
+				// ignore values which are smaller than the time unit (minute).
+				if (nt > 0) {
+					sum += nt;
+					if (sum < length) {
+						arrivalTimes.add(sum);
+					} else if (arrivalTimes.isEmpty()) {
+						// there is a small probability where the first
+						// generated arrival time is greater than length. This
+						// case is undesirable, when it happens, we just try
+						// again by resetting sum.
+						sum = 0;
+					} else {
+						break;
+					}
+				}
 			}
 			// now we know the real number of announcements.
 
@@ -103,7 +117,7 @@ public class ScenarioGenerator {
 			final int ceiling = DoubleMath.roundToInt(opa, RoundingMode.CEILING);
 			final double ratio = opa - floor;
 
-			System.out.println(ratio + " " + arrivalTimes.size());
+			// System.out.println(ratio + " " + arrivalTimes.size());
 			final int floorTimes = DoubleMath.roundToInt((1 - ratio) * arrivalTimes.size(), RoundingMode.HALF_DOWN);
 			final int ceilTimes = DoubleMath.roundToInt(ratio * arrivalTimes.size(), RoundingMode.HALF_UP);
 			checkState(floorTimes + ceilTimes == arrivalTimes.size());
