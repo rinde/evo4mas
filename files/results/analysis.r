@@ -1,5 +1,9 @@
 require(plyr)
-analyze <- function(filename){
+require(xtable)
+
+analyze <- function(dir,f){
+  
+  filename <- paste(dir,"/",f,sep='')
   print(filename)
   #fileName = "rinde.evo4mas.gendreau06.Experiments$RandomBB/experiment_240_24.txt"
   df <- data.frame(read.csv(file=filename,header=TRUE))
@@ -15,12 +19,16 @@ analyze <- function(filename){
   drops <- c("seed","frequency","duration")
   df <- df[,!(names(df) %in% drops)]
   
-  print(ddply(df, 'instance',function(x) c(mean=mean(x),sd=sd(x))))
+  overview <- ddply(df, 'instance',function(x) c(mean=mean(x),sd=sd(x)))
+  drops2 <- c("mean.instance","sd.instance")
+  overview <- overview[,!(names(overview) %in% drops2)]
   
   means = aggregate(df,list(instance=df$instance),FUN=function(x) cbind(mean(x),sd(x)))
   drops <- c("instance")
   means <- means[,!(names(means) %in% drops)]
   df <- df[,!(names(df) %in% drops)]
+  
+  
   
   #print(means)
   #print(mean(df))
@@ -35,7 +43,17 @@ analyze <- function(filename){
   #sds = aggregate(df,list(instance=df$instance),FUN=sd)
   #sds <- sds[,!(names(sds) %in% drops)]
   
-  print(means)
+  #print(means)
+  
+  #print(means)
+  print(overview)
+  
+  f<- file(paste(dir,"/",f ,".html",sep=''),"w")
+  
+  print(xtable(overview),f,type="html")
+  #write(xtable(overview),f)
+  close(f)
+  
   
   
   
@@ -75,11 +93,12 @@ print(getwd())
 dirs <- dir(path=".",pattern="gendreau",recursive=FALSE)
 
 for( dir in dirs){
-  files <- list.files(path=dir)
+  # only return *.txt files
+  files <- list.files(path=dir,pattern="\\.txt$")
   print(files)
   for( f in files){
-    analyze(paste(dir,"/",f,sep=''))
+    analyze(dir,f)
   }
-  break
+  
 }
 
