@@ -88,6 +88,9 @@ public class ScenarioGenerator {
 			final List<Long> arrivalTimes = newArrayList();
 			while (sum < length) {
 				final long nt = DoubleMath.roundToLong(ed.sample() * 60d, RoundingMode.HALF_DOWN);
+				// TODO perhaps allow 0s, and ensure degree of dynamism
+				// afterwards?
+
 				// ignore values which are smaller than the time unit (one
 				// minute), unless its the first value.
 				if (nt > 0 || arrivalTimes.isEmpty()) {
@@ -215,6 +218,10 @@ public class ScenarioGenerator {
 			final double area = size * size;
 			final int numAnnouncements = DoubleMath
 					.roundToInt(area * scenarioLength * announcementIntensity, RoundingMode.HALF_DOWN);
+
+			final double globalAnnouncementIntensity = area * announcementIntensity;
+
+			new PoissonProcessArrivalTimes(scenarioLength, globalAnnouncementIntensity, ordersPerAnnouncement);
 
 			return null;// new ScenarioGenerator();
 		}
