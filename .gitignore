@@ -5,5 +5,8 @@ target/*
 *.war
 *.ear
 runs/
+*.data
+*.points
+*.pdf
 files/scenarios/gendreau06/train/
 /target
