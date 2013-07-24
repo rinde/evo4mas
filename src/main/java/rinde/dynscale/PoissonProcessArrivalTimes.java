@@ -29,7 +29,7 @@ public class PoissonProcessArrivalTimes implements ArrivalTimesGenerator {
 	private final double gai;
 	private final double opa;
 
-	// scneario length in minutes
+	// scenario length in minutes
 	// intensity in announcements per hour
 	public PoissonProcessArrivalTimes(long scenarioLength, double globalAnnouncementIntensity,
 			double ordersPerAnnouncement) {
