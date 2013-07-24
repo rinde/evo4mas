@@ -8,5 +8,6 @@ runs/
 *.data
 *.points
 *.pdf
+*.Rhistory
 files/scenarios/gendreau06/train/
 /target
