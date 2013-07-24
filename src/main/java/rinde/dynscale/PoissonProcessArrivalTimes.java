@@ -12,8 +12,6 @@ import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 
-import rinde.dynscale.ScenarioGenerator.ArrivalTimesGenerator;
-
 import com.google.common.math.DoubleMath;
 
 /**

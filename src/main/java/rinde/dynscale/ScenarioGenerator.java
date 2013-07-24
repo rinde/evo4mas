@@ -48,10 +48,6 @@ public class ScenarioGenerator {
 		return null;
 	}
 
-	interface ArrivalTimesGenerator {
-		public List<Long> generate(RandomGenerator rng);
-	}
-
 	public static class Builder {
 
 		private int vehicles;
