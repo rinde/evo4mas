@@ -25,29 +25,29 @@ import com.google.common.io.Files;
  * 
  */
 @RunWith(Parameterized.class)
-public class LocationsGeneratorTest {
+public class NormalLocationsGeneratorTest {
 
 	private final NormalLocationsGenerator lg;
 
-	public LocationsGeneratorTest(NormalLocationsGenerator l) {
+	public NormalLocationsGeneratorTest(NormalLocationsGenerator l) {
 		lg = l;
 	}
 
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { /* */
-		{ new NormalLocationsGenerator(1000, 10, .15, .05) }, /* */
-		{ new NormalLocationsGenerator(1000, 10, .18, .05) }, /* */
-		{ new NormalLocationsGenerator(1000, 5, .15, .05) }, /* */
-		{ new NormalLocationsGenerator(1000, 5, .16, .05) }, /* */
-		{ new NormalLocationsGenerator(1000, 5, .17, .05) }, /* */
-		{ new NormalLocationsGenerator(1000, 5, .18, .05) }, /* */
-		{ new NormalLocationsGenerator(1000, 5, .19, .05) }, /* */
-		{ new NormalLocationsGenerator(1000, 5, .20, .05) }, /* */
-		{ new NormalLocationsGenerator(1000, 5, .15, 1.0) }, /* */
-		{ new NormalLocationsGenerator(1000, 5, .2, .1) }, /* */
-		{ new NormalLocationsGenerator(1000, 5.1, .2, .1) }, /* */
-		{ new NormalLocationsGenerator(1000, 3, .2, 1) } /* */
+		{ new NormalLocationsGenerator(10, .15, .05) }, /* */
+		{ new NormalLocationsGenerator(10, .18, .05) }, /* */
+		{ new NormalLocationsGenerator(5, .15, .05) }, /* */
+		{ new NormalLocationsGenerator(5, .16, .05) }, /* */
+		{ new NormalLocationsGenerator(5, .17, .05) }, /* */
+		{ new NormalLocationsGenerator(5, .18, .05) }, /* */
+		{ new NormalLocationsGenerator(5, .19, .05) }, /* */
+		{ new NormalLocationsGenerator(5, .20, .05) }, /* */
+		{ new NormalLocationsGenerator(5, .15, 1.0) }, /* */
+		{ new NormalLocationsGenerator(5, .2, .1) }, /* */
+		{ new NormalLocationsGenerator(5.1, .2, .1) }, /* */
+		{ new NormalLocationsGenerator(3, .2, 1) } /* */
 
 		});
 	}
@@ -56,7 +56,7 @@ public class LocationsGeneratorTest {
 
 	@Test
 	public void test() {
-		final List<Point> locations = lg.generate(new MersenneTwister(123));
+		final List<Point> locations = lg.generate(1000, new MersenneTwister(123));
 
 		final String fileName = new StringBuilder().append(lg.getEnvSize()).append("-").append(lg.getRelativeStd())
 				.append("-").append(lg.getBinSize()).toString();

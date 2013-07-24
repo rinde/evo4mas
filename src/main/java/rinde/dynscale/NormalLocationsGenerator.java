@@ -16,7 +16,6 @@ import com.google.common.math.DoubleMath;
 
 public class NormalLocationsGenerator implements LocationsGenerator {
 
-	private final int orders;
 	private final double size;
 	private final double bin;
 	private final double std;
@@ -24,10 +23,6 @@ public class NormalLocationsGenerator implements LocationsGenerator {
 	private final ImmutableList<Double> probabilitiesList;
 
 	/**
-	 * 
-	 * @param numOrders The number of orders for which locations need to be
-	 *            generated. Note that for each order two locations are
-	 *            generated: the pickup location and the delivery location.
 	 * @param envSize The size of the environment (in km), the area is defined
 	 *            as size^2 km2.
 	 * @param relativeStd This is the size of the standard deviation relative to
@@ -35,12 +30,11 @@ public class NormalLocationsGenerator implements LocationsGenerator {
 	 * @param binSize Determines the size (in km) of the bins that will be used
 	 *            to discretize the Normal distribution.
 	 */
-	public NormalLocationsGenerator(int numOrders, double envSize, double relativeStd, double binSize) {
+	public NormalLocationsGenerator(double envSize, double relativeStd, double binSize) {
 		checkArgument(envSize >= 0.15);
 		checkArgument(envSize >= 0);
 		checkArgument(relativeStd >= 0);
 		checkArgument(binSize >= 0);
-		orders = numOrders;
 		size = envSize;
 		std = relativeStd;
 		bin = binSize;
@@ -58,9 +52,14 @@ public class NormalLocationsGenerator implements LocationsGenerator {
 		probabilitiesList = probabilities.asList();
 	}
 
-	public ImmutableList<Point> generate(RandomGenerator rng) {
+	/**
+	 * @param numOrders The number of orders for which locations need to be
+	 *            generated. Note that for each order two locations are
+	 *            generated: the pickup location and the delivery location.
+	 */
+	public ImmutableList<Point> generate(int numOrders, RandomGenerator rng) {
 		final ImmutableList.Builder<Point> b = ImmutableList.builder();
-		for (int i = 0; i < orders * 2; i++) {
+		for (int i = 0; i < numOrders * 2; i++) {
 			final double x = sample(rng);
 			final double y = sample(rng);
 			checkState(x >= 0 && x < size, "%s, %s", i, x);
@@ -83,10 +82,6 @@ public class NormalLocationsGenerator implements LocationsGenerator {
 			}
 		}
 		return histogram;
-	}
-
-	public double getNumOrders() {
-		return orders;
 	}
 
 	public double getEnvSize() {
