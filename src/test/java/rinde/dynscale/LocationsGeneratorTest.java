@@ -27,27 +27,27 @@ import com.google.common.io.Files;
 @RunWith(Parameterized.class)
 public class LocationsGeneratorTest {
 
-	private final LocationsGenerator lg;
+	private final NormalLocationsGenerator lg;
 
-	public LocationsGeneratorTest(LocationsGenerator l) {
+	public LocationsGeneratorTest(NormalLocationsGenerator l) {
 		lg = l;
 	}
 
 	@Parameters
 	public static Collection<Object[]> data() {
 		return Arrays.asList(new Object[][] { /* */
-		{ new LocationsGenerator(1000, 10, .15, .05) }, /* */
-		{ new LocationsGenerator(1000, 10, .18, .05) }, /* */
-		{ new LocationsGenerator(1000, 5, .15, .05) }, /* */
-		{ new LocationsGenerator(1000, 5, .16, .05) }, /* */
-		{ new LocationsGenerator(1000, 5, .17, .05) }, /* */
-		{ new LocationsGenerator(1000, 5, .18, .05) }, /* */
-		{ new LocationsGenerator(1000, 5, .19, .05) }, /* */
-		{ new LocationsGenerator(1000, 5, .20, .05) }, /* */
-		{ new LocationsGenerator(1000, 5, .15, 1.0) }, /* */
-		{ new LocationsGenerator(1000, 5, .2, .1) }, /* */
-		{ new LocationsGenerator(1000, 5.1, .2, .1) }, /* */
-		{ new LocationsGenerator(1000, 3, .2, 1) } /* */
+		{ new NormalLocationsGenerator(1000, 10, .15, .05) }, /* */
+		{ new NormalLocationsGenerator(1000, 10, .18, .05) }, /* */
+		{ new NormalLocationsGenerator(1000, 5, .15, .05) }, /* */
+		{ new NormalLocationsGenerator(1000, 5, .16, .05) }, /* */
+		{ new NormalLocationsGenerator(1000, 5, .17, .05) }, /* */
+		{ new NormalLocationsGenerator(1000, 5, .18, .05) }, /* */
+		{ new NormalLocationsGenerator(1000, 5, .19, .05) }, /* */
+		{ new NormalLocationsGenerator(1000, 5, .20, .05) }, /* */
+		{ new NormalLocationsGenerator(1000, 5, .15, 1.0) }, /* */
+		{ new NormalLocationsGenerator(1000, 5, .2, .1) }, /* */
+		{ new NormalLocationsGenerator(1000, 5.1, .2, .1) }, /* */
+		{ new NormalLocationsGenerator(1000, 3, .2, 1) } /* */
 
 		});
 	}
@@ -72,7 +72,7 @@ public class LocationsGeneratorTest {
 
 	}
 
-	static void writeGeneratorHistogram(LocationsGenerator lg, File f) {
+	static void writeGeneratorHistogram(NormalLocationsGenerator lg, File f) {
 		final double[][] histogram = lg.getHistogram();
 		final StringBuilder sb = new StringBuilder();
 		sb.append("0.0 0.0\n");
