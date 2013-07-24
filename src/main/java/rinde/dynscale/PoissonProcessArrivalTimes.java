@@ -12,6 +12,7 @@ import org.apache.commons.math3.distribution.ExponentialDistribution;
 import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.math.DoubleMath;
 
 /**
@@ -37,7 +38,7 @@ public class PoissonProcessArrivalTimes implements ArrivalTimesGenerator {
 		opa = ordersPerAnnouncement;
 	}
 
-	public List<Long> generate(RandomGenerator rng) {
+	public ImmutableList<Long> generate(RandomGenerator rng) {
 		// we model the announcements as a Poisson process, which means that
 		// the interarrival times are exponentially distributed.
 		final ExponentialDistribution ed = new ExponentialDistribution(1d / gai);
@@ -46,8 +47,6 @@ public class PoissonProcessArrivalTimes implements ArrivalTimesGenerator {
 		final List<Long> arrivalTimes = newArrayList();
 		while (sum < length) {
 			final long nt = DoubleMath.roundToLong(ed.sample() * 60d, RoundingMode.HALF_DOWN);
-			// TODO perhaps allow 0s, and ensure degree of dynamism
-			// afterwards?
 
 			// ignore values which are smaller than the time unit (one
 			// minute), unless its the first value.
@@ -71,13 +70,13 @@ public class PoissonProcessArrivalTimes implements ArrivalTimesGenerator {
 		if (DoubleMath.isMathematicalInteger(opa)) {
 			// if ordersPerAnnouncement is an integer, we can just use a
 			// double for loop for setting the arrival times.
-			final List<Long> list = newArrayList();
+			final ImmutableList.Builder<Long> lb = ImmutableList.builder();
 			for (final long arrivalTime : arrivalTimes) {
 				for (int i = 0; i < opa; i++) {
-					list.add(arrivalTime);
+					lb.add(arrivalTime);
 				}
 			}
-			return list;
+			return lb.build();
 		}
 		// If it is not an integer, we need to use a randomized approach to
 		// create a fair allocation of orders per announcement.
@@ -101,13 +100,13 @@ public class PoissonProcessArrivalTimes implements ArrivalTimesGenerator {
 		orderCountList.addAll(nCopies(ceilTimes, ceiling));
 		Collections.shuffle(orderCountList, new RandomAdaptor(rng));
 
-		final List<Long> list = newArrayList();
+		final ImmutableList.Builder<Long> lb = ImmutableList.builder();
 		for (int i = 0; i < arrivalTimes.size(); i++) {
 			for (int j = 0; j < orderCountList.get(i); j++) {
-				list.add(arrivalTimes.get(i));
+				lb.add(arrivalTimes.get(i));
 			}
 		}
-		return list;
+		return lb.build();
 	}
 
 	public long getScenarioLength() {

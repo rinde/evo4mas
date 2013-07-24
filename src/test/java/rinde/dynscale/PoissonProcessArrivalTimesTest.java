@@ -42,7 +42,8 @@ public class PoissonProcessArrivalTimesTest {
 		{ new PoissonProcessArrivalTimes(60, 10, 1.3) }, /* */
 		{ new PoissonProcessArrivalTimes(60, 10, 3) }, /* */
 		{ new PoissonProcessArrivalTimes(180, 10, 3.66) }, /* */
-		{ new PoissonProcessArrivalTimes(60, 5.5, 1.46513) } });
+		{ new PoissonProcessArrivalTimes(60, 5.5, 1.46513) } /* */
+		});
 	}
 
 	@Test
@@ -55,6 +56,8 @@ public class PoissonProcessArrivalTimesTest {
 		for (int i = 0; i < 100; i++) {
 			final List<Long> list = arrivalTimesGenerator.generate(rng);
 			dynamismTest(list, expectedDynamism);
+			ascendingOrderTest(list);
+
 			// add the number of announcements
 			f.addValue(newHashSet(list).size());
 		}
@@ -74,9 +77,11 @@ public class PoissonProcessArrivalTimesTest {
 			final long seed = outer.nextLong();
 			final RandomGenerator inner = new MersenneTwister(seed);
 			final List<Long> list1 = arrivalTimesGenerator.generate(inner);
-			inner.setSeed(seed);
-			final List<Long> list2 = arrivalTimesGenerator.generate(inner);
-			assertEquals(list1, list2);
+			for (int j = 0; j < 100; j++) {
+				inner.setSeed(seed);
+				final List<Long> list2 = arrivalTimesGenerator.generate(inner);
+				assertEquals(list1, list2);
+			}
 		}
 	}
 
@@ -140,6 +145,14 @@ public class PoissonProcessArrivalTimesTest {
 		final double distDown = Math.abs(dynDown - expectedDynamism);
 		assertTrue(announcements + " " + actualDist + " " + distUp + " " + distDown, actualDist < distUp
 				&& actualDist < distDown);
+	}
+
+	static void ascendingOrderTest(List<Long> arrivalTimes) {
+		long prev = 0;
+		for (final long l : arrivalTimes) {
+			assertTrue(prev <= l);
+			prev = l;
+		}
 	}
 
 	double measureDynamism(List<Long> arrivalTimes) {
