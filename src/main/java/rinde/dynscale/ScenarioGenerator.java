@@ -3,6 +3,7 @@
  */
 package rinde.dynscale;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.math.RoundingMode;
@@ -15,7 +16,6 @@ import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPScenarioEvent;
 import rinde.sim.problem.common.AddDepotEvent;
 import rinde.sim.problem.common.AddParcelEvent;
-import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.ParcelDTO;
 import rinde.sim.problem.common.VehicleDTO;
 import rinde.sim.scenario.Scenario;
@@ -26,148 +26,195 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.math.DoubleMath;
 
 /**
+ * ScenarioGenerator generates {@link Scenario}s of a specific problem class.
+ * Instances can be obtained via {@link #builder()}.
+ * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
 public class ScenarioGenerator {
 
-	// private final long length;
-	// private final double announcements;
-	// private final double ordersPerAnnouncement;
-	// private final int vehicles;
-	// private final double size;
+    private final ArrivalTimesGenerator arrivalTimesGenerator;
+    private final LocationsGenerator locationsGenerator;
+    private final TimeWindowGenerator timeWindowGenerator;
+    private final VehicleGenerator vehicleGenerator;
 
-	private final ArrivalTimesGenerator arrivalTimesGenerator;
-	private final LocationsGenerator locationsGenerator;
-	private final TimeWindowGenerator timeWindowGenerator;
+    private final long length;
+    private final Point depotLocation;
 
-	private final int vehicles;
-	private final Point depotLocation;
-	private final long length;
+    // input:
+    // - dynamism (distribution?)
+    // - scale (factor and ratios, density?)
+    // - load
+    private ScenarioGenerator(ArrivalTimesGenerator atg, LocationsGenerator lg,
+            TimeWindowGenerator twg, VehicleGenerator vg, Point depotLoc,
+            long scenarioLength) {
+        arrivalTimesGenerator = atg;
+        locationsGenerator = lg;
+        timeWindowGenerator = twg;
+        vehicleGenerator = vg;
+        depotLocation = depotLoc;
+        length = scenarioLength;
+    }
 
-	// input:
-	// - dynamism (distribution?)
-	// - scale (factor and ratios, density?)
-	// - load
-	private ScenarioGenerator(ArrivalTimesGenerator atg, LocationsGenerator lg, TimeWindowGenerator twg,
-			int numVehicles, Point depotLoc, long scenarioLength) {
-		arrivalTimesGenerator = atg;
-		locationsGenerator = lg;
-		timeWindowGenerator = twg;
-		vehicles = numVehicles;
-		depotLocation = depotLoc;
-		length = scenarioLength;
-	}
+    public Scenario generate(RandomGenerator rng) {
+        final ImmutableList<Long> times = arrivalTimesGenerator.generate(rng);
+        final ImmutableList<Point> locations = locationsGenerator
+                .generate(times.size(), rng);
+        int index = 0;
 
-	public Scenario generate(RandomGenerator rng) {
-		final ImmutableList<Long> times = arrivalTimesGenerator.generate(rng);
-		final ImmutableList<Point> locations = locationsGenerator.generate(times.size(), rng);
-		int index = 0;
+        final ScenarioBuilder sb = new ScenarioBuilder(
+                PDPScenarioEvent.ADD_DEPOT, PDPScenarioEvent.ADD_PARCEL,
+                PDPScenarioEvent.ADD_VEHICLE);
+        sb.addEvent(new AddDepotEvent(-1, depotLocation));
+        sb.addEvents(vehicleGenerator.generate(rng));
 
-		final ScenarioBuilder sb = new ScenarioBuilder(PDPScenarioEvent.ADD_DEPOT, PDPScenarioEvent.ADD_PARCEL,
-				PDPScenarioEvent.ADD_VEHICLE);
-		sb.addEvent(new AddDepotEvent(-1, depotLocation));
+        for (final long time : times) {
+            final Point pickup = locations.get(index++);
+            final Point delivery = locations.get(index++);
+            final ImmutableList<TimeWindow> tws = timeWindowGenerator
+                    .generate(time, pickup, delivery, rng);
+            sb.addEvent(new AddParcelEvent(new ParcelDTO(pickup, delivery, tws
+                    .get(0), tws.get(1), 0, time, 5, 5)));
+        }
+        return sb.build();
+    }
 
-		// TODO move vehicles in own generator?
-		// speed, capacity,
-		for (int i = 0; i < vehicles; i++) {
-			sb.addEvent(new AddVehicleEvent(-1, new VehicleDTO(depotLocation, 40, 1, new TimeWindow(0, length))));
-		}
+    public static Builder builder() {
+        return new Builder();
+    }
 
-		for (final long time : times) {
-			final Point pickup = locations.get(index++);
-			final Point delivery = locations.get(index++);
-			final ImmutableList<TimeWindow> tws = timeWindowGenerator.generate(time, pickup, delivery, rng);
+    public static class Builder {
+        private final double vehicleSpeed = 40;
+        private final int vehicleCapacity = 1;// this is actually irrelevant
+                                              // since parcels are weightless
+        private final long minResponseTime = 30;
+        private final long serviceTime = 5;
 
-			sb.addEvent(new AddParcelEvent(new ParcelDTO(pickup, delivery, tws.get(0), tws.get(1), 0, time, 5, 5)));
-		}
-		return sb.build();
-	}
+        private int vehicles = -1;
+        private double size = -1;
+        private double announcementIntensity = -1;
+        private double ordersPerAnnouncement = -1;
+        private long scenarioLength = -1;
 
-	public static class Builder {
+        private Builder() {}
 
-		private int vehicles;
-		private double size;
-		private double announcementIntensity;
-		private double ordersPerAnnouncement;
-		private long scenarioLength;
+        public Builder setAnnouncementIntensityPerKm2(double intensity) {
+            checkArgument(intensity > 0d, "Intensity must be a positive number.");
+            announcementIntensity = intensity;
+            return this;
+        }
 
-		private Builder() {
+        public Builder setScenarioLength(long minutes) {
+            checkArgument(minutes > minResponseTime, "Scenario length must be greater than minResponseTime %s.", minResponseTime);
+            scenarioLength = minutes;
+            return this;
+        }
 
-		}
+        // avg number of orders per announcement, must be >= 1
+        public Builder setOrdersPerAnnouncement(double orders) {
+            checkArgument(orders >= 1d, "Orders per announcement must be >= 1.");
+            ordersPerAnnouncement = orders;
+            return this;
+        }
 
-		public Builder setAnnouncementIntensityPerKm2(double intensity) {
-			announcementIntensity = intensity;
-			return this;
-		}
+        // public void setMinimumResponseTime(long minutes) {
+        //
+        // }
 
-		public Builder setScenarioLength(long minutes) {
-			scenarioLength = minutes;
-			return this;
-		}
+        // note: these are averages of the entire area, this says nothing about
+        // the actual spatial distribution!
+        // num of vehicles per km2
+        // num of parcels per km2 -> results in 2*parcels service points
+        // area: size x size km
+        // note that even if the vehicle density and size is set low such that
+        // there will be only < .5 vehicles, the number of vehicles is set to 1.
+        // TODO comment about num vehicles rounding etc
+        public Builder setScale(double numVehiclesKM2, double size) {
+            checkArgument(numVehiclesKM2 > 0d, "Number of vehicles per km2 must be a positive number.");
+            checkArgument(size > 0d, "Size must be a positive number.");
+            this.size = size;
+            final double area = size * size;
+            vehicles = Math.max(1, DoubleMath
+                    .roundToInt(numVehiclesKM2 * area, RoundingMode.HALF_DOWN));
+            return this;
+        }
 
-		// avg number of orders per announcement, must be >= 1
-		public Builder setOrdersPerAnnouncement(double orders) {
-			ordersPerAnnouncement = orders;
-			return this;
-		}
+        // public void setLoad(double min, double avg, double max) {
+        //
+        // }
 
-		// public void setMinimumResponseTime(long minutes) {
-		//
-		// }
+        public ScenarioGenerator build() {
+            checkArgument(vehicles > 0 && vehicles > 0, "Cannot build generator, scale needs to be set via setScale(double,double).");
+            checkArgument(ordersPerAnnouncement > 0, "Cannot build generator, orders need to be set via setOrdersPerAnnouncement(double).");
+            checkArgument(scenarioLength > 0, "Cannot build generator, scenario length needs to be set via setScenarioLength(long).");
+            checkArgument(announcementIntensity > 0, "Cannot build generator, announcement intensity needs to be set via setAnnouncementIntensityPerKm2(double).");
 
-		// note: these are averages of the entire area, this says nothing about
-		// the actual spatial distribution!
-		// num of vehicles per km2
-		// num of parcels per km2 -> results in 2*parcels service points
-		// area: size x size km
-		public Builder setScale(double numVehiclesKM2, double size) {
-			this.size = size;
-			final double area = size * size;
-			vehicles = DoubleMath.roundToInt(numVehiclesKM2 * area, RoundingMode.HALF_DOWN);
-			return this;
-		}
+            final double area = size * size;
+            final double globalAnnouncementIntensity = area
+                    * announcementIntensity;
+            final Point depotLoc = new Point(size / 2, size / 2);
+            final Point extreme1 = new Point(0, 0);
+            final Point extreme2 = new Point(size, size);
 
-		// public void setLoad(double min, double avg, double max) {
-		//
-		// }
+            // this computes the traveltime it would take to travel from one of
+            // the corners of the environment and then to another corner of the
+            // environment and then back to the depot.
+            final long time1 = DoubleMath.roundToLong(Point
+                    .distance(extreme1, extreme2), RoundingMode.CEILING);
+            final long time2 = DoubleMath.roundToLong(Point
+                    .distance(extreme2, depotLoc), RoundingMode.CEILING);
+            final long travelTime = time1 + time2;
 
-		public ScenarioGenerator build() {
+            // this is the maximum *theoretical* time that is required to
+            // service an order. In this context, theoretical means: given
+            // enough resources (vehicles).
+            final long maxRequiredTime = minResponseTime + travelTime
+                    + (2 * serviceTime);
+            final long latestOrderAnnounceTime = scenarioLength
+                    - maxRequiredTime;
 
-			final double area = size * size;
-			// final int numAnnouncements = DoubleMath
-			// .roundToInt(area * scenarioLength * announcementIntensity,
-			// RoundingMode.HALF_DOWN);
+            // TODO this can be improved by allowing orders which are closer to
+            // the depot for a longer time. This could be implemented by simply
+            // rejecting any orders which are not feasible. This could be a
+            // reasonable company policy in case minimizing overTime is more
+            // important than customer satisfaction.
+            checkArgument(scenarioLength > maxRequiredTime, "The scenario length must be long enough such that there is enough time for a vehicle to service a pickup at one end of the environment and to service a delivery at an opposite end of the environment and be back in time at the depot.");
 
-			final double globalAnnouncementIntensity = area * announcementIntensity;
-			final Point depotLoc = new Point(size / 2, size / 2);
+            final VehicleDTO vehicleDto = new VehicleDTO(depotLoc,
+                    vehicleSpeed, vehicleCapacity, new TimeWindow(0,
+                            scenarioLength));
 
-			return new ScenarioGenerator(/* */
-			new PoissonProcessArrivalTimes(scenarioLength, globalAnnouncementIntensity, ordersPerAnnouncement), /* */
-			new NormalLocationsGenerator(size, .15, .05), /* */
-			new ProportionateUniformTWGenerator(depotLoc, scenarioLength, 5, 30, 40), /* */
-			vehicles, depotLoc, scenarioLength);
-		}
-	}
+            return new ScenarioGenerator(new PoissonProcessArrivalTimes(
+                    latestOrderAnnounceTime, globalAnnouncementIntensity,
+                    ordersPerAnnouncement),
+                    new NormalLocationsGenerator(size, .15, .05),
+                    new ProportionateUniformTWGenerator(depotLoc,
+                            scenarioLength, serviceTime, minResponseTime,
+                            vehicleSpeed),//
+                    new HomogenousVehicleGenerator(vehicles, vehicleDto),
+                    depotLoc, scenarioLength);
+        }
+    }
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		final int lambda = 33;
-		final double mean = 1d / lambda;
-		System.out.println("lambda " + lambda + " mean " + mean);
-		final ExponentialDistribution ed = new ExponentialDistribution(mean);
-		ed.reseedRandomGenerator(0);
+        final int lambda = 33;
+        final double mean = 1d / lambda;
+        System.out.println("lambda " + lambda + " mean " + mean);
+        final ExponentialDistribution ed = new ExponentialDistribution(mean);
+        ed.reseedRandomGenerator(0);
 
-		final double totalTime = 1;
-		double sum = 0;
-		final List<Double> samples = newArrayList();
-		while (sum < totalTime) {
-			final double sample = ed.sample();
-			sum += sample;
-			samples.add(sample);
-		}
-		System.out.println(samples.size());
-		System.out.println(samples);
-	}
+        final double totalTime = 1;
+        double sum = 0;
+        final List<Double> samples = newArrayList();
+        while (sum < totalTime) {
+            final double sample = ed.sample();
+            sum += sample;
+            samples.add(sample);
+        }
+        System.out.println(samples.size());
+        System.out.println(samples);
+    }
 
 }
