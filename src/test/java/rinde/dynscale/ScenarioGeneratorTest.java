@@ -31,7 +31,7 @@ public class ScenarioGeneratorTest {
             // measure dynamism
             // measure load
 
-            System.out.println(s.size());
+            System.out.println(s.size() + " " + Metrics.measureDynamism(s));
         }
 
     }
