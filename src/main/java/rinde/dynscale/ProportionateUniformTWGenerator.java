@@ -4,6 +4,7 @@
 package rinde.dynscale;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static rinde.dynscale.Metrics.travelTime;
 
 import java.math.RoundingMode;
 
@@ -46,20 +47,21 @@ public class ProportionateUniformTWGenerator implements TimeWindowGenerator {
     public ImmutableList<TimeWindow> generate(long orderAnnounceTime,
             Point pickup, Point delivery, RandomGenerator rng) {
         checkArgument(orderAnnounceTime <= endTime
-                - (minResponseTime + travelTime(pickup, delivery)
-                        + (2 * serviceTime) + travelTime(delivery, depotLocation)), "The orderAnnounceTime is infeasible.");
+                - (minResponseTime + travelTime(pickup, delivery, vehicleSpeed)
+                        + (2 * serviceTime) + travelTime(delivery, depotLocation, vehicleSpeed)), "The orderAnnounceTime is infeasible.");
 
         // largely inspired on Gendreau et al. method, but changed to ensure
-        // feasibility of all time windows.
+        // feasibility and strictness of all time windows.
         /*
          * GLOBAL
          */
+        final long intertt = travelTime(pickup, delivery, vehicleSpeed);
         final long earliestPickupStartTime = orderAnnounceTime
                 + minResponseTime;
         final long latestDeliveryEndTime = endTime
-                - (travelTime(delivery, depotLocation) + serviceTime);
+                - (travelTime(delivery, depotLocation, vehicleSpeed) + serviceTime);
         final long latestPickupEndTime = latestDeliveryEndTime
-                - (travelTime(pickup, delivery) + serviceTime);
+                - (intertt + serviceTime);
 
         /*
          * PICKUP
@@ -91,8 +93,7 @@ public class ProportionateUniformTWGenerator implements TimeWindowGenerator {
         /*
          * DELIVERY
          */
-        final long earliestDeliveryStartTime = pickLeft + serviceTime
-                + travelTime(pickup, delivery);
+        final long earliestDeliveryStartTime = pickLeft + serviceTime + intertt;
         final long middleDelivery = earliestDeliveryStartTime
                 + DoubleMath
                         .roundToLong((latestDeliveryEndTime - earliestDeliveryStartTime) / 2, RoundingMode.HALF_EVEN);
@@ -116,10 +117,8 @@ public class ProportionateUniformTWGenerator implements TimeWindowGenerator {
                 + DoubleMath
                         .roundToLong(deltaDeliver * deliverRemainingTime, RoundingMode.HALF_EVEN);
 
-        // adapt pickRight
-        if (pickRight > deliverRight - travelTime(pickup, delivery)) {
-            pickRight = deliverRight - travelTime(pickup, delivery);
-        }
+        // adapt pickRight to make it strict
+        pickRight = Math.min(pickRight, deliverRight - intertt - serviceTime);
 
         // if (deliverLeft < pickLeft + serviceTime + travelTime(pickup,
         // delivery)) {
@@ -144,10 +143,6 @@ public class ProportionateUniformTWGenerator implements TimeWindowGenerator {
      */
     static double uniform(double lb, double ub, RandomGenerator rng) {
         return lb + rng.nextDouble() * Math.abs(ub - lb);
-    }
-
-    long travelTime(Point p1, Point p2) {
-        return Metrics.travelTime(p1, p2, vehicleSpeed);
     }
 
 }
