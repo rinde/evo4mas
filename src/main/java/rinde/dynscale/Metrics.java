@@ -137,8 +137,8 @@ public final class Metrics {
         final long travelTime = travelTime(event.parcelDTO.pickupLocation, event.parcelDTO.destinationLocation, vehicleSpeed);
 
         checkArgument(event.parcelDTO.deliveryTimeWindow.begin >= firstDepartureTime
-                + travelTime);
-        checkArgument(latestDepartureTime + travelTime <= event.parcelDTO.deliveryTimeWindow.end, "The end of the pickup time window %s is too long.", event.parcelDTO.pickupTimeWindow.end);
+                + travelTime, "The begin of the delivery time window is too early.");
+        checkArgument(latestDepartureTime + travelTime <= event.parcelDTO.deliveryTimeWindow.end, "The end of the pickup time window %s is too late.", event.parcelDTO.pickupTimeWindow.end);
     }
 
     // to use for parts of the timeline to avoid excessively long list with
