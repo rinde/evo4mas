@@ -5,6 +5,7 @@ package rinde.dynscale;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
+import static rinde.dynscale.Metrics.travelTime;
 
 import java.math.RoundingMode;
 import java.util.List;
@@ -158,12 +159,10 @@ public class ScenarioGenerator {
             final Point extreme2 = new Point(size, size);
 
             // this computes the traveltime it would take to travel from one of
-            // the corners of the environment and then to another corner of the
+            // the corners of the environment to another corner of the
             // environment and then back to the depot.
-            final long time1 = DoubleMath.roundToLong(Point
-                    .distance(extreme1, extreme2), RoundingMode.CEILING);
-            final long time2 = DoubleMath.roundToLong(Point
-                    .distance(extreme2, depotLoc), RoundingMode.CEILING);
+            final long time1 = travelTime(extreme1, extreme2, vehicleSpeed);
+            final long time2 = travelTime(extreme2, depotLoc, vehicleSpeed);
             final long travelTime = time1 + time2;
 
             // this is the maximum *theoretical* time that is required to
