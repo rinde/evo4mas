@@ -80,4 +80,9 @@ public final class Metrics {
         return announcements / (double) orders;
     }
 
+    public static long travelTime(Point p1, Point p2, double speed) {
+        return DoubleMath
+                .roundToLong(Point.distance(p1, p2) / speed, RoundingMode.CEILING);
+    }
+
 }
