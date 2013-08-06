@@ -3,7 +3,9 @@ package rinde.solver.spdptw.heuristic;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
+
+import org.apache.commons.math3.random.RandomAdaptor;
+import org.apache.commons.math3.random.RandomGenerator;
 
 import rinde.solver.spdptw.SolutionObject;
 import rinde.solver.spdptw.Solver;
@@ -19,9 +21,9 @@ public class HeuristicSolver implements Solver {
     public static final int TARDINESS_WEIGHT = 1;
     private static final boolean DEBUG = true;
 
-    private final Random rand;
+    private final RandomGenerator rand;
 
-    public HeuristicSolver(Random rand) {
+    public HeuristicSolver(RandomGenerator rand) {
         this.rand = rand;
     }
 
@@ -66,7 +68,7 @@ public class HeuristicSolver implements Solver {
             int[] deliveryToPickupMap) {
         final int n = releaseDates.length;
 
-        final List<Integer> perm0 = generateFeasibleRandomPermutation(n, servicePairs, rand);
+        final List<Integer> perm0 = generateFeasibleRandomPermutation(n, servicePairs);
         final SolutionObject sol0 = construct(intListToArray(perm0), travelTime, releaseDates, dueDates, servicePairs, serviceTime);
 
         boolean improved = true;
@@ -150,7 +152,7 @@ public class HeuristicSolver implements Solver {
             int[] deliveryToPickupMap, int L, int maxIt) {
         final int n = releaseDates.length;
 
-        final List<Integer> perm0 = generateFeasibleRandomPermutation(n, servicePairs, rand);
+        final List<Integer> perm0 = generateFeasibleRandomPermutation(n, servicePairs);
         final SolutionObject sol0 = construct(intListToArray(perm0), travelTime, releaseDates, dueDates, servicePairs, serviceTime);
 
         List<Integer> current = new ArrayList<Integer>(perm0);
@@ -260,13 +262,13 @@ public class HeuristicSolver implements Solver {
      * @return
      */
     private List<Integer> generateFeasibleRandomPermutation(int n,
-            int[][] servicePairs, Random rand) {
+            int[][] servicePairs) {
 
         final List<Integer> elements = new ArrayList<Integer>();
         for (int i = 1; i < n - 1; i++) {
             elements.add(i);
         }
-        Collections.shuffle(elements, rand);
+        Collections.shuffle(elements, new RandomAdaptor(rand));
         elements.add(0, 0);
         elements.add(n - 1);
 
