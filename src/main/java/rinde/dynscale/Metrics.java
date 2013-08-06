@@ -39,16 +39,7 @@ public final class Metrics {
      *         are assumed to have load <code>0</code>.
      */
     public static ImmutableList<Double> measureLoad(Scenario s) {
-        double vehicleSpeed = -1d;
-        for (final TimedEvent te : s.asList()) {
-            if (te instanceof AddVehicleEvent) {
-                if (vehicleSpeed == -1d) {
-                    vehicleSpeed = ((AddVehicleEvent) te).vehicleDTO.speed;
-                } else {
-                    checkArgument(vehicleSpeed == ((AddVehicleEvent) te).vehicleDTO.speed);
-                }
-            }
-        }
+        final double vehicleSpeed = getVehicleSpeed(s);
         final ImmutableList.Builder<LoadPart> loadParts = ImmutableList
                 .builder();
         for (final TimedEvent te : s.asList()) {
@@ -136,7 +127,45 @@ public final class Metrics {
         return new LoadPart(st, builder.build());
     }
 
-    public static void checkStrictness(AddParcelEvent event, double vehicleSpeed) {
+    /**
+     * Checks whether the vehicles defined for the specified scenario have the
+     * same speed.
+     * @param s The {@link Scenario} to get the speed from.
+     * @return The vehicle speed if all vehicles have the same speed.
+     * @throws IllegalArgumentException if either: not all vehicles have the
+     *             same speed, or there are no vehicles.
+     */
+    public static double getVehicleSpeed(Scenario s) {
+        double vehicleSpeed = -1d;
+        for (final TimedEvent te : s.asList()) {
+            if (te instanceof AddVehicleEvent) {
+                if (vehicleSpeed == -1d) {
+                    vehicleSpeed = ((AddVehicleEvent) te).vehicleDTO.speed;
+                } else {
+                    checkArgument(vehicleSpeed == ((AddVehicleEvent) te).vehicleDTO.speed, "All vehicles are expected to have the same speed.");
+                }
+            }
+        }
+        checkArgument(vehicleSpeed > 0, "There are no vehicles in the scenario.");
+        return vehicleSpeed;
+    }
+
+    public static void checkTimeWindowStrictness(Scenario s) {
+        final double speed = getVehicleSpeed(s);
+        for (final TimedEvent te : s.asList()) {
+            if (te instanceof AddParcelEvent) {
+                Metrics.checkParcelTWStrictness((AddParcelEvent) te, speed);
+            }
+        }
+    }
+
+    /**
+     * Checks whether the TWs are not unnecessarily big.
+     * @param event
+     * @param vehicleSpeed
+     */
+    public static void checkParcelTWStrictness(AddParcelEvent event,
+            double vehicleSpeed) {
         final long firstDepartureTime = event.parcelDTO.pickupTimeWindow.begin
                 + event.parcelDTO.pickupDuration;
         final long latestDepartureTime = event.parcelDTO.pickupTimeWindow.end
