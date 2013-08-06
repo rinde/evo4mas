@@ -707,7 +707,7 @@ public class MipTest {
         solver.solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
     }
 
-    @Test
+    // @Test
     public void testNew27() {
 
         final int[][] travelTime = {
@@ -951,7 +951,7 @@ public class MipTest {
         solver.solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
     }
 
-    @Test
+    // @Test
     public void testNew34() {
         final int[][] travelTime = {
                 { 0, 437, 331, 67, 189, 51, 130, 42, 261, 375, 206, 336, 44,
@@ -1013,7 +1013,7 @@ public class MipTest {
         solver.solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
     }
 
-    // @Test
+    @Test
     public void testNew36() {
         final int[][] travelTime = {
                 { 0, 116, 238, 34, 245, 178, 380, 162, 189, 167, 279, 63 },
