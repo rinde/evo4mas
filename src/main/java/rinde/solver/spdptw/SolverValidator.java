@@ -148,10 +148,19 @@ public final class SolverValidator implements Solver {
 
         // check feasibility
         for (int i = 1; i < n; i++) {
-            final int minArrivalTime = sol.arrivalTimes[sol.route[i - 1]]
-                    + travelTime[sol.route[i - 1]][sol.route[i]]
-                    + (i > 1 ? serviceTimes[sol.route[i - 1]] : 0);
-            checkArgument(sol.arrivalTimes[sol.route[i]] >= minArrivalTime, "Route index %s, arrivalTime (%s) needs to be greater or equal to minArrivalTime (%s).", i, sol.arrivalTimes[sol.route[i]], minArrivalTime);
+            final int prev = sol.route[i - 1];
+            final int cur = sol.route[i];
+
+            // we compute the first possible arrival time for the vehicle to
+            // arrive at location i, given that it first visited location i-1
+            final int earliestArrivalTime = sol.arrivalTimes[prev]
+                    + serviceTimes[prev] + travelTime[prev][cur];
+
+            // we also have to take into account the time window
+            final int minArrivalTime = Math
+                    .max(earliestArrivalTime, releaseDates[cur]);
+
+            checkArgument(sol.arrivalTimes[cur] >= minArrivalTime, "Route index %s, arrivalTime (%s) needs to be greater or equal to minArrivalTime (%s).", i, sol.arrivalTimes[sol.route[i]], minArrivalTime);
         }
 
         /*

@@ -9,6 +9,8 @@ import static rinde.solver.spdptw.SolverValidator.wrap;
 
 import org.junit.Test;
 
+import rinde.solver.spdptw.mip.MipTest;
+
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
@@ -182,6 +184,44 @@ public class SolverValidatorTest {
         validate(new SolutionObject(new int[] { 0, 1, 2, 3 }, new int[] { 0,
                 10, 100, 108 }, 238), travelTimes, new int[4], new int[4], new int[][] {}, new int[4])
                 .toString();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateBig() {
+        final int[][] travelTime = new int[][] {
+                { 0, 132, 233, 491, 644, 513, 284, 447, 435, 255, 140, 246 },
+                { 132, 0, 168, 380, 548, 508, 228, 399, 394, 301, 161, 163 },
+                { 233, 168, 0, 276, 414, 351, 61, 232, 227, 216, 127, 35 },
+                { 491, 380, 276, 0, 185, 439, 256, 263, 282, 463, 402, 250 },
+                { 644, 548, 414, 185, 0, 427, 373, 283, 307, 555, 534, 399 },
+                { 513, 508, 351, 439, 427, 0, 297, 177, 160, 280, 376, 373 },
+                { 284, 228, 61, 256, 373, 297, 0, 172, 167, 210, 162, 77 },
+                { 447, 399, 232, 263, 283, 177, 172, 0, 25, 286, 312, 242 },
+                { 435, 394, 227, 282, 307, 160, 167, 25, 0, 265, 298, 240 },
+                { 255, 301, 216, 463, 555, 280, 210, 286, 265, 0, 141, 250 },
+                { 140, 161, 127, 402, 534, 376, 162, 312, 298, 141, 0, 155 },
+                { 246, 163, 35, 250, 399, 373, 77, 242, 240, 250, 155, 0 } };
+        final int[] releaseDates = { 0, 1245143, 1755843, 63643, 1330543,
+                711843, 1811843, 212643, 1453443, 0, 188143, 0 };
+        final int[] dueDates = { 0, 2139143, 2606143, 1758143, 2242143,
+                1968143, 2564143, 1395843, 2401143, 1843643, 2030043, 2940143 };
+        final int[][] servicePairs = { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 } };
+        final int[] serviceTimes = MipTest
+                .createServiceTimes(300, releaseDates.length);
+
+        // Route: [0, 1, 10, 9, 5, 8, 7, 4, 3, 6, 2, 11]
+        // Arrival times: [0, 132, 4384, 3467, 2982, 1614, 4023, 2399, 2074,
+        // 1034, 593, 4719]
+        // Objective: 1719
+
+        final SolutionObject sol = new SolutionObject(//
+                new int[] { 0, 1, 10, 9, 5, 8, 7, 4, 3, 6, 2, 11 }, //
+                new int[] { 0, 132, 4384, 3467, 2982, 1614, 4023, 2399, 2074,
+                        1034, 593, 4719 }, //
+                1719);
+
+        validate(sol, travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+
     }
 
     @Test
