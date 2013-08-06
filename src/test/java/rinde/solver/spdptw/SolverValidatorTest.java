@@ -221,6 +221,15 @@ public class SolverValidatorTest {
                 1719);
 
         validate(sol, travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInvalidArrivalOrder() {
+        validate(new SolutionObject(//
+                new int[] { 0, 2, 1, 3 }, // route
+                new int[] { 0, 1998, 999, 2997 }, // arrival times
+                238), // obj. value
+                travelTimes, new int[4], new int[4], new int[][] { { 1, 2 } }, new int[4]);
 
     }
 

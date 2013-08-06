@@ -1,8 +1,10 @@
 package rinde.solver.spdptw;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.DiscreteDomains;
@@ -139,6 +141,24 @@ public final class SolverValidator implements Solver {
         checkArgument(routeSet.size() == n, "Every location in route should appear exactly once.");
         // checks for completeness of tour
         checkArgument(routeSet.equals(locationSet), "Not all locations are serviced, there is probably a non-existing location in the route.");
+
+        // TODO test this
+        // check service pairs ordering, pickups shoud be visited before their
+        // corresponding delivery location
+        final Map<Integer, Integer> pairs = newHashMap();
+        for (int i = 0; i < servicePairs.length; i++) {
+            pairs.put(servicePairs[i][0], servicePairs[i][1]);
+        }
+        System.out.println(pairs);
+        final Set<Integer> seen = newHashSet();
+        for (int i = 1; i < n - 1; i++) {
+            System.out.println(sol.route[i]);
+            if (pairs.containsKey(sol.route[i])) {
+                checkArgument(!seen.contains(pairs.get(sol.route[i])), "Pickups should be visited before their corresponding deliveries. Location %s should be visited after location %s.", pairs
+                        .get(sol.route[i]), sol.route[i]);
+            }
+            seen.add(sol.route[i]);
+        }
 
         /*
          * CHECK ARRIVAL TIMES
