@@ -28,7 +28,9 @@ public interface Solver {
      *            location (soft constraint, lateness is allowed).
      * @param servicePairs n x 2 matrix of service location pairs,
      *            servicePairs[i][0] and servicePairs[i][1] specify the pickup
-     *            and delivery location respectively.
+     *            and delivery location respectively. Each location may occur at
+     *            maximum once in the matrix (either as an pickup or as a
+     *            delivery).
      * @param vehicleLocation specifies the location index where the vehicle is
      *            currently. It is assumed that when a vehicle is at a customer
      *            location, all customer interactions are done.
