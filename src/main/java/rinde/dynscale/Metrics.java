@@ -29,7 +29,15 @@ public final class Metrics {
 
     private Metrics() {}
 
-    // should return the load at every time instance of a scenario
+    /**
+     * Computes the absolute load at every time instance of the specified
+     * scenario. Load is a measure of expected vehicle utilization.
+     * @param s The {@link Scenario} to measure.
+     * @return A list of load values. The value at index <code>i</code>
+     *         indicates the load at time <code>i</code>. All values are always
+     *         <code> >= 0</code>. All time instances not included in the list
+     *         are assumed to have load <code>0</code>.
+     */
     public static ImmutableList<Double> measureLoad(Scenario s) {
         double vehicleSpeed = -1d;
         for (final TimedEvent te : s.asList()) {
