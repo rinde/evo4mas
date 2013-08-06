@@ -51,7 +51,7 @@ public final class SolverValidator implements Solver {
      * Validates the inputs for the {@link Solver}. This method checks all
      * properties as defined in
      * {@link Solver#solve(int[][], int[], int[], int[][], int[])}. If the
-     * inputs do are not correct an {@link IllegalArgumentException} is thrown.
+     * inputs are not correct an {@link IllegalArgumentException} is thrown.
      * @param travelTime Parameter as specified by
      *            {@link Solver#solve(int[][], int[], int[], int[][], int[])}.
      * @param releaseDates Parameter as specified by
