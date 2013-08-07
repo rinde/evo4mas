@@ -3,34 +3,47 @@
  */
 package rinde.solver.spdptw;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
+import org.apache.commons.math3.random.MersenneTwister;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+import org.junit.runners.Parameterized.Parameters;
 
 import rinde.ecj.GPFuncNode;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GenericFunctions;
 import rinde.ecj.Heuristic;
+import rinde.evo4mas.gendreau06.GSimulation;
+import rinde.evo4mas.gendreau06.GSimulation.Configurator;
 import rinde.evo4mas.gendreau06.GendreauContext;
-import rinde.evo4mas.gendreau06.deprecated.AuctionOptTruck;
-import rinde.evo4mas.gendreau06.deprecated.GSimulationTask;
+import rinde.evo4mas.gendreau06.Truck;
+import rinde.evo4mas.gendreau06.comm.AuctionCommModel;
+import rinde.evo4mas.gendreau06.comm.Communicator;
+import rinde.evo4mas.gendreau06.comm.RandomBidder;
+import rinde.evo4mas.gendreau06.route.SolverRoutePlanner;
+import rinde.sim.core.Simulator;
 import rinde.sim.core.graph.Point;
-import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.core.model.Model;
 import rinde.sim.problem.common.AddParcelEvent;
-import rinde.sim.problem.common.DynamicPDPTWProblem;
+import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.ObjectiveFunction;
 import rinde.sim.problem.common.ParcelDTO;
+import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
 import rinde.sim.problem.gendreau06.Gendreau06Scenario;
 import rinde.sim.problem.gendreau06.GendreauTestUtil;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
+import rinde.solver.spdptw.heuristic.HeuristicSolver;
+import rinde.solver.spdptw.mip.MipSolver;
 
 /**
  * Checks whether the objective as calculated by the simulator via
@@ -43,153 +56,174 @@ import rinde.sim.util.TimeWindow;
  * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
+@RunWith(Parameterized.class)
 public class SolverTest {
 
-	static final double EPSILON = 0.1;
+    protected final Solver solver;
 
-	static Heuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(new GPFuncNode<GendreauContext>(
-			new GenericFunctions.Constant<GendreauContext>(0d)));
+    static final double EPSILON = 0.1;
 
-	@Test
-	public void test() {
-		final Point a = new Point(0, 0);
-		final Point b = new Point(5, 5);
-		final Point c = new Point(5, 0);
-		final Point d = new Point(0, 5);
-		final List<TimedEvent> events = newArrayList();
-		events.add(newParcelEvent(a, b));
-		events.add(newParcelEvent(c, d));
+    static Heuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(
+            new GPFuncNode<GendreauContext>(
+                    new GenericFunctions.Constant<GendreauContext>(0d)));
 
-		final Gendreau06Scenario testScen = GendreauTestUtil.create(events);
-		final TestSimTask sim = new TestSimTask(testScen, false);
-		sim.run();
+    public SolverTest(Solver solver) {
+        this.solver = solver;
+    }
 
-		final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
-		assertTrue("invalid result", objFunc.isValidResult(sim.getComputationResult().stats));
-		final double simObj = objFunc.computeCost(sim.getComputationResult().stats);
-		final double solverObj = sim.truck.getSolutionObject().objectiveValue / 60.0;
+    @Parameters
+    public static Collection<Object[]> configs() {
+        return Arrays.asList(new Object[][] {//
+                { new MipSolver() },
+                        { new HeuristicSolver(new MersenneTwister(123)) } });
+    }
 
-		assertEquals(simObj, solverObj, EPSILON);
-		assertTrue("the solver should have a slightly pessimistic view on the world", solverObj > simObj);
-	}
+    @Test
+    public void test() {
+        final Point a = new Point(0, 0);
+        final Point b = new Point(5, 5);
+        final Point c = new Point(5, 0);
+        final Point d = new Point(0, 5);
+        final List<TimedEvent> events = newArrayList();
+        events.add(newParcelEvent(a, b));
+        events.add(newParcelEvent(c, d));
 
-	/**
-	 * Scenario with no tardiness.
-	 */
-	@Test
-	public void test2() {
-		// results in 10 positions -> 5 packages
-		final List<Point> points = newArrayList();
-		for (double i = 0.5; i <= 5; i += 3) {
-			for (double j = .5; j <= 5; j++) {
-				if (i % 3 != 1) {
-					points.add(new Point(i + (j * 0.1), j + (i * 0.1)));
-				}
-			}
-		}
+        final Gendreau06Scenario testScen = GendreauTestUtil.create(events);
+        final TestConfigurator tc = new TestConfigurator(solver);
+        final StatisticsDTO stats = GSimulation.simulate(testScen, tc, false);
+        assertEquals(1, tc.debuggers.size());
 
-		final List<TimedEvent> events = newArrayList();
-		for (int i = 0; i < points.size() / 2; i++) {
-			events.add(newParcelEvent(points.get(i), points.get(points.size() - 1 - i)));
-		}
-		final Gendreau06Scenario testScen = GendreauTestUtil.create(events);
-		final TestSimTask sim = new TestSimTask(testScen, false);
-		sim.run();
+        final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
+        assertTrue("invalid result", objFunc.isValidResult(stats));
+        final double simObj = objFunc.computeCost(stats);
 
-		final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
-		assertTrue(objFunc.isValidResult(sim.getComputationResult().stats));
-		final double simObj = objFunc.computeCost(sim.getComputationResult().stats);
-		final double solverObj = sim.truck.getSolutionObject().objectiveValue / 60.0;
+        final List<SolutionObject> solObjs = tc.debuggers.get(0)
+                .getOutputMemory();
+        assertEquals(1, solObjs.size());
+        final double solverObj = solObjs.get(0).objectiveValue / 60.0;
 
-		assertEquals(simObj, solverObj, EPSILON);
-		assertTrue("the solver should have a slightly pessimistic view on the world", solverObj > simObj);
-	}
+        assertEquals(simObj, solverObj, EPSILON);
+        assertTrue("the solver should have a slightly pessimistic view on the world", solverObj > simObj);
+    }
 
-	/**
-	 * Scenario where tardiness can not be avoided.
-	 */
-	@Test
-	public void test3() {
-		// results in 10 positions -> 5 packages
-		final List<Point> points = newArrayList();
-		for (double i = 0.5; i <= 5; i += 3) {
-			for (double j = .5; j <= 5; j++) {
-				if (i % 3 != 1) {
-					points.add(new Point(i + (j * 0.1), j + (i * 0.1)));
-				}
-			}
-		}
+    /**
+     * Scenario with no tardiness.
+     */
+    @Test
+    public void test2() {
+        // results in 10 positions -> 5 packages
+        final List<Point> points = newArrayList();
+        for (double i = 0.5; i <= 5; i += 3) {
+            for (double j = .5; j <= 5; j++) {
+                if (i % 3 != 1) {
+                    points.add(new Point(i + (j * 0.1), j + (i * 0.1)));
+                }
+            }
+        }
 
-		final List<TimeWindow> timeWindows = newArrayList();
-		for (int i = 0; i < 10; i++) {
-			final long startTime = i * 600000;
-			timeWindows.add(new TimeWindow(startTime, startTime + 5400000));
-		}
+        final List<TimedEvent> events = newArrayList();
+        for (int i = 0; i < points.size() / 2; i++) {
+            events.add(newParcelEvent(points.get(i), points.get(points.size()
+                    - 1 - i)));
+        }
+        final Gendreau06Scenario testScen = GendreauTestUtil.create(events);
+        final TestConfigurator tc = new TestConfigurator(solver);
+        final StatisticsDTO stats = GSimulation.simulate(testScen, tc, false);
+        assertEquals(1, tc.debuggers.size());
 
-		final List<TimedEvent> events = newArrayList();
-		for (int i = 0; i < points.size() / 2; i++) {
-			events.add(newParcelEvent(points.get(i), points.get(points.size() - 1 - i), timeWindows.get(i), timeWindows
-					.get(points.size() - 1 - i)));
-		}
-		final Gendreau06Scenario testScen = GendreauTestUtil.create(events);
-		final TestSimTask sim = new TestSimTask(testScen, false);
-		sim.run();
+        final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
+        assertTrue(objFunc.isValidResult(stats));
+        final double simObj = objFunc.computeCost(stats);
+        final List<SolutionObject> solObjs = tc.debuggers.get(0)
+                .getOutputMemory();
+        assertEquals(1, solObjs.size());
 
-		final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
-		assertTrue(objFunc.isValidResult(sim.getComputationResult().stats));
-		final double simObj = objFunc.computeCost(sim.getComputationResult().stats);
-		final double solverObj = sim.truck.getSolutionObject().objectiveValue / 60.0;
+        final double solverObj = solObjs.get(0).objectiveValue / 60.0;
+        assertEquals(simObj, solverObj, EPSILON);
+        assertTrue("the solver should have a slightly pessimistic view on the world", solverObj > simObj);
+    }
 
-		assertEquals(simObj, solverObj, EPSILON);
-		assertTrue("the solver should have a slightly pessimistic view on the world", solverObj > simObj);
-	}
+    /**
+     * Scenario where tardiness can not be avoided.
+     */
+    @Test
+    public void test3() {
+        // results in 10 positions -> 5 packages
+        final List<Point> points = newArrayList();
+        for (double i = 0.5; i <= 5; i += 3) {
+            for (double j = .5; j <= 5; j++) {
+                if (i % 3 != 1) {
+                    points.add(new Point(i + (j * 0.1), j + (i * 0.1)));
+                }
+            }
+        }
 
-	AddParcelEvent newParcelEvent(Point origin, Point destination) {
-		return new AddParcelEvent(new ParcelDTO(origin, destination, new TimeWindow(0, 3600000), new TimeWindow(
-				1800000, 5400000), 0, -1, 300000, 300000));
-	}
+        final List<TimeWindow> timeWindows = newArrayList();
+        for (int i = 0; i < 10; i++) {
+            final long startTime = i * 600000;
+            timeWindows.add(new TimeWindow(startTime, startTime + 5400000));
+        }
 
-	AddParcelEvent newParcelEvent(Point origin, Point destination, TimeWindow pickup, TimeWindow delivery) {
-		return new AddParcelEvent(new ParcelDTO(origin, destination, pickup, delivery, 0, -1, 300000, 300000));
-	}
+        final List<TimedEvent> events = newArrayList();
+        for (int i = 0; i < points.size() / 2; i++) {
+            events.add(newParcelEvent(points.get(i), points.get(points.size()
+                    - 1 - i), timeWindows.get(i), timeWindows.get(points.size()
+                    - 1 - i)));
+        }
 
-	/**
-	 * Test class for simulations with a dummy heuristic. This class is intended
-	 * to allow testing of a single vehicle.
-	 * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
-	 */
-	class TestSimTask extends GSimulationTask {
+        final Gendreau06Scenario testScen = GendreauTestUtil.create(events);
+        final TestConfigurator tc = new TestConfigurator(solver);
+        final StatisticsDTO stats = GSimulation.simulate(testScen, tc, false);
+        assertEquals(1, tc.debuggers.size());
 
-		private static final long serialVersionUID = -8787595237384109794L;
-		protected Gendreau06Scenario scenario;
-		protected AuctionOptTruck truck;
-		protected DynamicPDPTWProblem problem;
+        final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
+        assertTrue(objFunc.isValidResult(stats));
+        final double simObj = objFunc.computeCost(stats);
 
-		protected final boolean showGui;
+        final List<SolutionObject> solObjs = tc.debuggers.get(0)
+                .getOutputMemory();
+        assertEquals(1, solObjs.size());
 
-		public TestSimTask(Gendreau06Scenario scen, boolean showGui) {
-			super(null, DUMMY_HEURISTIC, -1, 1000, SolutionType.AUCTION_OPT);
-			this.showGui = showGui;
-			scenario = scen;
-		}
+        final double solverObj = solObjs.get(0).objectiveValue / 60.0;
+        assertEquals(simObj, solverObj, EPSILON);
+        assertTrue("the solver should have a slightly pessimistic view on the world", solverObj > simObj);
+    }
 
-		@Override
-		public void run() {
-			runOnScenario(scenario);
+    static AddParcelEvent newParcelEvent(Point origin, Point destination) {
+        return new AddParcelEvent(new ParcelDTO(origin, destination,
+                new TimeWindow(0, 3600000), new TimeWindow(1800000, 5400000),
+                0, -1, 300000, 300000));
+    }
 
-			final Set<AuctionOptTruck> trucks = problem.getSimulator().getModelProvider().getModel(RoadModel.class)
-					.getObjectsOfType(AuctionOptTruck.class);
-			checkState(trucks.size() == 1);
-			truck = trucks.iterator().next();
-		}
+    static AddParcelEvent newParcelEvent(Point origin, Point destination,
+            TimeWindow pickup, TimeWindow delivery) {
+        return new AddParcelEvent(new ParcelDTO(origin, destination, pickup,
+                delivery, 0, -1, 300000, 300000));
+    }
 
-		@Override
-		protected void preSimulate(DynamicPDPTWProblem p) {
-			problem = p;
-			if (showGui) {
-				problem.enableUI(new GendreauUI(problem, true, false));
-			}
-		}
+    static class TestConfigurator implements Configurator {
+        final List<SolverDebugger> debuggers;
+        final Solver solver;
 
-	}
+        public TestConfigurator(Solver solver) {
+            this.solver = solver;
+            debuggers = newArrayList();
+        }
+
+        public boolean create(Simulator sim, AddVehicleEvent event) {
+            final Communicator c = new RandomBidder(123);
+            sim.register(c);
+
+            final SolverDebugger sd = SolverDebugger.wrap(SolverValidator
+                    .wrap(solver));
+            debuggers.add(sd);
+            return sim.register(new Truck(event.vehicleDTO,
+                    new SolverRoutePlanner(sd), c));
+        }
+
+        public Model<?>[] createModels() {
+            return new Model<?>[] { new AuctionCommModel() };
+        }
+    }
+
 }
