@@ -7,7 +7,9 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.util.Arrays.asList;
 
+import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +17,7 @@ import java.util.Queue;
 
 import javax.annotation.Nullable;
 
+import rinde.sim.central.Converter;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
@@ -26,8 +29,8 @@ import rinde.solver.pdptw.SolutionObject;
 import com.google.common.primitives.Ints;
 
 /**
- * A {@link RoutePlanner} implementation that uses a {@link SingleVehicleSolver} that
- * computes a complete route each time
+ * A {@link RoutePlanner} implementation that uses a {@link SingleVehicleSolver}
+ * that computes a complete route each time
  * {@link #update(Collection, Collection, long)} is called.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
@@ -39,8 +42,8 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
     protected SolutionObject solutionObject;
 
     /**
-     * Create a route planner that uses the specified {@link SingleVehicleSolver} to compute
-     * the best route.
+     * Create a route planner that uses the specified
+     * {@link SingleVehicleSolver} to compute the best route.
      * @param s {@link SingleVehicleSolver} used for route planning.
      */
     public SolverRoutePlanner(SingleVehicleSolver s) {
@@ -79,7 +82,6 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
         final DefaultVehicle v = vehicle;
         checkState(rm != null && pm != null && v != null);
 
-        final int[][] travelTime = new int[numLocations][numLocations];
         final int[] releaseDates = new int[numLocations];
         final int[] dueDates = new int[numLocations];
         final int[][] servicePairs = new int[onMap.size()][2];
@@ -129,19 +131,22 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
         dueDates[index] = fixTWend(v.getDTO().availabilityTimeWindow.end, time);
 
         // fill the distance matrix
-        for (int i = 0; i < numLocations; i++) {
-            for (int j = 0; j < i; j++) {
-                if (i != j) {
-                    final double dist = Point
-                            .distance(locations[i], locations[j]);
-                    // travel times are ceiled
-                    final int tt = (int) Math
-                            .ceil((dist / v.getDTO().speed) * 3600.0);
-                    travelTime[i][j] = tt;
-                    travelTime[j][i] = tt;
-                }
-            }
-        }
+        // for (int i = 0; i < numLocations; i++) {
+        // for (int j = 0; j < i; j++) {
+        // if (i != j) {
+        // final double dist = Point
+        // .distance(locations[i], locations[j]);
+        // // travel times are ceiled
+        // final int tt = (int) Math
+        // .ceil((dist / v.getDTO().speed) * 3600.0);
+        // travelTime[i][j] = tt;
+        // travelTime[j][i] = tt;
+        // }
+        // }
+        // }
+
+        final int[][] travelTime = Converter
+                .toTravelTimeMatrix(asList(locations), 3600d / v.getDTO().speed, RoundingMode.CEILING);
 
         final SolutionObject sol = solver
                 .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
@@ -157,8 +162,9 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 
     /**
      * @return A copy of the {@link SolutionObject} that was used to find the
-     *         current route. Or <code>null</code> if no {@link SingleVehicleSolver} was used
-     *         to find the current route (or there is no route).
+     *         current route. Or <code>null</code> if no
+     *         {@link SingleVehicleSolver} was used to find the current route
+     *         (or there is no route).
      */
     @Nullable
     public SolutionObject getSolutionObject() {
