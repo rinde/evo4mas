@@ -19,7 +19,7 @@ public class HeuristicSolver implements Solver {
 
     public static final int TRAVEL_TIME_WEIGHT = 1;
     public static final int TARDINESS_WEIGHT = 1;
-    private static final boolean DEBUG = true;
+    private static final boolean DEBUG = false;
 
     private final RandomGenerator rand;
 
