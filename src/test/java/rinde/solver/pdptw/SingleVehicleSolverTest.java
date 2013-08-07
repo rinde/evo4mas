@@ -61,7 +61,7 @@ import rinde.solver.pdptw.single.MipSolver;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 @RunWith(Parameterized.class)
-public class SolverTest {
+public class SingleVehicleSolverTest {
 
     protected final SingleVehicleSolver solver;
 
@@ -71,7 +71,7 @@ public class SolverTest {
             new GPFuncNode<GendreauContext>(
                     new GenericFunctions.Constant<GendreauContext>(0d)));
 
-    public SolverTest(SingleVehicleSolver solver) {
+    public SingleVehicleSolverTest(SingleVehicleSolver solver) {
         this.solver = solver;
     }
 
