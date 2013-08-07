@@ -4,7 +4,7 @@
 package rinde.evo4mas.gendreau06.comm;
 
 import rinde.sim.core.model.pdp.Parcel;
-import rinde.solver.spdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SingleVehicleSolver;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

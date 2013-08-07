@@ -1,4 +1,4 @@
-package rinde.solver.spdptw;
+package rinde.solver.pdptw;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMap;

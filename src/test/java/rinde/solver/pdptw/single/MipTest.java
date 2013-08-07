@@ -1,4 +1,4 @@
-package rinde.solver.spdptw.mip;
+package rinde.solver.pdptw.single;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -7,9 +7,10 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
-import rinde.solver.spdptw.SingleVehicleSolver;
-import rinde.solver.spdptw.SolverDebugger;
-import rinde.solver.spdptw.SolverValidator;
+import rinde.solver.pdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SolverDebugger;
+import rinde.solver.pdptw.SolverValidator;
+import rinde.solver.pdptw.single.MipSolver;
 
 public class MipTest {
 

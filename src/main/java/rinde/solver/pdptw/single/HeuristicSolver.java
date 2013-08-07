@@ -1,4 +1,4 @@
-package rinde.solver.spdptw.heuristic;
+package rinde.solver.pdptw.single;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -7,11 +7,11 @@ import java.util.List;
 import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 
-import rinde.solver.spdptw.SolutionObject;
-import rinde.solver.spdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SolutionObject;
 
 /**
- * This class contains a heuristic implementation of the solver interface
+ * This class contains a heuristic implementation of the solver interface.
  * @author Tony Wauters
  * 
  */

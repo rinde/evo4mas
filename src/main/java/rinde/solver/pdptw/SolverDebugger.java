@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.solver.spdptw;
+package rinde.solver.pdptw;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.System.out;

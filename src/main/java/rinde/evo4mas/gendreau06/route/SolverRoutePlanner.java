@@ -20,8 +20,8 @@ import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.problem.common.DefaultVehicle;
-import rinde.solver.spdptw.SolutionObject;
-import rinde.solver.spdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SolutionObject;
 
 import com.google.common.primitives.Ints;
 

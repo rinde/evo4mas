@@ -3,7 +3,6 @@
  */
 package rinde.solver.pdptw;
 
-import rinde.solver.spdptw.SolutionObject;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

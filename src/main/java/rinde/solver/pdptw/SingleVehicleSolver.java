@@ -1,4 +1,4 @@
-package rinde.solver.spdptw;
+package rinde.solver.pdptw;
 
 /**
  * Interface for solvers for the single vehicle pickup-and-delivery problem with

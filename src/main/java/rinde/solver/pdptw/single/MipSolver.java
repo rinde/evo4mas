@@ -1,4 +1,4 @@
-package rinde.solver.spdptw.mip;
+package rinde.solver.pdptw.single;
 
 import ilog.concert.IloException;
 import ilog.concert.IloIntVar;
@@ -7,8 +7,8 @@ import ilog.cplex.IloCplex;
 
 import java.util.Arrays;
 
-import rinde.solver.spdptw.SolutionObject;
-import rinde.solver.spdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SolutionObject;
 
 public class MipSolver implements SingleVehicleSolver {
 

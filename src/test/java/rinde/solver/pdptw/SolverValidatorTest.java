@@ -1,15 +1,17 @@
 /**
  * 
  */
-package rinde.solver.spdptw;
+package rinde.solver.pdptw;
 
-import static rinde.solver.spdptw.SolverValidator.validate;
-import static rinde.solver.spdptw.SolverValidator.validateInputs;
-import static rinde.solver.spdptw.SolverValidator.wrap;
+import static rinde.solver.pdptw.SolverValidator.validate;
+import static rinde.solver.pdptw.SolverValidator.validateInputs;
+import static rinde.solver.pdptw.SolverValidator.wrap;
 
 import org.junit.Test;
 
-import rinde.solver.spdptw.mip.MipTest;
+import rinde.solver.pdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SolutionObject;
+import rinde.solver.pdptw.single.MipTest;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

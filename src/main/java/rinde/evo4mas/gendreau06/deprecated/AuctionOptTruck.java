@@ -23,11 +23,11 @@ import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.problem.common.VehicleDTO;
 import rinde.sim.util.fsm.State;
 import rinde.sim.util.fsm.StateMachine;
-import rinde.solver.spdptw.SolutionObject;
-import rinde.solver.spdptw.SingleVehicleSolver;
-import rinde.solver.spdptw.SolverDebugger;
-import rinde.solver.spdptw.SolverValidator;
-import rinde.solver.spdptw.mip.MipSolver;
+import rinde.solver.pdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SolutionObject;
+import rinde.solver.pdptw.SolverDebugger;
+import rinde.solver.pdptw.SolverValidator;
+import rinde.solver.pdptw.single.MipSolver;
 
 import com.google.common.primitives.Ints;
 

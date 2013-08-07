@@ -52,9 +52,9 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
 import rinde.sim.problem.gendreau06.GendreauTestUtil;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
-import rinde.solver.spdptw.SolverValidator;
-import rinde.solver.spdptw.heuristic.HeuristicSolver;
-import rinde.solver.spdptw.mip.MipSolver;
+import rinde.solver.pdptw.SolverValidator;
+import rinde.solver.pdptw.single.HeuristicSolver;
+import rinde.solver.pdptw.single.MipSolver;
 
 import com.google.common.collect.ImmutableSet;
 

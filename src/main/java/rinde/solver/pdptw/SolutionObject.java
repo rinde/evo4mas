@@ -1,4 +1,4 @@
-package rinde.solver.spdptw;
+package rinde.solver.pdptw;
 
 import java.util.Arrays;
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package rinde.solver.spdptw;
+package rinde.solver.pdptw;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.junit.Assert.assertEquals;
@@ -42,8 +42,12 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
 import rinde.sim.problem.gendreau06.GendreauTestUtil;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
-import rinde.solver.spdptw.heuristic.HeuristicSolver;
-import rinde.solver.spdptw.mip.MipSolver;
+import rinde.solver.pdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SolutionObject;
+import rinde.solver.pdptw.SolverDebugger;
+import rinde.solver.pdptw.SolverValidator;
+import rinde.solver.pdptw.single.HeuristicSolver;
+import rinde.solver.pdptw.single.MipSolver;
 
 /**
  * Checks whether the objective as calculated by the simulator via
