@@ -35,9 +35,11 @@ import com.google.common.primitives.Ints;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
+@Deprecated
 public class AuctionOptTruck extends
         AbstractHeuristicTruck<OptEvent, AuctionOptTruck> implements Bidder {
 
+    @Deprecated
     public enum OptEvent {
         DONE;
     }
