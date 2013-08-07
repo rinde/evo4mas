@@ -48,10 +48,10 @@ import rinde.solver.spdptw.mip.MipSolver;
 /**
  * Checks whether the objective as calculated by the simulator via
  * {@link Gendreau06ObjectiveFunction} is 'equal' to the objective as calculated
- * by the {@link Solver}. Note that due to the fact that the solver works with
+ * by the {@link SingleVehicleSolver}. Note that due to the fact that the solver works with
  * integers (doubles are rounded up), a discrepancy is expected. In fact, this
  * discrepancy is checked to see if the objective calculated by the
- * {@link Solver} is always worse compared to the objective calculated by the
+ * {@link SingleVehicleSolver} is always worse compared to the objective calculated by the
  * {@link Gendreau06ObjectiveFunction}.
  * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -59,7 +59,7 @@ import rinde.solver.spdptw.mip.MipSolver;
 @RunWith(Parameterized.class)
 public class SolverTest {
 
-    protected final Solver solver;
+    protected final SingleVehicleSolver solver;
 
     static final double EPSILON = 0.1;
 
@@ -67,7 +67,7 @@ public class SolverTest {
             new GPFuncNode<GendreauContext>(
                     new GenericFunctions.Constant<GendreauContext>(0d)));
 
-    public SolverTest(Solver solver) {
+    public SolverTest(SingleVehicleSolver solver) {
         this.solver = solver;
     }
 
@@ -203,9 +203,9 @@ public class SolverTest {
 
     static class TestConfigurator implements Configurator {
         final List<SolverDebugger> debuggers;
-        final Solver solver;
+        final SingleVehicleSolver solver;
 
-        public TestConfigurator(Solver solver) {
+        public TestConfigurator(SingleVehicleSolver solver) {
             this.solver = solver;
             debuggers = newArrayList();
         }

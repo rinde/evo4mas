@@ -236,12 +236,12 @@ public class SolverValidatorTest {
     @Test
     public void testWrap() {
 
-        final Solver s = wrap(new FakeSolver(new SolutionObject(new int[] { 0,
+        final SingleVehicleSolver s = wrap(new FakeSolver(new SolutionObject(new int[] { 0,
                 1, 2, 3 }, new int[] { 0, 10, 100, 108 }, 238)));
         s.solve(travelTimes, new int[4], new int[4], new int[][] {}, new int[4]);
     }
 
-    class FakeSolver implements Solver {
+    class FakeSolver implements SingleVehicleSolver {
         SolutionObject answer;
 
         FakeSolver(SolutionObject answer) {

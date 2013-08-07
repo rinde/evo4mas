@@ -8,14 +8,14 @@ import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 
 import rinde.solver.spdptw.SolutionObject;
-import rinde.solver.spdptw.Solver;
+import rinde.solver.spdptw.SingleVehicleSolver;
 
 /**
  * This class contains a heuristic implementation of the solver interface
  * @author Tony Wauters
  * 
  */
-public class HeuristicSolver implements Solver {
+public class HeuristicSolver implements SingleVehicleSolver {
 
     public static final int TRAVEL_TIME_WEIGHT = 1;
     public static final int TARDINESS_WEIGHT = 1;

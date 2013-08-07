@@ -24,7 +24,7 @@ import rinde.sim.problem.common.VehicleDTO;
 import rinde.sim.util.fsm.State;
 import rinde.sim.util.fsm.StateMachine;
 import rinde.solver.spdptw.SolutionObject;
-import rinde.solver.spdptw.Solver;
+import rinde.solver.spdptw.SingleVehicleSolver;
 import rinde.solver.spdptw.SolverDebugger;
 import rinde.solver.spdptw.SolverValidator;
 import rinde.solver.spdptw.mip.MipSolver;
@@ -47,7 +47,7 @@ public class AuctionOptTruck extends
     // TODO state machine should be simplified, this truck is mostly just
     // following its plan
 
-    protected Solver solver;
+    protected SingleVehicleSolver solver;
     protected boolean changed;
     protected Queue<Parcel> route;
     protected Set<Parcel> todo;
@@ -237,7 +237,7 @@ public class AuctionOptTruck extends
 
     /**
      * @return A copy of the {@link SolutionObject} that was used to find the
-     *         current route. Or <code>null</code> if no {@link Solver} was used
+     *         current route. Or <code>null</code> if no {@link SingleVehicleSolver} was used
      *         to find the current route (or there is no route).
      */
     public SolutionObject getSolutionObject() {

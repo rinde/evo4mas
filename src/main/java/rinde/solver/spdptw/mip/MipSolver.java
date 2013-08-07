@@ -8,9 +8,9 @@ import ilog.cplex.IloCplex;
 import java.util.Arrays;
 
 import rinde.solver.spdptw.SolutionObject;
-import rinde.solver.spdptw.Solver;
+import rinde.solver.spdptw.SingleVehicleSolver;
 
-public class MipSolver implements Solver {
+public class MipSolver implements SingleVehicleSolver {
 
     public static final int TRAVEL_TIME_WEIGHT = 1;
     public static final int TARDINESS_WEIGHT = 1;

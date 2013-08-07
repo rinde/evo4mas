@@ -13,18 +13,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A {@link Solver} wrapper that adds debugging.
+ * A {@link SingleVehicleSolver} wrapper that adds debugging.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
-public class SolverDebugger implements Solver {
+public class SolverDebugger implements SingleVehicleSolver {
 
     private final List<InputObject> inputMemory;
     private final List<SolutionObject> outputMemory;
 
-    private final Solver solver;
+    private final SingleVehicleSolver solver;
     private final boolean print;
 
-    private SolverDebugger(Solver solver, boolean print) {
+    private SolverDebugger(SingleVehicleSolver solver, boolean print) {
         this.solver = solver;
         this.print = print;
         inputMemory = newArrayList();
@@ -109,28 +109,28 @@ public class SolverDebugger implements Solver {
     }
 
     /**
-     * Wraps the specified {@link Solver} to allow easy debugging. Every
-     * invocation of {@link Solver#solve(int[][], int[], int[], int[][], int[])}
+     * Wraps the specified {@link SingleVehicleSolver} to allow easy debugging. Every
+     * invocation of {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
      * all inputs and outputs are printed to <code>System.out</code>, also all
      * inputs and outputs are stored (accessible via {@link #getInputMemory()}
      * and {@link #getOutputMemory()}.
-     * @param s The {@link Solver} to wrap.
+     * @param s The {@link SingleVehicleSolver} to wrap.
      * @return The wrapped solver.
      */
-    public static SolverDebugger wrap(Solver s) {
+    public static SolverDebugger wrap(SingleVehicleSolver s) {
         return new SolverDebugger(s, true);
     }
 
     /**
-     * Wraps the specified {@link Solver} to allow easy debugging. Stores all
+     * Wraps the specified {@link SingleVehicleSolver} to allow easy debugging. Stores all
      * invocation arguments and outputs and optionally prints them to
      * <code>System.out</code>.
-     * @param s The {@link Solver} to wrap.
+     * @param s The {@link SingleVehicleSolver} to wrap.
      * @param print If <code>true</code> all information will be printed as
      *            well.
      * @return The wrapped solver.
      */
-    public static SolverDebugger wrap(Solver s, boolean print) {
+    public static SolverDebugger wrap(SingleVehicleSolver s, boolean print) {
         return new SolverDebugger(s, print);
     }
 
@@ -140,7 +140,7 @@ public class SolverDebugger implements Solver {
 
     /**
      * Object containing a copy of the call arguments of
-     * {@link Solver#solve(int[][], int[], int[], int[][], int[])}.
+     * {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
      * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
      */
     public static class InputObject {

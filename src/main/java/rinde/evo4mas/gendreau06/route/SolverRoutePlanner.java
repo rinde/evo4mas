@@ -21,29 +21,29 @@ import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.problem.common.DefaultVehicle;
 import rinde.solver.spdptw.SolutionObject;
-import rinde.solver.spdptw.Solver;
+import rinde.solver.spdptw.SingleVehicleSolver;
 
 import com.google.common.primitives.Ints;
 
 /**
- * A {@link RoutePlanner} implementation that uses a {@link Solver} that
+ * A {@link RoutePlanner} implementation that uses a {@link SingleVehicleSolver} that
  * computes a complete route each time
  * {@link #update(Collection, Collection, long)} is called.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public class SolverRoutePlanner extends AbstractRoutePlanner {
 
-    protected final Solver solver;
+    protected final SingleVehicleSolver solver;
     protected Queue<Parcel> route;
     @Nullable
     protected SolutionObject solutionObject;
 
     /**
-     * Create a route planner that uses the specified {@link Solver} to compute
+     * Create a route planner that uses the specified {@link SingleVehicleSolver} to compute
      * the best route.
-     * @param s {@link Solver} used for route planning.
+     * @param s {@link SingleVehicleSolver} used for route planning.
      */
-    public SolverRoutePlanner(Solver s) {
+    public SolverRoutePlanner(SingleVehicleSolver s) {
         solver = s;
         route = newLinkedList();
     }
@@ -157,7 +157,7 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
 
     /**
      * @return A copy of the {@link SolutionObject} that was used to find the
-     *         current route. Or <code>null</code> if no {@link Solver} was used
+     *         current route. Or <code>null</code> if no {@link SingleVehicleSolver} was used
      *         to find the current route (or there is no route).
      */
     @Nullable
