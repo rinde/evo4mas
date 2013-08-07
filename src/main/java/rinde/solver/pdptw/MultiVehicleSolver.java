@@ -3,7 +3,6 @@
  */
 package rinde.solver.pdptw;
 
-
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
@@ -16,8 +15,10 @@ public interface MultiVehicleSolver {
      * @param dueDates
      * @param servicePairs
      * @param serviceTimes
-     * @param vehicleTravelTimes contains travel times from each vehicle to
-     *            every location
+     * @param vehicleTravelTimes <code>v x n</code> matrix, where <code>v</code>
+     *            is the number of vehicles and <code>n</code> is the number of
+     *            locations. containing travel times from each vehicle to every
+     *            location.
      * @param inventories n x 2 matrix of vehicle and location pairs.
      *            inventories[i][0] indicates the vehicle, inventories[i][1]
      *            indicates the location. Vehicles may occur more than once

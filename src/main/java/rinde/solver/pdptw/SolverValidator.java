@@ -11,10 +11,12 @@ import com.google.common.collect.DiscreteDomains;
 import com.google.common.collect.Ranges;
 
 /**
- * Provides methods for validating input to {@link SingleVehicleSolver}s and for validating
- * output from {@link SingleVehicleSolver}s. Also provides a {@link #wrap(SingleVehicleSolver)} method
- * which wraps any solver such that both inputs and outputs are validated every
- * time {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])} is called.
+ * Provides methods for validating input to {@link SingleVehicleSolver}s and for
+ * validating output from {@link SingleVehicleSolver}s. Also provides a
+ * {@link #wrap(SingleVehicleSolver)} method which wraps any solver such that
+ * both inputs and outputs are validated every time
+ * {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])} is
+ * called.
  * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
@@ -38,11 +40,12 @@ public final class SolverValidator implements SingleVehicleSolver {
     }
 
     /**
-     * Wraps the original {@link SingleVehicleSolver} such that both the inputs to the solver
-     * and the outputs from the solver are validated. When an invalid input or
-     * output is detected a {@link IllegalArgumentException is thrown}.
-     * @param delegate The {@link SingleVehicleSolver} that will be used for the actual
-     *            solving.
+     * Wraps the original {@link SingleVehicleSolver} such that both the inputs
+     * to the solver and the outputs from the solver are validated. When an
+     * invalid input or output is detected a {@link IllegalArgumentException is
+     * thrown}.
+     * @param delegate The {@link SingleVehicleSolver} that will be used for the
+     *            actual solving.
      * @return The wrapped solver.
      */
     public static SingleVehicleSolver wrap(SingleVehicleSolver delegate) {
@@ -50,20 +53,26 @@ public final class SolverValidator implements SingleVehicleSolver {
     }
 
     /**
-     * Validates the inputs for the {@link SingleVehicleSolver}. This method checks all
-     * properties as defined in
-     * {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}. If the
-     * inputs are not correct an {@link IllegalArgumentException} is thrown.
+     * Validates the inputs for the {@link SingleVehicleSolver}. This method
+     * checks all properties as defined in
+     * {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     * If the inputs are not correct an {@link IllegalArgumentException} is
+     * thrown.
      * @param travelTime Parameter as specified by
-     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            .
      * @param releaseDates Parameter as specified by
-     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            .
      * @param dueDates Parameter as specified by
-     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            .
      * @param servicePairs Parameter as specified by
-     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            .
      * @param serviceTimes Parameter as specified by
-     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            .
      */
     public static void validateInputs(int[][] travelTime, int[] releaseDates,
             int[] dueDates, int[][] servicePairs, int[] serviceTimes) {
@@ -101,24 +110,40 @@ public final class SolverValidator implements SingleVehicleSolver {
                 set.add(servicePairs[i][j]);
             }
         }
+    }
+
+    public static void validateInputs(int[][] travelTime, int[] releaseDates,
+            int[] dueDates, int[][] servicePairs, int[] serviceTimes,
+            int[][] vehicleTravelTimes, int[][] inventories,
+            int[] remainingServiceTimes) {
+
+        validateInputs(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+
+        // number of vehicles v
+        final int v = vehicleTravelTimes.length;
 
     }
 
     /**
-     * Validates the {@link SolutionObject} that is produced by a {@link SingleVehicleSolver}
-     * . If the {@link SolutionObject} is infeasible, an
-     * {@link IllegalArgumentException} is thrown.
+     * Validates the {@link SolutionObject} that is produced by a
+     * {@link SingleVehicleSolver} . If the {@link SolutionObject} is
+     * infeasible, an {@link IllegalArgumentException} is thrown.
      * @param sol The {@link SolutionObject} that is validated.
      * @param travelTime Parameter as specified by
-     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            .
      * @param releaseDates Parameter as specified by
-     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            .
      * @param dueDates Parameter as specified by
-     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            .
      * @param servicePairs Parameter as specified by
-     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            .
      * @param serviceTimes Parameter as specified by
-     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}.
+     *            {@link SingleVehicleSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            .
      * @return The solution as is supplied, used for method chaining.
      */
     public static SolutionObject validate(SolutionObject sol,
