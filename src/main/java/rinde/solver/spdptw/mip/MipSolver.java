@@ -84,7 +84,7 @@ public class MipSolver implements Solver {
             long time = System.currentTimeMillis();
             this.solve();
             time = System.currentTimeMillis() - time;
-            System.out.println("MIP Solve Time: " + time);
+            // System.out.println("MIP Solve Time: " + time);
         } catch (final IloException e) {
             e.printStackTrace();
         }

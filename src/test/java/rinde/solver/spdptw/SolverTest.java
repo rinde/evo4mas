@@ -215,7 +215,7 @@ public class SolverTest {
             sim.register(c);
 
             final SolverDebugger sd = SolverDebugger.wrap(SolverValidator
-                    .wrap(solver));
+                    .wrap(solver), false);
             debuggers.add(sd);
             return sim.register(new Truck(event.vehicleDTO,
                     new SolverRoutePlanner(sd), c));

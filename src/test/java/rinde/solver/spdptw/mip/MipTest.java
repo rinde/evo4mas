@@ -7,7 +7,6 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
-import rinde.solver.spdptw.SolutionObject;
 import rinde.solver.spdptw.Solver;
 import rinde.solver.spdptw.SolverDebugger;
 import rinde.solver.spdptw.SolverValidator;
@@ -18,7 +17,8 @@ public class MipTest {
 
     @Before
     public void setUp() {
-        solver = SolverDebugger.wrap(SolverValidator.wrap(new MipSolver()));
+        solver = SolverDebugger
+                .wrap(SolverValidator.wrap(new MipSolver()), false);
     }
 
     @Test
@@ -31,13 +31,7 @@ public class MipTest {
         final int[][] servicePairs = { { 1, 2 } };
         final int[] serviceTimes = createServiceTimes(2, 5);
 
-        final Solver mip = SolverDebugger.wrap(new MipSolver());
-        final SolutionObject solution = mip
-                .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
-        System.out.println(solution);
-
-        SolverValidator
-                .validate(solution, travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+        solver.solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
     }
 
     @Test
@@ -57,20 +51,11 @@ public class MipTest {
             }
         }
 
-        System.out.println(Arrays.deepToString(travelTime));
-
         final int[] releaseDates = { 0, 1, 2, 3, 4, 0 };
         final int[] dueDates = { 0, 8, 9, 10, 11, 15 };
         final int[][] servicePairs = { { 1, 2 }, { 3, 4 } };
         final int[] serviceTimes = createServiceTimes(2, 6);
-
-        final MipSolver mip = new MipSolver();
-        final SolutionObject solution = mip
-                .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
-        System.out.println(solution);
-
-        SolverValidator
-                .validate(solution, travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+        solver.solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
     }
 
     @Test
@@ -83,10 +68,7 @@ public class MipTest {
         final int[] dueDates = { 0, 11712, 12390, 8548, 12446, 12824000 };
         final int[][] servicePairs = { { 1, 2 }, { 3, 4 } };
         final int[] serviceTimes = createServiceTimes(300, dueDates.length);
-        final Solver mip = SolverValidator.wrap(SolverDebugger
-                .wrap(new MipSolver()));
-        final SolutionObject solution = mip
-                .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+        solver.solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
     }
 
     @Test
@@ -110,10 +92,7 @@ public class MipTest {
                 3883, 1840, 3163, 4259 };
         final int[][] servicePairs = { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 } };
         final int[] serviceTimes = createServiceTimes(300, dueDates.length);
-        final Solver mip = SolverValidator.wrap(SolverDebugger
-                .wrap(new MipSolver()));
-        final SolutionObject solution = mip
-                .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+        solver.solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
     }
 
     // takes about 27 minutes!
@@ -139,10 +118,7 @@ public class MipTest {
                 2832, 3248, 3514, 3472, 3913 };
         final int[][] servicePairs = { { 1, 2 }, { 3, 4 }, { 5, 6 } };
         final int[] serviceTimes = createServiceTimes(300, dueDates.length);
-        final Solver mip = SolverValidator.wrap(SolverDebugger
-                .wrap(new MipSolver()));
-        final SolutionObject solution = mip
-                .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+        solver.solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
     }
 
     // takes more than 2 hours!
@@ -194,10 +170,7 @@ public class MipTest {
         final int[][] servicePairs = { { 1, 2 }, { 3, 4 }, { 5, 6 }, { 7, 8 },
                 { 9, 10 }, { 11, 12 }, { 13, 14 }, { 15, 16 } };
         final int[] serviceTimes = createServiceTimes(300, dueDates.length);
-        final Solver mip = SolverValidator.wrap(SolverDebugger
-                .wrap(new MipSolver()));
-        final SolutionObject solution = mip
-                .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+        solver.solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
     }
 
     @Test
