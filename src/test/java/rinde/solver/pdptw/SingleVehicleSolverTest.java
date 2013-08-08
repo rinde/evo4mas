@@ -42,28 +42,24 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
 import rinde.sim.problem.gendreau06.GendreauTestUtil;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
-import rinde.solver.pdptw.SingleVehicleSolver;
-import rinde.solver.pdptw.SolutionObject;
-import rinde.solver.pdptw.SolverDebugger;
-import rinde.solver.pdptw.SolverValidator;
 import rinde.solver.pdptw.single.HeuristicSolver;
 import rinde.solver.pdptw.single.MipSolver;
 
 /**
  * Checks whether the objective as calculated by the simulator via
  * {@link Gendreau06ObjectiveFunction} is 'equal' to the objective as calculated
- * by the {@link SingleVehicleSolver}. Note that due to the fact that the solver works with
- * integers (doubles are rounded up), a discrepancy is expected. In fact, this
- * discrepancy is checked to see if the objective calculated by the
- * {@link SingleVehicleSolver} is always worse compared to the objective calculated by the
- * {@link Gendreau06ObjectiveFunction}.
+ * by the {@link SingleVehicleMatrixSolver}. Note that due to the fact that the
+ * solver works with integers (doubles are rounded up), a discrepancy is
+ * expected. In fact, this discrepancy is checked to see if the objective
+ * calculated by the {@link SingleVehicleMatrixSolver} is always worse compared
+ * to the objective calculated by the {@link Gendreau06ObjectiveFunction}.
  * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 @RunWith(Parameterized.class)
 public class SingleVehicleSolverTest {
 
-    protected final SingleVehicleSolver solver;
+    protected final SingleVehicleMatrixSolver solver;
 
     static final double EPSILON = 0.1;
 
@@ -71,7 +67,7 @@ public class SingleVehicleSolverTest {
             new GPFuncNode<GendreauContext>(
                     new GenericFunctions.Constant<GendreauContext>(0d)));
 
-    public SingleVehicleSolverTest(SingleVehicleSolver solver) {
+    public SingleVehicleSolverTest(SingleVehicleMatrixSolver solver) {
         this.solver = solver;
     }
 
@@ -207,9 +203,9 @@ public class SingleVehicleSolverTest {
 
     static class TestConfigurator implements Configurator {
         final List<SolverDebugger> debuggers;
-        final SingleVehicleSolver solver;
+        final SingleVehicleMatrixSolver solver;
 
-        public TestConfigurator(SingleVehicleSolver solver) {
+        public TestConfigurator(SingleVehicleMatrixSolver solver) {
             this.solver = solver;
             debuggers = newArrayList();
         }
@@ -222,7 +218,8 @@ public class SingleVehicleSolverTest {
                     .wrap(solver), false);
             debuggers.add(sd);
             return sim.register(new Truck(event.vehicleDTO,
-                    new SolverRoutePlanner(sd), c));
+                    new SolverRoutePlanner(new SingleVehicleSolverAdapter(sd)),
+                    c));
         }
 
         public Model<?>[] createModels() {

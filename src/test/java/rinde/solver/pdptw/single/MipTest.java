@@ -7,14 +7,14 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
-import rinde.solver.pdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SingleVehicleMatrixSolver;
 import rinde.solver.pdptw.SolverDebugger;
 import rinde.solver.pdptw.SolverValidator;
 import rinde.solver.pdptw.single.MipSolver;
 
 public class MipTest {
 
-    SingleVehicleSolver solver;
+    SingleVehicleMatrixSolver solver;
 
     @Before
     public void setUp() {

@@ -7,10 +7,10 @@ import ilog.cplex.IloCplex;
 
 import java.util.Arrays;
 
-import rinde.solver.pdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.SingleVehicleMatrixSolver;
 import rinde.solver.pdptw.SolutionObject;
 
-public class MipSolver implements SingleVehicleSolver {
+public class MipSolver implements SingleVehicleMatrixSolver {
 
     public static final int TRAVEL_TIME_WEIGHT = 1;
     public static final int TARDINESS_WEIGHT = 1;
