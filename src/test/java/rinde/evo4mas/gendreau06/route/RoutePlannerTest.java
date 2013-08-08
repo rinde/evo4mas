@@ -14,6 +14,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.math3.random.MersenneTwister;
@@ -35,6 +36,7 @@ import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.evo4mas.gendreau06.GendreauContextBuilder;
 import rinde.sim.core.Simulator;
 import rinde.sim.core.TimeLapse;
+import rinde.sim.core.TimeLapseFactory;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.Model;
 import rinde.sim.core.model.pdp.PDPModel;
@@ -223,6 +225,22 @@ public class RoutePlannerTest {
 
         assertEquals(1, singleOnMap.size());
         assertEquals(1, singleCargo.size());
+
+        // first deliver all parcels in cargo such that cargo is empty
+        final Iterator<Parcel> it = pdpModel.getContents(truck).iterator();
+        long time = 0;
+        while (it.hasNext()) {
+            final Parcel cur = it.next();
+            while (!roadModel.getPosition(truck).equals(cur.getDestination())) {
+                roadModel.moveTo(truck, cur.getDestination(), TimeLapseFactory
+                        .create(time, time + 1000));
+                time += 1000;
+            }
+            pdpModel.deliver(truck, cur, TimeLapseFactory
+                    .create(time, time + 10000));
+            time += 10000;
+        }
+
         routePlanner.update(singleOnMap, 0);
         assertEquals(0, routePlanner.getHistory().size());
 
