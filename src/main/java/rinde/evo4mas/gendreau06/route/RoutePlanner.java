@@ -53,77 +53,79 @@ import rinde.sim.problem.common.DefaultVehicle;
  */
 public interface RoutePlanner {
 
-	/**
-	 * Initializes the routeplanner for one specific {@link Truck} in a
-	 * {@link RoadModel} and a {@link PDPModel}.
-	 * @param rm The {@link RoadModel} which the truck is on.
-	 * @param pm The {@link PDPModel} which manages the truck.
-	 * @param dv The {@link Truck} for which routes will be planned.
-	 */
-	void init(RoadModel rm, PDPModel pm, DefaultVehicle dv);
+    /**
+     * Initializes the routeplanner for one specific {@link Truck} in a
+     * {@link RoadModel} and a {@link PDPModel}.
+     * @param rm The {@link RoadModel} which the truck is on.
+     * @param pm The {@link PDPModel} which manages the truck.
+     * @param dv The {@link Truck} for which routes will be planned.
+     */
+    void init(RoadModel rm, PDPModel pm, DefaultVehicle dv);
 
-	/**
-	 * Indicates a change in data (or sets it initially), this should update the
-	 * route. This is one of the <i>modifying</i> methods (see
-	 * {@link RoutePlanner} for more information). This method must be called
-	 * <i>after</i> {@link #init(RoadModel, PDPModel, DefaultVehicle)} and
-	 * should be called <i>before</i> any calls to {@link #next(long)}.
-	 * <p>
-	 * <b>Implementations of this method should treat the incoming collections
-	 * as immutable.</b>
-	 * @param onMap A collection of parcels which currently reside on the map.
-	 * @param inCargo A collection of parcels which currently reside in the
-	 *            truck's cargo.
-	 * @param time The current simulation time, this may be relevant for some
-	 *            routeplanners that want to take time windows into account.
-	 */
-	void update(Collection<Parcel> onMap, Collection<Parcel> inCargo, long time);
+    /**
+     * Indicates a change in data (or sets it initially), this should update the
+     * route. This is one of the <i>modifying</i> methods (see
+     * {@link RoutePlanner} for more information). This method must be called
+     * <i>after</i> {@link #init(RoadModel, PDPModel, DefaultVehicle)} and
+     * should be called <i>before</i> any calls to {@link #next(long)}.
+     * <p>
+     * <b>Implementations of this method should treat the incoming collections
+     * as immutable.</b>
+     * @param onMap A collection of parcels which currently reside on the map.
+     *            Note: this may be a <i>subset</i> of all parcels available.
+     * @param inCargo A collection of parcels which currently reside in the
+     *            truck's cargo.
+     * @param time The current simulation time, this may be relevant for some
+     *            routeplanners that want to take time windows into account.
+     */
+    void update(Collection<Parcel> onMap /* , Collection<Parcel> inCargo */,
+            long time);
 
-	/**
-	 * Should return the current parcel (the parcel that should be visited
-	 * next). Subsequent calls should always return the same destination (no
-	 * recomputation should be done). Only when one of the <i>modifying</i>
-	 * methods is called, {@link #update(Collection, Collection, long)} or
-	 * {@link #next(long)}, this method may return a different value.
-	 * @return The current parcel that should be visited next, returns
-	 *         <code>null</code> when there are no parcels to go to.
-	 */
-	@Nullable
-	Parcel current();
+    /**
+     * Should return the current parcel (the parcel that should be visited
+     * next). Subsequent calls should always return the same destination (no
+     * recomputation should be done). Only when one of the <i>modifying</i>
+     * methods is called, {@link #update(Collection, Collection, long)} or
+     * {@link #next(long)}, this method may return a different value.
+     * @return The current parcel that should be visited next, returns
+     *         <code>null</code> when there are no parcels to go to.
+     */
+    @Nullable
+    Parcel current();
 
-	/**
-	 * Indicates that the current location has been visited. Computes the next
-	 * parcel to visit. This is one of the <i>modifying</i> methods (see
-	 * {@link RoutePlanner} for more information). When called, the value of
-	 * {@link #current()} is saved into the history (see {@link #getHistory()})
-	 * and accesible via {@link #prev()}. This method will return the new value
-	 * of {@link #current()}.
-	 * @param time The current simulation time.
-	 * @return The new current parcel or <code>null</code> if there are no
-	 *         parcels to visit.
-	 */
-	@Nullable
-	Parcel next(long time);
+    /**
+     * Indicates that the current location has been visited. Computes the next
+     * parcel to visit. This is one of the <i>modifying</i> methods (see
+     * {@link RoutePlanner} for more information). When called, the value of
+     * {@link #current()} is saved into the history (see {@link #getHistory()})
+     * and accesible via {@link #prev()}. This method will return the new value
+     * of {@link #current()}.
+     * @param time The current simulation time.
+     * @return The new current parcel or <code>null</code> if there are no
+     *         parcels to visit.
+     */
+    @Nullable
+    Parcel next(long time);
 
-	/**
-	 * @return The value of {@link #current()} right before the last invocation
-	 *         of {@link #next(long)}. This is always the last value in the list
-	 *         returned by {@link #getHistory()}. Returns <code>null</code> if
-	 *         {@link #next(long)} has never been called.
-	 */
-	@Nullable
-	Parcel prev();
+    /**
+     * @return The value of {@link #current()} right before the last invocation
+     *         of {@link #next(long)}. This is always the last value in the list
+     *         returned by {@link #getHistory()}. Returns <code>null</code> if
+     *         {@link #next(long)} has never been called.
+     */
+    @Nullable
+    Parcel prev();
 
-	/**
-	 * @return A list of all visited parcels. A parcel is 'visited' when
-	 *         {@link #next(long)} is called.
-	 */
-	List<Parcel> getHistory();
+    /**
+     * @return A list of all visited parcels. A parcel is 'visited' when
+     *         {@link #next(long)} is called.
+     */
+    List<Parcel> getHistory();
 
-	/**
-	 * @return <code>false</code> if the next invocation of {@link #next(long)}
-	 *         will return <code>null</code>, returns <code>true</code>
-	 *         otherwise.
-	 */
-	boolean hasNext();
+    /**
+     * @return <code>false</code> if the next invocation of {@link #next(long)}
+     *         will return <code>null</code>, returns <code>true</code>
+     *         otherwise.
+     */
+    boolean hasNext();
 }

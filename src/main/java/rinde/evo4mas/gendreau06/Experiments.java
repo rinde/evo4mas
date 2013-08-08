@@ -27,6 +27,7 @@ import rinde.sim.core.model.Model;
 import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
+import rinde.solver.pdptw.SingleVehicleSolverAdapter;
 import rinde.solver.pdptw.SolverDebugger;
 import rinde.solver.pdptw.SolverValidator;
 import rinde.solver.pdptw.single.MipSolver;
@@ -164,8 +165,9 @@ public class Experiments {
             final Communicator c = new RandomBidder(rng.nextLong());
             sim.register(c);
             return sim.register(new Truck(event.vehicleDTO,
-                    new SolverRoutePlanner(SolverDebugger.wrap(SolverValidator
-                            .wrap(new MipSolver()))), c));
+                    new SolverRoutePlanner(new SingleVehicleSolverAdapter(
+                            SolverDebugger.wrap(SolverValidator
+                                    .wrap(new MipSolver())))), c));
         }
 
         public void setSeed(long seed) {

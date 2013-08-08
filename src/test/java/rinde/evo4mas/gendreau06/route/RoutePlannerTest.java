@@ -52,6 +52,7 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
 import rinde.sim.problem.gendreau06.GendreauTestUtil;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
+import rinde.solver.pdptw.SingleVehicleSolverAdapter;
 import rinde.solver.pdptw.SolverValidator;
 import rinde.solver.pdptw.single.HeuristicSolver;
 import rinde.solver.pdptw.single.MipSolver;
@@ -87,14 +88,15 @@ public class RoutePlannerTest {
         } }, /* */
         { new RPBuilder() {
             public RoutePlanner build() {
-                return new SolverRoutePlanner(SolverValidator
-                        .wrap(new MipSolver()));
+                return new SolverRoutePlanner(new SingleVehicleSolverAdapter(
+                        SolverValidator.wrap(new MipSolver())));
             }
         } },/* */
         { new RPBuilder() {
             public RoutePlanner build() {
-                return new SolverRoutePlanner(SolverValidator
-                        .wrap(new HeuristicSolver(new MersenneTwister(123))));
+                return new SolverRoutePlanner(new SingleVehicleSolverAdapter(
+                        SolverValidator.wrap(new HeuristicSolver(
+                                new MersenneTwister(123)))));
             }
         } }, /* */
         { new RPBuilder() {
@@ -174,7 +176,7 @@ public class RoutePlannerTest {
                 .getObjectsOfType(Parcel.class);
         final Collection<Parcel> inCargo = pdpModel.getContents(truck);
         final List<Parcel> visited = newLinkedList();
-        routePlanner.update(onMap, inCargo, 0);
+        routePlanner.update(onMap, 0);
 
         assertNull(routePlanner.prev());
         assertNotNull(routePlanner.current());
@@ -216,12 +218,12 @@ public class RoutePlannerTest {
                 .iterator().next();
         final Collection<Parcel> singleOnMap = ImmutableSet.of(mapParcel);
 
-        routePlanner.update(empty, singleCargo, 0);
+        routePlanner.update(empty, 0);
         assertNull(routePlanner.prev());
 
         assertEquals(1, singleOnMap.size());
         assertEquals(1, singleCargo.size());
-        routePlanner.update(singleOnMap, empty, 0);
+        routePlanner.update(singleOnMap, 0);
         assertEquals(0, routePlanner.getHistory().size());
 
         assertEquals(mapParcel, routePlanner.next(0));
@@ -241,7 +243,7 @@ public class RoutePlannerTest {
     // init needs to be called before update
     @Test(expected = IllegalStateException.class)
     public void testNotInitializedUpdate() {
-        routePlanner.update(null, null, 0);
+        routePlanner.update(null, 0);
     }
 
     // update needs to be called before next
@@ -255,8 +257,7 @@ public class RoutePlannerTest {
         routePlanner.init(roadModel, pdpModel, truck);
 
         final Collection<Parcel> s1 = ImmutableSet.of();
-        final Collection<Parcel> s2 = ImmutableSet.of();
-        routePlanner.update(s1, s2, 0);
+        routePlanner.update(s1, 0);
     }
 
     static Parcel createParcel(RandomGenerator rng) {

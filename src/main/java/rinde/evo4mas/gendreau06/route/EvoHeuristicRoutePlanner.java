@@ -4,6 +4,7 @@
 package rinde.evo4mas.gendreau06.route;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
 
 import java.util.Collection;
@@ -26,142 +27,149 @@ import com.google.common.collect.ImmutableSet;
  * time.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
-public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements GCBuilderReceiver {
+public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
+        GCBuilderReceiver {
 
-	protected final Heuristic<GendreauContext> heuristic;
-	protected final TimeUntilAvailable<GendreauContext> tua;
-	@Nullable
-	protected Parcel current;
-	@Nullable
-	protected GendreauContextBuilder gendreauContextBuilder;
+    protected final Heuristic<GendreauContext> heuristic;
+    protected final TimeUntilAvailable<GendreauContext> tua;
+    @Nullable
+    protected Parcel current;
+    @Nullable
+    protected GendreauContextBuilder gendreauContextBuilder;
 
-	protected Set<Parcel> onMapSet;
-	protected Set<Parcel> inCargoSet;
+    protected Set<Parcel> onMapSet;
+    protected Set<Parcel> inCargoSet;
 
-	/**
-	 * Create a new route planner using the specified {@link Heuristic}.
-	 * @param h The heuristic to use for planning routes.
-	 */
-	public EvoHeuristicRoutePlanner(Heuristic<GendreauContext> h) {
-		heuristic = h;
-		tua = new TimeUntilAvailable<GendreauContext>();
-		onMapSet = newHashSet();
-		inCargoSet = newHashSet();
-	}
+    /**
+     * Create a new route planner using the specified {@link Heuristic}.
+     * @param h The heuristic to use for planning routes.
+     */
+    public EvoHeuristicRoutePlanner(Heuristic<GendreauContext> h) {
+        heuristic = h;
+        tua = new TimeUntilAvailable<GendreauContext>();
+        onMapSet = newHashSet();
+        inCargoSet = newHashSet();
+    }
 
-	@Override
-	protected void doUpdate(Collection<Parcel> onMap, Collection<Parcel> inCargo, long time) {
-		onMapSet = newHashSet(onMap);
-		inCargoSet = newHashSet(inCargo);
-		computeCurrent(time);
-	}
+    @Override
+    protected void doUpdate(Collection<Parcel> onMap, long time) {
+        onMapSet = newHashSet(onMap);
+        checkState(pdpModel != null && vehicle != null);
+        inCargoSet = newHashSet(pdpModel.getContents(vehicle));
+        computeCurrent(time);
+    }
 
-	protected void computeCurrent(long time) {
-		final Set<Parcel> claimed = ImmutableSet.of();
-		current = nextLoop(onMapSet, claimed, inCargoSet, time);
-	}
+    protected void computeCurrent(long time) {
+        final Set<Parcel> claimed = ImmutableSet.of();
+        current = nextLoop(onMapSet, claimed, inCargoSet, time);
+    }
 
-	@Nullable
-	protected Parcel nextLoop(Collection<Parcel> todo, Set<Parcel> alreadyClaimed, Collection<Parcel> contents,
-			long time) {
-		Parcel best = null;
-		double bestValue = Double.POSITIVE_INFINITY;
+    @Nullable
+    protected Parcel nextLoop(Collection<Parcel> todo,
+            Set<Parcel> alreadyClaimed, Collection<Parcel> contents, long time) {
+        Parcel best = null;
+        double bestValue = Double.POSITIVE_INFINITY;
 
-		final GendreauContextBuilder gcb = gendreauContextBuilder;
-		if (gcb == null) {
-			throw new RuntimeException("GendreauContextBuilder has not been set via #receive(GendreauContextBuilder)");
-		}
-		gcb.initRepeatedUsage(time);
+        final GendreauContextBuilder gcb = gendreauContextBuilder;
+        if (gcb == null) {
+            throw new RuntimeException(
+                    "GendreauContextBuilder has not been set via #receive(GendreauContextBuilder)");
+        }
+        gcb.initRepeatedUsage(time);
 
-		final StringBuilder sb = new StringBuilder();
-		for (final Parcel p : todo) {
-			// filter out the already claimed parcels
-			if (!alreadyClaimed.contains(p)) {
-				final GendreauContext gc = gcb.buildInRepetition(p, false, false);
-				@SuppressWarnings("null")
-				final double res = tua.execute(null, gc);
+        final StringBuilder sb = new StringBuilder();
+        for (final Parcel p : todo) {
+            // filter out the already claimed parcels
+            if (!alreadyClaimed.contains(p)) {
+                final GendreauContext gc = gcb
+                        .buildInRepetition(p, false, false);
+                @SuppressWarnings("null")
+                final double res = tua.execute(null, gc);
 
-				// TODO this should be a differnt value? similar to isEarly
-				if (res < 1000) {
-					final double v = heuristic.compute(gc);
+                // TODO this should be a differnt value? similar to isEarly
+                if (res < 1000) {
+                    final double v = heuristic.compute(gc);
 
-					sb.append(p).append(" ").append(v).append("\n");
-					if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
-						best = p;
-						bestValue = v;
-					}
-				}
-			}
-		}
-		// if (best == null) {
-		// System.err.println(sb.toString());
-		// System.err.println(bestValue);
-		// }
-		for (final Parcel p : contents) {
+                    sb.append(p).append(" ").append(v).append("\n");
+                    if (v < bestValue
+                            || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
+                        best = p;
+                        bestValue = v;
+                    }
+                }
+            }
+        }
+        // if (best == null) {
+        // System.err.println(sb.toString());
+        // System.err.println(bestValue);
+        // }
+        for (final Parcel p : contents) {
 
-			final GendreauContext gc = gcb.buildInRepetition(p, true, false);
+            final GendreauContext gc = gcb.buildInRepetition(p, true, false);
 
-			final double v = heuristic.compute(gc);
-			if (v < bestValue || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
-				best = p;
-				bestValue = v;
-			}
-		}
-		if (best == null) {
-			// System.out.println("todo: " + todo + "\ncontents: " + contents +
-			// "\nclaimed: " + alreadyClaimed);
-		}
+            final double v = heuristic.compute(gc);
+            if (v < bestValue
+                    || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
+                best = p;
+                bestValue = v;
+            }
+        }
+        if (best == null) {
+            // System.out.println("todo: " + todo + "\ncontents: " + contents +
+            // "\nclaimed: " + alreadyClaimed);
+        }
 
-		return best;
-	}
+        return best;
+    }
 
-	/*
-	 * protected GendreauContext createContext(GendreauContext gc, Parcel p,
-	 * boolean isInCargo, boolean isAssignedToVehicle) { final int numWaiters =
-	 * 0;// isInCargo ? // coordinationModel.getNumWaitersFor(p) : 0 return new
-	 * GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents,
-	 * ((DefaultParcel) p).dto, gc.time, isInCargo, isAssignedToVehicle,
-	 * numWaiters, gc.otherVehiclePositions, new HashSet<Parcel>()); } protected
-	 * GendreauContext createGenericContext(long time) { final
-	 * Collection<Parcel> contents = pdpModel.getContents(truck); final
-	 * List<Point> positions = newArrayList(); final Set<Vehicle> vehicles =
-	 * pdpModel.getVehicles(); for (final Vehicle v : vehicles) { if (v !=
-	 * truck) { positions.add(roadModel.getPosition(v)); } } return new
-	 * GendreauContext(truck.getDTO(), roadModel.getPosition(truck),
-	 * convert(contents), null, time, false, false, -1, positions, new
-	 * HashSet<Parcel>()); } protected static Set<ParcelDTO>
-	 * convert(Collection<Parcel> parcels) { final Set<ParcelDTO> dtos =
-	 * newLinkedHashSet(); for (final Parcel p : parcels) {
-	 * dtos.add(((DefaultParcel) p).dto); } return dtos; }
-	 */
+    /*
+     * protected GendreauContext createContext(GendreauContext gc, Parcel p,
+     * boolean isInCargo, boolean isAssignedToVehicle) { final int numWaiters =
+     * 0;// isInCargo ? // coordinationModel.getNumWaitersFor(p) : 0 return new
+     * GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents,
+     * ((DefaultParcel) p).dto, gc.time, isInCargo, isAssignedToVehicle,
+     * numWaiters, gc.otherVehiclePositions, new HashSet<Parcel>()); } protected
+     * GendreauContext createGenericContext(long time) { final
+     * Collection<Parcel> contents = pdpModel.getContents(truck); final
+     * List<Point> positions = newArrayList(); final Set<Vehicle> vehicles =
+     * pdpModel.getVehicles(); for (final Vehicle v : vehicles) { if (v !=
+     * truck) { positions.add(roadModel.getPosition(v)); } } return new
+     * GendreauContext(truck.getDTO(), roadModel.getPosition(truck),
+     * convert(contents), null, time, false, false, -1, positions, new
+     * HashSet<Parcel>()); } protected static Set<ParcelDTO>
+     * convert(Collection<Parcel> parcels) { final Set<ParcelDTO> dtos =
+     * newLinkedHashSet(); for (final Parcel p : parcels) {
+     * dtos.add(((DefaultParcel) p).dto); } return dtos; }
+     */
 
-	public boolean hasNext() {
-		return !isUpdated() ? false : !(onMapSet.isEmpty() && inCargoSet.isEmpty());
-	}
+    public boolean hasNext() {
+        return !isUpdated() ? false : !(onMapSet.isEmpty() && inCargoSet
+                .isEmpty());
+    }
 
-	@Nullable
-	public Parcel current() {
-		return current;
-	}
+    @Nullable
+    public Parcel current() {
+        return current;
+    }
 
-	@Override
-	protected void nextImpl(long time) {
-		if (current() == null) {
-			return;
-		}
-		// current should exist in exactly one of the sets
-		checkArgument(onMapSet.contains(current) ^ inCargoSet.contains(current), "current: %s should exist in one of the sets", current);
-		if (onMapSet.contains(current)) {
-			inCargoSet.add(current);
-			onMapSet.remove(current);
-		} else {
-			inCargoSet.remove(current);
-		}
-		computeCurrent(time);
-	}
+    @Override
+    protected void nextImpl(long time) {
+        if (current() == null) {
+            return;
+        }
+        // current should exist in exactly one of the sets
+        checkArgument(onMapSet.contains(current) ^ inCargoSet.contains(current), "current: %s should exist in one of the sets", current);
+        if (onMapSet.contains(current)) {
+            inCargoSet.add(current);
+            onMapSet.remove(current);
+        } else {
+            inCargoSet.remove(current);
+        }
+        computeCurrent(time);
+    }
 
-	public void receive(GendreauContextBuilder gcb) {
-		gendreauContextBuilder = gcb;
+    public void receive(GendreauContextBuilder gcb) {
+        gendreauContextBuilder = gcb;
 
-	}
+    }
 }

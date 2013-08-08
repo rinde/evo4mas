@@ -25,93 +25,93 @@ import rinde.sim.problem.common.DefaultVehicle;
  */
 public abstract class AbstractRoutePlanner implements RoutePlanner {
 
-	private final List<Parcel> history;
-	private boolean initialized;
-	private boolean updated;
+    private final List<Parcel> history;
+    private boolean initialized;
+    private boolean updated;
 
-	@Nullable
-	protected RoadModel roadModel;
-	@Nullable
-	protected PDPModel pdpModel;
-	@Nullable
-	protected DefaultVehicle vehicle;
+    @Nullable
+    protected RoadModel roadModel;
+    @Nullable
+    protected PDPModel pdpModel;
+    @Nullable
+    protected DefaultVehicle vehicle;
 
-	protected AbstractRoutePlanner() {
-		history = newArrayList();
-	}
+    protected AbstractRoutePlanner() {
+        history = newArrayList();
+    }
 
-	public void init(RoadModel rm, PDPModel pm, DefaultVehicle dv) {
-		checkState(!isInitialized(), "init shoud be called only once");
-		initialized = true;
-		roadModel = rm;
-		pdpModel = pm;
-		vehicle = dv;
-	}
+    public void init(RoadModel rm, PDPModel pm, DefaultVehicle dv) {
+        checkState(!isInitialized(), "init shoud be called only once");
+        initialized = true;
+        roadModel = rm;
+        pdpModel = pm;
+        vehicle = dv;
+    }
 
-	public final void update(Collection<Parcel> onMap, Collection<Parcel> inCargo, long time) {
-		checkState(isInitialized(), "RoutePlanner should be initialized before it can be used, see init()");
-		updated = true;
-		doUpdate(onMap, inCargo, time);
-	}
+    public final void update(Collection<Parcel> onMap, long time) {
+        checkState(isInitialized(), "RoutePlanner should be initialized before it can be used, see init()");
+        updated = true;
+        doUpdate(onMap, time);
+    }
 
-	/**
-	 * Should implement functionality of
-	 * {@link #update(Collection, Collection, long)} according to the interface.
-	 * It can be assumed that hte method is allowed to be called (i.e. the route
-	 * planner is initialized).
-	 * @param onMap A collection of parcels which currently reside on the map.
-	 * @param inCargo A collection of parcels which currently reside in the
-	 *            truck's cargo.
-	 * @param time The current simulation time, this may be relevant for some
-	 *            routeplanners that want to take time windows into account.
-	 * @see #doUpdate(Collection, Collection, long)
-	 */
-	protected abstract void doUpdate(Collection<Parcel> onMap, Collection<Parcel> inCargo, long time);
+    /**
+     * Should implement functionality of
+     * {@link #update(Collection, Collection, long)} according to the interface.
+     * It can be assumed that hte method is allowed to be called (i.e. the route
+     * planner is initialized).
+     * @param onMap A collection of parcels which currently reside on the map.
+     * @param inCargo A collection of parcels which currently reside in the
+     *            truck's cargo.
+     * @param time The current simulation time, this may be relevant for some
+     *            routeplanners that want to take time windows into account.
+     * @see #doUpdate(Collection, Collection, long)
+     */
+    protected abstract void doUpdate(Collection<Parcel> onMap, long time);
 
-	@Nullable
-	public final Parcel next(long time) {
-		checkState(isInitialized(), "RoutePlanner should be initialized before it can be used, see init()");
-		checkState(updated, "RoutePlanner should be udpated before it can be used, see update()");
-		history.add(current());
-		nextImpl(time);
-		return current();
-	}
+    @Nullable
+    public final Parcel next(long time) {
+        checkState(isInitialized(), "RoutePlanner should be initialized before it can be used, see init()");
+        checkState(updated, "RoutePlanner should be udpated before it can be used, see update()");
+        history.add(current());
+        nextImpl(time);
+        return current();
+    }
 
-	/**
-	 * Should implement functionality of {@link #next(long)} according to the
-	 * interface. It can be assumed that the method is allowed to be called
-	 * (i.e. the route planner is initialized and has been updated at least
-	 * once).
-	 * @param time The current time.
-	 */
-	protected abstract void nextImpl(long time);
+    /**
+     * Should implement functionality of {@link #next(long)} according to the
+     * interface. It can be assumed that the method is allowed to be called
+     * (i.e. the route planner is initialized and has been updated at least
+     * once).
+     * @param time The current time.
+     */
+    protected abstract void nextImpl(long time);
 
-	@Nullable
-	public Parcel prev() {
-		if (history.isEmpty()) {
-			return null;
-		}
-		return history.get(history.size() - 1);
-	}
+    @Nullable
+    public Parcel prev() {
+        if (history.isEmpty()) {
+            return null;
+        }
+        return history.get(history.size() - 1);
+    }
 
-	public List<Parcel> getHistory() {
-		return unmodifiableList(history);
-	}
+    public List<Parcel> getHistory() {
+        return unmodifiableList(history);
+    }
 
-	/**
-	 * @return <code>true</code> if the routeplanner is already initialized,
-	 *         <code>false</code> otherwise.
-	 */
-	protected boolean isInitialized() {
-		return initialized;
-	}
+    /**
+     * @return <code>true</code> if the routeplanner is already initialized,
+     *         <code>false</code> otherwise.
+     */
+    protected boolean isInitialized() {
+        return initialized;
+    }
 
-	/**
-	 * @return <code>true</code> if the routeplanner has been updated at least
-	 *         once, <code>false</code> otherwise.
-	 */
-	protected boolean isUpdated() {
-		return updated;
-	}
+    /**
+     * @return <code>true</code> if the routeplanner has been updated at least
+     *         once, <code>false</code> otherwise.
+     */
+    protected boolean isUpdated() {
+        return updated;
+    }
 
 }
