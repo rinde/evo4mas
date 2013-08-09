@@ -13,25 +13,25 @@ import javax.annotation.Nullable;
 
 import rinde.sim.central.Converter;
 import rinde.sim.problem.common.DefaultParcel;
-import rinde.solver.pdptw.Solver;
 import rinde.solver.pdptw.SolutionObject;
+import rinde.solver.pdptw.Solver;
 
 /**
- * A {@link RoutePlanner} implementation that uses a {@link Solver}
- * that computes a complete route each time {@link #update(Collection, long)} is
+ * A {@link RoutePlanner} implementation that uses a {@link Solver} that
+ * computes a complete route each time {@link #update(Collection, long)} is
  * called.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public class SolverRoutePlanner extends AbstractRoutePlanner {
 
     protected final Solver solver;
-    protected Queue<DefaultParcel> route;
+    protected Queue<? extends DefaultParcel> route;
     @Nullable
     protected SolutionObject solutionObject;
 
     /**
-     * Create a route planner that uses the specified
-     * {@link Solver} to compute the best route.
+     * Create a route planner that uses the specified {@link Solver} to compute
+     * the best route.
      * @param s {@link Solver} used for route planning.
      */
     public SolverRoutePlanner(Solver s) {
@@ -42,8 +42,9 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
     @Override
     protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
         checkState(roadModel != null && pdpModel != null && vehicle != null);
-        route = solver.solve(Converter
-                .convert(roadModel, pdpModel, vehicle, onMap, time));
+        route = solver
+                .solve(Converter.convert(roadModel, pdpModel, vehicle, onMap, time))
+                .iterator().next();
     }
 
     public boolean hasNext() {
