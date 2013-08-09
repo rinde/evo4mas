@@ -10,6 +10,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.measure.unit.SI;
+
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
@@ -167,7 +169,7 @@ public class Experiments {
             return sim.register(new Truck(event.vehicleDTO,
                     new SolverRoutePlanner(new SingleVehicleSolverAdapter(
                             SolverDebugger.wrap(SolverValidator
-                                    .wrap(new MipSolver())))), c));
+                                    .wrap(new MipSolver())), SI.SECOND)), c));
         }
 
         public void setSeed(long seed) {

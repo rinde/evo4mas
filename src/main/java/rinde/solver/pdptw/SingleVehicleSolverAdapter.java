@@ -4,24 +4,22 @@
 package rinde.solver.pdptw;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import static com.google.common.collect.Lists.newLinkedList;
-import static com.google.common.collect.Maps.newHashMap;
-import static java.util.Arrays.asList;
 
 import java.math.RoundingMode;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.LinkedList;
 import java.util.Queue;
 
-import rinde.sim.central.Converter;
+import javax.measure.quantity.Duration;
+import javax.measure.unit.Unit;
+
 import rinde.sim.central.GlobalStateObject;
 import rinde.sim.central.GlobalStateObject.VehicleState;
-import rinde.sim.core.graph.Point;
 import rinde.sim.problem.common.DefaultParcel;
+import rinde.solver.pdptw.ArraysSolvers.ArraysObject;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.math.DoubleMath;
 import com.google.common.primitives.Ints;
 
@@ -34,13 +32,17 @@ import com.google.common.primitives.Ints;
 public class SingleVehicleSolverAdapter implements Solver {
 
     private final SingleVehicleArraysSolver solver;
+    private final Unit<Duration> outputTimeUnit;
 
-    public SingleVehicleSolverAdapter(SingleVehicleArraysSolver solver) {
+    public SingleVehicleSolverAdapter(SingleVehicleArraysSolver solver,
+            Unit<Duration> outputTimeUnit) {
         this.solver = solver;
+        this.outputTimeUnit = outputTimeUnit;
     }
 
-    public Queue<DefaultParcel> solve(GlobalStateObject state) {
-        checkArgument(state.vehicles.size() == 1);
+    public ImmutableList<? extends Queue<? extends DefaultParcel>> solve(
+            GlobalStateObject state) {
+        checkArgument(state.vehicles.size() == 1, "This solver can only deal with one vehicle.");
 
         final VehicleState v = state.vehicles.iterator().next();
         checkArgument(v.remainingServiceTime == 0, "This solver can not deal with remaining service time, it should be 0, it was %s.", v.remainingServiceTime);
@@ -53,8 +55,7 @@ public class SingleVehicleSolverAdapter implements Solver {
 
         if (numLocations == 2) {
             // there are no orders
-            // route.clear();
-            return newLinkedList();
+            return ImmutableList.of(new LinkedList<DefaultParcel>());
         } else if (state.availableParcels.size() + inCargo.size() == 1) {
             // if there is only one order, the solution is trivial
             if (!state.availableParcels.isEmpty()) {
@@ -62,74 +63,23 @@ public class SingleVehicleSolverAdapter implements Solver {
                 // for delivery)
                 final Queue<DefaultParcel> route = newLinkedList(state.availableParcels);
                 route.addAll(state.availableParcels);
-                return route;
+                return ImmutableList.of(route);
             } // else
-            return newLinkedList(inCargo);
+            return ImmutableList.of(new LinkedList<DefaultParcel>(inCargo));
         }
         // else, we are going to look for the optimal solution
 
-        final int[] releaseDates = new int[numLocations];
-        final int[] dueDates = new int[numLocations];
-        final int[][] servicePairs = new int[state.availableParcels.size()][2];
-        final int[] serviceTimes = new int[numLocations];
+        final ArraysObject ao = ArraysSolvers.toArrays(state, outputTimeUnit);
 
-        final Map<Point, DefaultParcel> point2parcel = newHashMap();
-        final Point[] locations = new Point[numLocations];
-        locations[0] = v.location;
-
-        int index = 1;
-        int spIndex = 0;
-        for (final DefaultParcel p : state.availableParcels) {
-            // add pickup location and time window
-            locations[index] = p.dto.pickupLocation;
-            point2parcel.put(locations[index], p);
-            releaseDates[index] = fixTWstart(p.getPickupTimeWindow().begin, state.time);
-            dueDates[index] = fixTWend(p.getPickupTimeWindow().end, state.time);
-            serviceTimes[index] = Ints
-                    .checkedCast(p.getPickupDuration() / 1000);
-
-            // link the pair with its delivery location (see next loop)
-            servicePairs[spIndex++] = new int[] { index,
-                    index + state.availableParcels.size() };
-
-            index++;
-        }
-        checkState(spIndex == state.availableParcels.size(), "%s %s", state.availableParcels
-                .size(), spIndex);
-
-        final List<DefaultParcel> deliveries = newArrayListWithCapacity(state.availableParcels
-                .size() + inCargo.size());
-        deliveries.addAll(state.availableParcels);
-        deliveries.addAll(inCargo);
-        for (final DefaultParcel p : deliveries) {
-            serviceTimes[index] = Ints
-                    .checkedCast(p.getDeliveryDuration() / 1000);
-
-            locations[index] = p.getDestination();
-            point2parcel.put(locations[index], p);
-            releaseDates[index] = fixTWstart(p.getDeliveryTimeWindow().begin, state.time);
-            dueDates[index] = fixTWend(p.getDeliveryTimeWindow().end, state.time);
-            index++;
-        }
-        checkState(index == numLocations - 1);
-
-        // the start position of the truck is the depot
-        locations[index] = v.vehicle.getDTO().startPosition;
-        // end of the day
-        dueDates[index] = fixTWend(v.vehicle.getDTO().availabilityTimeWindow.end, state.time);
-
-        final int[][] travelTime = Converter
-                .toTravelTimeMatrix(asList(locations), 3600 / v.vehicle
-                        .getSpeed(), RoundingMode.CEILING);
         final SolutionObject sol = solver
-                .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+                .solve(ao.travelTime, ao.releaseDates, ao.dueDates, ao.servicePairs, ao.serviceTimes);
 
         final Queue<DefaultParcel> newRoute = newLinkedList();
         // ignore first (current pos) and last (depot)
         for (int i = 1; i < sol.route.length - 1; i++) {
-            newRoute.add(point2parcel.get(locations[sol.route[i]]));
+            newRoute.add(ao.point2parcel.get(ao.locations.get(sol.route[i])));
         }
-        return newRoute;
+        return ImmutableList.of(newRoute);
     }
 
     static int fixTWstart(long start, long time) {

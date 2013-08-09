@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.Queue;
 
 import javax.annotation.Nullable;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
 
 import rinde.sim.central.Converter;
 import rinde.sim.problem.common.DefaultParcel;
@@ -43,7 +45,8 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
     protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
         checkState(roadModel != null && pdpModel != null && vehicle != null);
         route = solver
-                .solve(Converter.convert(roadModel, pdpModel, vehicle, onMap, time))
+                .solve(Converter.convert(roadModel, pdpModel, vehicle, onMap, time, SI
+                        .MILLI(SI.SECOND), NonSI.KILOMETERS_PER_HOUR, SI.KILOMETER))
                 .iterator().next();
     }
 

@@ -11,6 +11,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import javax.measure.quantity.Duration;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+
 import org.apache.commons.math3.random.MersenneTwister;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,7 +93,7 @@ public class SingleVehicleSolverTest {
         events.add(newParcelEvent(c, d));
 
         final Gendreau06Scenario testScen = GendreauTestUtil.create(events);
-        final TestConfigurator tc = new TestConfigurator(solver);
+        final TestConfigurator tc = new TestConfigurator(solver, SI.SECOND);
         final StatisticsDTO stats = GSimulation.simulate(testScen, tc, false);
         assertEquals(1, tc.debuggers.size());
 
@@ -127,7 +131,7 @@ public class SingleVehicleSolverTest {
                     - 1 - i)));
         }
         final Gendreau06Scenario testScen = GendreauTestUtil.create(events);
-        final TestConfigurator tc = new TestConfigurator(solver);
+        final TestConfigurator tc = new TestConfigurator(solver, SI.SECOND);
         final StatisticsDTO stats = GSimulation.simulate(testScen, tc, false);
         assertEquals(1, tc.debuggers.size());
 
@@ -172,7 +176,7 @@ public class SingleVehicleSolverTest {
         }
 
         final Gendreau06Scenario testScen = GendreauTestUtil.create(events);
-        final TestConfigurator tc = new TestConfigurator(solver);
+        final TestConfigurator tc = new TestConfigurator(solver, SI.SECOND);
         final StatisticsDTO stats = GSimulation.simulate(testScen, tc, false);
         assertEquals(1, tc.debuggers.size());
 
@@ -204,9 +208,12 @@ public class SingleVehicleSolverTest {
     static class TestConfigurator implements Configurator {
         final List<SolverDebugger> debuggers;
         final SingleVehicleArraysSolver solver;
+        final Unit<Duration> timeUnit;
 
-        public TestConfigurator(SingleVehicleArraysSolver solver) {
+        public TestConfigurator(SingleVehicleArraysSolver solver,
+                Unit<Duration> timeUnit) {
             this.solver = solver;
+            this.timeUnit = timeUnit;
             debuggers = newArrayList();
         }
 
@@ -218,8 +225,8 @@ public class SingleVehicleSolverTest {
                     .wrap(solver), false);
             debuggers.add(sd);
             return sim.register(new Truck(event.vehicleDTO,
-                    new SolverRoutePlanner(new SingleVehicleSolverAdapter(sd)),
-                    c));
+                    new SolverRoutePlanner(new SingleVehicleSolverAdapter(sd,
+                            timeUnit)), c));
         }
 
         public Model<?>[] createModels() {

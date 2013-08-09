@@ -3,6 +3,7 @@
  */
 package rinde.solver.pdptw;
 
+import java.util.List;
 import java.util.Queue;
 
 import rinde.sim.central.GlobalStateObject;
@@ -14,6 +15,6 @@ import rinde.sim.problem.common.DefaultParcel;
  */
 public interface Solver {
 
-    Queue<DefaultParcel> solve(GlobalStateObject state);
+    List<? extends Queue<? extends DefaultParcel>> solve(GlobalStateObject state);
 
 }

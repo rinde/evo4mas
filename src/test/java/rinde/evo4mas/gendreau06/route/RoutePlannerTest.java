@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.measure.unit.NonSI;
+
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 import org.junit.Before;
@@ -91,14 +93,14 @@ public class RoutePlannerTest {
         { new RPBuilder() {
             public RoutePlanner build() {
                 return new SolverRoutePlanner(new SingleVehicleSolverAdapter(
-                        SolverValidator.wrap(new MipSolver())));
+                        SolverValidator.wrap(new MipSolver()), NonSI.MINUTE));
             }
         } },/* */
         { new RPBuilder() {
             public RoutePlanner build() {
                 return new SolverRoutePlanner(new SingleVehicleSolverAdapter(
                         SolverValidator.wrap(new HeuristicSolver(
-                                new MersenneTwister(123)))));
+                                new MersenneTwister(123))), NonSI.MINUTE));
             }
         } }, /* */
         { new RPBuilder() {
