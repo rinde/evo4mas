@@ -43,6 +43,7 @@ public class SingleVehicleSolverAdapter implements Solver {
         checkArgument(state.vehicles.size() == 1);
 
         final VehicleState v = state.vehicles.iterator().next();
+        checkArgument(v.remainingServiceTime == 0, "This solver can not deal with remaining service time, it should be 0, it was %s.", v.remainingServiceTime);
         final Collection<DefaultParcel> inCargo = v.contents;
 
         // there are always two locations: the current vehicle location and
