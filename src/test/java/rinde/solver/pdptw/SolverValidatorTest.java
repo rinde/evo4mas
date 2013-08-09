@@ -9,7 +9,7 @@ import static rinde.solver.pdptw.SolverValidator.wrap;
 
 import org.junit.Test;
 
-import rinde.solver.pdptw.SingleVehicleMatrixSolver;
+import rinde.solver.pdptw.SingleVehicleArraysSolver;
 import rinde.solver.pdptw.SolutionObject;
 import rinde.solver.pdptw.single.MipTest;
 
@@ -238,12 +238,12 @@ public class SolverValidatorTest {
     @Test
     public void testWrap() {
 
-        final SingleVehicleMatrixSolver s = wrap(new FakeSolver(new SolutionObject(new int[] { 0,
+        final SingleVehicleArraysSolver s = wrap(new FakeSolver(new SolutionObject(new int[] { 0,
                 1, 2, 3 }, new int[] { 0, 10, 100, 108 }, 238)));
         s.solve(travelTimes, new int[4], new int[4], new int[][] {}, new int[4]);
     }
 
-    class FakeSolver implements SingleVehicleMatrixSolver {
+    class FakeSolver implements SingleVehicleArraysSolver {
         SolutionObject answer;
 
         FakeSolver(SolutionObject answer) {

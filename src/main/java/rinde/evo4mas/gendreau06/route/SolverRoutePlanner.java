@@ -13,28 +13,28 @@ import javax.annotation.Nullable;
 
 import rinde.sim.central.Converter;
 import rinde.sim.problem.common.DefaultParcel;
-import rinde.solver.pdptw.SingleVehicleSolver;
+import rinde.solver.pdptw.Solver;
 import rinde.solver.pdptw.SolutionObject;
 
 /**
- * A {@link RoutePlanner} implementation that uses a {@link SingleVehicleSolver}
+ * A {@link RoutePlanner} implementation that uses a {@link Solver}
  * that computes a complete route each time {@link #update(Collection, long)} is
  * called.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public class SolverRoutePlanner extends AbstractRoutePlanner {
 
-    protected final SingleVehicleSolver solver;
+    protected final Solver solver;
     protected Queue<DefaultParcel> route;
     @Nullable
     protected SolutionObject solutionObject;
 
     /**
      * Create a route planner that uses the specified
-     * {@link SingleVehicleSolver} to compute the best route.
-     * @param s {@link SingleVehicleSolver} used for route planning.
+     * {@link Solver} to compute the best route.
+     * @param s {@link Solver} used for route planning.
      */
-    public SolverRoutePlanner(SingleVehicleSolver s) {
+    public SolverRoutePlanner(Solver s) {
         solver = s;
         route = newLinkedList();
     }

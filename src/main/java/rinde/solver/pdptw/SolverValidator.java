@@ -11,20 +11,20 @@ import com.google.common.collect.DiscreteDomains;
 import com.google.common.collect.Ranges;
 
 /**
- * Provides methods for validating input to {@link SingleVehicleMatrixSolver}s and for
- * validating output from {@link SingleVehicleMatrixSolver}s. Also provides a
- * {@link #wrap(SingleVehicleMatrixSolver)} method which wraps any solver such that
+ * Provides methods for validating input to {@link SingleVehicleArraysSolver}s and for
+ * validating output from {@link SingleVehicleArraysSolver}s. Also provides a
+ * {@link #wrap(SingleVehicleArraysSolver)} method which wraps any solver such that
  * both inputs and outputs are validated every time
- * {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])} is
+ * {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])} is
  * called.
  * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
-public final class SolverValidator implements SingleVehicleMatrixSolver {
+public final class SolverValidator implements SingleVehicleArraysSolver {
 
-    private final SingleVehicleMatrixSolver delegateSolver;
+    private final SingleVehicleArraysSolver delegateSolver;
 
-    private SolverValidator(SingleVehicleMatrixSolver delegate) {
+    private SolverValidator(SingleVehicleArraysSolver delegate) {
         delegateSolver = delegate;
     }
 
@@ -40,38 +40,38 @@ public final class SolverValidator implements SingleVehicleMatrixSolver {
     }
 
     /**
-     * Wraps the original {@link SingleVehicleMatrixSolver} such that both the inputs
+     * Wraps the original {@link SingleVehicleArraysSolver} such that both the inputs
      * to the solver and the outputs from the solver are validated. When an
      * invalid input or output is detected a {@link IllegalArgumentException is
      * thrown}.
-     * @param delegate The {@link SingleVehicleMatrixSolver} that will be used for the
+     * @param delegate The {@link SingleVehicleArraysSolver} that will be used for the
      *            actual solving.
      * @return The wrapped solver.
      */
-    public static SingleVehicleMatrixSolver wrap(SingleVehicleMatrixSolver delegate) {
+    public static SingleVehicleArraysSolver wrap(SingleVehicleArraysSolver delegate) {
         return new SolverValidator(delegate);
     }
 
     /**
-     * Validates the inputs for the {@link SingleVehicleMatrixSolver}. This method
+     * Validates the inputs for the {@link SingleVehicleArraysSolver}. This method
      * checks all properties as defined in
-     * {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}.
+     * {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}.
      * If the inputs are not correct an {@link IllegalArgumentException} is
      * thrown.
      * @param travelTime Parameter as specified by
-     *            {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      *            .
      * @param releaseDates Parameter as specified by
-     *            {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      *            .
      * @param dueDates Parameter as specified by
-     *            {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      *            .
      * @param servicePairs Parameter as specified by
-     *            {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      *            .
      * @param serviceTimes Parameter as specified by
-     *            {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      *            .
      */
     public static void validateInputs(int[][] travelTime, int[] releaseDates,
@@ -126,23 +126,23 @@ public final class SolverValidator implements SingleVehicleMatrixSolver {
 
     /**
      * Validates the {@link SolutionObject} that is produced by a
-     * {@link SingleVehicleMatrixSolver} . If the {@link SolutionObject} is
+     * {@link SingleVehicleArraysSolver} . If the {@link SolutionObject} is
      * infeasible, an {@link IllegalArgumentException} is thrown.
      * @param sol The {@link SolutionObject} that is validated.
      * @param travelTime Parameter as specified by
-     *            {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      *            .
      * @param releaseDates Parameter as specified by
-     *            {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      *            .
      * @param dueDates Parameter as specified by
-     *            {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      *            .
      * @param servicePairs Parameter as specified by
-     *            {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      *            .
      * @param serviceTimes Parameter as specified by
-     *            {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      *            .
      * @return The solution as is supplied, used for method chaining.
      */

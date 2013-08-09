@@ -7,7 +7,7 @@ package rinde.solver.pdptw;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public interface MultiVehicleSolver {
+public interface MultiVehicleArraysSolver {
 
     /**
      * @param travelTime

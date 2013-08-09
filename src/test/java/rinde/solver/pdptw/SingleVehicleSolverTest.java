@@ -48,10 +48,10 @@ import rinde.solver.pdptw.single.MipSolver;
 /**
  * Checks whether the objective as calculated by the simulator via
  * {@link Gendreau06ObjectiveFunction} is 'equal' to the objective as calculated
- * by the {@link SingleVehicleMatrixSolver}. Note that due to the fact that the
+ * by the {@link SingleVehicleArraysSolver}. Note that due to the fact that the
  * solver works with integers (doubles are rounded up), a discrepancy is
  * expected. In fact, this discrepancy is checked to see if the objective
- * calculated by the {@link SingleVehicleMatrixSolver} is always worse compared
+ * calculated by the {@link SingleVehicleArraysSolver} is always worse compared
  * to the objective calculated by the {@link Gendreau06ObjectiveFunction}.
  * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -59,7 +59,7 @@ import rinde.solver.pdptw.single.MipSolver;
 @RunWith(Parameterized.class)
 public class SingleVehicleSolverTest {
 
-    protected final SingleVehicleMatrixSolver solver;
+    protected final SingleVehicleArraysSolver solver;
 
     static final double EPSILON = 0.1;
 
@@ -67,7 +67,7 @@ public class SingleVehicleSolverTest {
             new GPFuncNode<GendreauContext>(
                     new GenericFunctions.Constant<GendreauContext>(0d)));
 
-    public SingleVehicleSolverTest(SingleVehicleMatrixSolver solver) {
+    public SingleVehicleSolverTest(SingleVehicleArraysSolver solver) {
         this.solver = solver;
     }
 
@@ -203,9 +203,9 @@ public class SingleVehicleSolverTest {
 
     static class TestConfigurator implements Configurator {
         final List<SolverDebugger> debuggers;
-        final SingleVehicleMatrixSolver solver;
+        final SingleVehicleArraysSolver solver;
 
-        public TestConfigurator(SingleVehicleMatrixSolver solver) {
+        public TestConfigurator(SingleVehicleArraysSolver solver) {
             this.solver = solver;
             debuggers = newArrayList();
         }

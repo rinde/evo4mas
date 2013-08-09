@@ -4,7 +4,7 @@
 package rinde.evo4mas.gendreau06.comm;
 
 import rinde.sim.problem.common.DefaultParcel;
-import rinde.solver.pdptw.SingleVehicleMatrixSolver;
+import rinde.solver.pdptw.SingleVehicleArraysSolver;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -12,9 +12,9 @@ import rinde.solver.pdptw.SingleVehicleMatrixSolver;
  */
 public class SolverBidder extends AbstractBidder {
 
-    protected final SingleVehicleMatrixSolver solver;
+    protected final SingleVehicleArraysSolver solver;
 
-    public SolverBidder(SingleVehicleMatrixSolver sol) {
+    public SolverBidder(SingleVehicleArraysSolver sol) {
         solver = sol;
     }
 

@@ -7,7 +7,7 @@ import java.util.List;
 import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 
-import rinde.solver.pdptw.SingleVehicleMatrixSolver;
+import rinde.solver.pdptw.SingleVehicleArraysSolver;
 import rinde.solver.pdptw.SolutionObject;
 
 /**
@@ -15,7 +15,7 @@ import rinde.solver.pdptw.SolutionObject;
  * @author Tony Wauters
  * 
  */
-public class HeuristicSolver implements SingleVehicleMatrixSolver {
+public class HeuristicSolver implements SingleVehicleArraysSolver {
 
     public static final int TRAVEL_TIME_WEIGHT = 1;
     public static final int TARDINESS_WEIGHT = 1;

@@ -5,14 +5,14 @@ package rinde.solver.pdptw;
  * time windows (SPDPTW).
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
-public interface SingleVehicleMatrixSolver {
+public interface SingleVehicleArraysSolver {
 
     /**
      * Gives a solution for the SPDPTW as specified by the parameters. The
      * returned solution does not necessary need to be optimal but it needs to
      * be feasible. The {@link SolverValidator} can check whether a
-     * {@link SingleVehicleMatrixSolver} produces a valid solution and it can check whether the
-     * parameters for the {@link SingleVehicleMatrixSolver} are valid.
+     * {@link SingleVehicleArraysSolver} produces a valid solution and it can check whether the
+     * parameters for the {@link SingleVehicleArraysSolver} are valid.
      * <p>
      * All times are in seconds relative to the current time (0). All
      * constraints are soft, i.e. lateness at service locations and at depot are

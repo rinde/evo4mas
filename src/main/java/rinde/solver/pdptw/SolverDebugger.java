@@ -13,18 +13,18 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * A {@link SingleVehicleMatrixSolver} wrapper that adds debugging.
+ * A {@link SingleVehicleArraysSolver} wrapper that adds debugging.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
-public class SolverDebugger implements SingleVehicleMatrixSolver {
+public class SolverDebugger implements SingleVehicleArraysSolver {
 
     private final List<InputObject> inputMemory;
     private final List<SolutionObject> outputMemory;
 
-    private final SingleVehicleMatrixSolver solver;
+    private final SingleVehicleArraysSolver solver;
     private final boolean print;
 
-    private SolverDebugger(SingleVehicleMatrixSolver solver, boolean print) {
+    private SolverDebugger(SingleVehicleArraysSolver solver, boolean print) {
         this.solver = solver;
         this.print = print;
         inputMemory = newArrayList();
@@ -109,28 +109,28 @@ public class SolverDebugger implements SingleVehicleMatrixSolver {
     }
 
     /**
-     * Wraps the specified {@link SingleVehicleMatrixSolver} to allow easy debugging. Every
-     * invocation of {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}
+     * Wraps the specified {@link SingleVehicleArraysSolver} to allow easy debugging. Every
+     * invocation of {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
      * all inputs and outputs are printed to <code>System.out</code>, also all
      * inputs and outputs are stored (accessible via {@link #getInputMemory()}
      * and {@link #getOutputMemory()}.
-     * @param s The {@link SingleVehicleMatrixSolver} to wrap.
+     * @param s The {@link SingleVehicleArraysSolver} to wrap.
      * @return The wrapped solver.
      */
-    public static SolverDebugger wrap(SingleVehicleMatrixSolver s) {
+    public static SolverDebugger wrap(SingleVehicleArraysSolver s) {
         return new SolverDebugger(s, true);
     }
 
     /**
-     * Wraps the specified {@link SingleVehicleMatrixSolver} to allow easy debugging. Stores all
+     * Wraps the specified {@link SingleVehicleArraysSolver} to allow easy debugging. Stores all
      * invocation arguments and outputs and optionally prints them to
      * <code>System.out</code>.
-     * @param s The {@link SingleVehicleMatrixSolver} to wrap.
+     * @param s The {@link SingleVehicleArraysSolver} to wrap.
      * @param print If <code>true</code> all information will be printed as
      *            well.
      * @return The wrapped solver.
      */
-    public static SolverDebugger wrap(SingleVehicleMatrixSolver s, boolean print) {
+    public static SolverDebugger wrap(SingleVehicleArraysSolver s, boolean print) {
         return new SolverDebugger(s, print);
     }
 
@@ -140,7 +140,7 @@ public class SolverDebugger implements SingleVehicleMatrixSolver {
 
     /**
      * Object containing a copy of the call arguments of
-     * {@link SingleVehicleMatrixSolver#solve(int[][], int[], int[], int[][], int[])}.
+     * {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}.
      * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
      */
     public static class InputObject {

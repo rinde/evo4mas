@@ -23,7 +23,7 @@ import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.problem.common.VehicleDTO;
 import rinde.sim.util.fsm.State;
 import rinde.sim.util.fsm.StateMachine;
-import rinde.solver.pdptw.SingleVehicleMatrixSolver;
+import rinde.solver.pdptw.SingleVehicleArraysSolver;
 import rinde.solver.pdptw.SolutionObject;
 import rinde.solver.pdptw.SolverDebugger;
 import rinde.solver.pdptw.SolverValidator;
@@ -47,7 +47,7 @@ public class AuctionOptTruck extends
     // TODO state machine should be simplified, this truck is mostly just
     // following its plan
 
-    protected SingleVehicleMatrixSolver solver;
+    protected SingleVehicleArraysSolver solver;
     protected boolean changed;
     protected Queue<Parcel> route;
     protected Set<Parcel> todo;
@@ -237,7 +237,7 @@ public class AuctionOptTruck extends
 
     /**
      * @return A copy of the {@link SolutionObject} that was used to find the
-     *         current route. Or <code>null</code> if no {@link SingleVehicleMatrixSolver} was used
+     *         current route. Or <code>null</code> if no {@link SingleVehicleArraysSolver} was used
      *         to find the current route (or there is no route).
      */
     public SolutionObject getSolutionObject() {
