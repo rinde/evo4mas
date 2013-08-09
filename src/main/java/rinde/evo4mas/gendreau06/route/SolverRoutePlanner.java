@@ -11,20 +11,21 @@ import java.util.Queue;
 
 import javax.annotation.Nullable;
 
-import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.central.Converter;
+import rinde.sim.problem.common.DefaultParcel;
 import rinde.solver.pdptw.SingleVehicleSolver;
 import rinde.solver.pdptw.SolutionObject;
 
 /**
  * A {@link RoutePlanner} implementation that uses a {@link SingleVehicleSolver}
- * that computes a complete route each time
- * {@link #update(Collection, Collection, long)} is called.
+ * that computes a complete route each time {@link #update(Collection, long)} is
+ * called.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public class SolverRoutePlanner extends AbstractRoutePlanner {
 
     protected final SingleVehicleSolver solver;
-    protected Queue<Parcel> route;
+    protected Queue<DefaultParcel> route;
     @Nullable
     protected SolutionObject solutionObject;
 
@@ -39,9 +40,10 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
     }
 
     @Override
-    protected void doUpdate(Collection<Parcel> onMap, long time) {
+    protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
         checkState(roadModel != null && pdpModel != null && vehicle != null);
-        route = solver.solve(roadModel, pdpModel, vehicle, onMap, time);
+        route = solver.solve(Converter
+                .convert(roadModel, pdpModel, vehicle, onMap, time));
     }
 
     public boolean hasNext() {
@@ -49,7 +51,7 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
     }
 
     @Nullable
-    public Parcel current() {
+    public DefaultParcel current() {
         return route.peek();
     }
 

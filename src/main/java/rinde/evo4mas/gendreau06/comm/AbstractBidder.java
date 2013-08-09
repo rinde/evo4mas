@@ -10,10 +10,10 @@ import static java.util.Collections.unmodifiableSet;
 import java.util.Collection;
 import java.util.Set;
 
-import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.event.Event;
 import rinde.sim.event.EventDispatcher;
 import rinde.sim.event.Listener;
+import rinde.sim.problem.common.DefaultParcel;
 
 /**
  * Basic implementation for {@link Bidder}.
@@ -21,35 +21,36 @@ import rinde.sim.event.Listener;
  */
 public abstract class AbstractBidder implements Bidder {
 
-	protected final Set<Parcel> assignedParcels;
-	protected final EventDispatcher eventDispatcher;
+    protected final Set<DefaultParcel> assignedParcels;
+    protected final EventDispatcher eventDispatcher;
 
-	/**
-	 * Initializes bidder.
-	 */
-	public AbstractBidder() {
-		assignedParcels = newLinkedHashSet();
-		eventDispatcher = new EventDispatcher(CommunicatorEventType.values());
-	}
+    /**
+     * Initializes bidder.
+     */
+    public AbstractBidder() {
+        assignedParcels = newLinkedHashSet();
+        eventDispatcher = new EventDispatcher(CommunicatorEventType.values());
+    }
 
-	public void addUpdateListener(Listener l) {
-		eventDispatcher.addListener(l, CommunicatorEventType.CHANGE);
-	}
+    public void addUpdateListener(Listener l) {
+        eventDispatcher.addListener(l, CommunicatorEventType.CHANGE);
+    }
 
-	// ignore
-	public void waitFor(Parcel p) {}
+    // ignore
+    public void waitFor(DefaultParcel p) {}
 
-	public void claim(Parcel p) {
-		checkArgument(assignedParcels.contains(p));
-		assignedParcels.remove(p);
-	}
+    public void claim(DefaultParcel p) {
+        checkArgument(assignedParcels.contains(p));
+        assignedParcels.remove(p);
+    }
 
-	public final Collection<Parcel> getParcels() {
-		return unmodifiableSet(assignedParcels);
-	}
+    public final Collection<DefaultParcel> getParcels() {
+        return unmodifiableSet(assignedParcels);
+    }
 
-	public void receiveParcel(Parcel p) {
-		assignedParcels.add(p);
-		eventDispatcher.dispatchEvent(new Event(CommunicatorEventType.CHANGE, this));
-	}
+    public void receiveParcel(DefaultParcel p) {
+        assignedParcels.add(p);
+        eventDispatcher.dispatchEvent(new Event(CommunicatorEventType.CHANGE,
+                this));
+    }
 }

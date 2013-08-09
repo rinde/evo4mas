@@ -13,8 +13,8 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import rinde.sim.core.model.pdp.PDPModel;
-import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.problem.common.DefaultParcel;
 import rinde.sim.problem.common.DefaultVehicle;
 
 /**
@@ -25,7 +25,7 @@ import rinde.sim.problem.common.DefaultVehicle;
  */
 public abstract class AbstractRoutePlanner implements RoutePlanner {
 
-    private final List<Parcel> history;
+    private final List<DefaultParcel> history;
     private boolean initialized;
     private boolean updated;
 
@@ -48,7 +48,7 @@ public abstract class AbstractRoutePlanner implements RoutePlanner {
         vehicle = dv;
     }
 
-    public final void update(Collection<Parcel> onMap, long time) {
+    public final void update(Collection<DefaultParcel> onMap, long time) {
         checkState(isInitialized(), "RoutePlanner should be initialized before it can be used, see init()");
         updated = true;
         doUpdate(onMap, time);
@@ -66,10 +66,10 @@ public abstract class AbstractRoutePlanner implements RoutePlanner {
      *            routeplanners that want to take time windows into account.
      * @see #doUpdate(Collection, Collection, long)
      */
-    protected abstract void doUpdate(Collection<Parcel> onMap, long time);
+    protected abstract void doUpdate(Collection<DefaultParcel> onMap, long time);
 
     @Nullable
-    public final Parcel next(long time) {
+    public final DefaultParcel next(long time) {
         checkState(isInitialized(), "RoutePlanner should be initialized before it can be used, see init()");
         checkState(updated, "RoutePlanner should be udpated before it can be used, see update()");
         history.add(current());
@@ -87,14 +87,14 @@ public abstract class AbstractRoutePlanner implements RoutePlanner {
     protected abstract void nextImpl(long time);
 
     @Nullable
-    public Parcel prev() {
+    public DefaultParcel prev() {
         if (history.isEmpty()) {
             return null;
         }
         return history.get(history.size() - 1);
     }
 
-    public List<Parcel> getHistory() {
+    public List<DefaultParcel> getHistory() {
         return unmodifiableList(history);
     }
 

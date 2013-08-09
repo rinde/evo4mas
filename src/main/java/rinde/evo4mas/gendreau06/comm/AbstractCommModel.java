@@ -3,6 +3,7 @@
  */
 package rinde.evo4mas.gendreau06.comm;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 
 import java.util.List;
@@ -13,9 +14,9 @@ import rinde.sim.core.model.ModelReceiver;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.PDPModelEvent;
 import rinde.sim.core.model.pdp.PDPModel.PDPModelEventType;
-import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.event.Event;
 import rinde.sim.event.Listener;
+import rinde.sim.problem.common.DefaultParcel;
 
 /**
  * This class provides a common base for classes that implement a communication
@@ -25,31 +26,34 @@ import rinde.sim.event.Listener;
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * @param <T> The type of {@link Communicator} this model expects.
  */
-public abstract class AbstractCommModel<T extends Communicator> implements ModelReceiver, Model<T> {
-	protected List<T> communicators;
+public abstract class AbstractCommModel<T extends Communicator> implements
+        ModelReceiver, Model<T> {
+    protected List<T> communicators;
 
-	protected AbstractCommModel() {
-		communicators = newArrayList();
-	}
+    protected AbstractCommModel() {
+        communicators = newArrayList();
+    }
 
-	public void registerModelProvider(ModelProvider mp) {
-		mp.getModel(PDPModel.class).getEventAPI().addListener(new Listener() {
-			public void handleEvent(Event e) {
-				final PDPModelEvent event = ((PDPModelEvent) e);
-				receiveParcel(event.parcel, event.time);
-			}
-		}, PDPModelEventType.NEW_PARCEL);
-	}
+    public void registerModelProvider(ModelProvider mp) {
+        mp.getModel(PDPModel.class).getEventAPI().addListener(new Listener() {
+            public void handleEvent(Event e) {
+                final PDPModelEvent event = ((PDPModelEvent) e);
+                checkArgument(event.parcel instanceof DefaultParcel, "This class is only compatible with DefaultParcel and subclasses.");
+                final DefaultParcel dp = (DefaultParcel) event.parcel;
+                receiveParcel(dp, event.time);
+            }
+        }, PDPModelEventType.NEW_PARCEL);
+    }
 
-	protected abstract void receiveParcel(Parcel p, long time);
+    protected abstract void receiveParcel(DefaultParcel p, long time);
 
-	public boolean register(final T communicator) {
-		communicators.add(communicator);
-		return true;
-	}
+    public boolean register(final T communicator) {
+        communicators.add(communicator);
+        return true;
+    }
 
-	public boolean unregister(T element) {
-		throw new UnsupportedOperationException();
-	}
+    public boolean unregister(T element) {
+        throw new UnsupportedOperationException();
+    }
 
 }

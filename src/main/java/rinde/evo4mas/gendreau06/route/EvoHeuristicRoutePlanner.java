@@ -8,6 +8,7 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import javax.annotation.Nullable;
@@ -17,7 +18,7 @@ import rinde.evo4mas.gendreau06.GCBuilderReceiver;
 import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.evo4mas.gendreau06.GendreauContextBuilder;
 import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
-import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.problem.common.DefaultParcel;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -33,12 +34,12 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
     protected final Heuristic<GendreauContext> heuristic;
     protected final TimeUntilAvailable<GendreauContext> tua;
     @Nullable
-    protected Parcel current;
+    protected DefaultParcel current;
     @Nullable
     protected GendreauContextBuilder gendreauContextBuilder;
 
-    protected Set<Parcel> onMapSet;
-    protected Set<Parcel> inCargoSet;
+    protected Set<DefaultParcel> onMapSet;
+    protected Set<DefaultParcel> inCargoSet;
 
     /**
      * Create a new route planner using the specified {@link Heuristic}.
@@ -52,22 +53,27 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
     }
 
     @Override
-    protected void doUpdate(Collection<Parcel> onMap, long time) {
+    protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
         onMapSet = newHashSet(onMap);
         checkState(pdpModel != null && vehicle != null);
-        inCargoSet = newHashSet(pdpModel.getContents(vehicle));
+        // this is safe because the code actually checks the type
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final Collection<DefaultParcel> checked = Collections
+                .checkedCollection((Collection) pdpModel.getContents(vehicle), DefaultParcel.class);
+        inCargoSet = newHashSet(checked);
         computeCurrent(time);
     }
 
     protected void computeCurrent(long time) {
-        final Set<Parcel> claimed = ImmutableSet.of();
+        final Set<DefaultParcel> claimed = ImmutableSet.of();
         current = nextLoop(onMapSet, claimed, inCargoSet, time);
     }
 
     @Nullable
-    protected Parcel nextLoop(Collection<Parcel> todo,
-            Set<Parcel> alreadyClaimed, Collection<Parcel> contents, long time) {
-        Parcel best = null;
+    protected DefaultParcel nextLoop(Collection<DefaultParcel> todo,
+            Set<DefaultParcel> alreadyClaimed,
+            Collection<DefaultParcel> contents, long time) {
+        DefaultParcel best = null;
         double bestValue = Double.POSITIVE_INFINITY;
 
         final GendreauContextBuilder gcb = gendreauContextBuilder;
@@ -78,7 +84,7 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
         gcb.initRepeatedUsage(time);
 
         final StringBuilder sb = new StringBuilder();
-        for (final Parcel p : todo) {
+        for (final DefaultParcel p : todo) {
             // filter out the already claimed parcels
             if (!alreadyClaimed.contains(p)) {
                 final GendreauContext gc = gcb
@@ -103,7 +109,7 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
         // System.err.println(sb.toString());
         // System.err.println(bestValue);
         // }
-        for (final Parcel p : contents) {
+        for (final DefaultParcel p : contents) {
 
             final GendreauContext gc = gcb.buildInRepetition(p, true, false);
 
@@ -148,7 +154,7 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
     }
 
     @Nullable
-    public Parcel current() {
+    public DefaultParcel current() {
         return current;
     }
 

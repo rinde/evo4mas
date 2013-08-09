@@ -10,6 +10,7 @@ import static java.util.Collections.unmodifiableSet;
 import java.util.Set;
 
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.problem.common.DefaultParcel;
 
 /**
  * This is an implementation of a blackboard communication model. It allows
@@ -20,55 +21,55 @@ import rinde.sim.core.model.pdp.Parcel;
  */
 public class BlackboardCommModel extends AbstractCommModel<BlackboardUser> {
 
-	protected final Set<Parcel> unclaimedParcels;
+    protected final Set<DefaultParcel> unclaimedParcels;
 
-	/**
-	 * New empty blackboard comm model.
-	 */
-	public BlackboardCommModel() {
-		unclaimedParcels = newLinkedHashSet();
-	}
+    /**
+     * New empty blackboard comm model.
+     */
+    public BlackboardCommModel() {
+        unclaimedParcels = newLinkedHashSet();
+    }
 
-	/**
-	 * Lays a claim on the specified {@link Parcel}. This means that this parcel
-	 * is no longer available to other {@link BlackboardUser}s.
-	 * @param claimer The user that claims the parcel.
-	 * @param p The parcel that is claimed.
-	 */
-	public void claim(BlackboardUser claimer, Parcel p) {
-		checkArgument(unclaimedParcels.contains(p));
-		unclaimedParcels.remove(p);
-		for (final BlackboardUser bu : communicators) {
-			if (bu != claimer) {
-				bu.update();
-			}
-		}
-	}
+    /**
+     * Lays a claim on the specified {@link Parcel}. This means that this parcel
+     * is no longer available to other {@link BlackboardUser}s.
+     * @param claimer The user that claims the parcel.
+     * @param p The parcel that is claimed.
+     */
+    public void claim(BlackboardUser claimer, DefaultParcel p) {
+        checkArgument(unclaimedParcels.contains(p));
+        unclaimedParcels.remove(p);
+        for (final BlackboardUser bu : communicators) {
+            if (bu != claimer) {
+                bu.update();
+            }
+        }
+    }
 
-	@Override
-	protected void receiveParcel(Parcel p, long time) {
-		unclaimedParcels.add(p);
-		// notify all users of the new parcel
-		for (final BlackboardUser bu : communicators) {
-			bu.update();
-		}
-	}
+    @Override
+    protected void receiveParcel(DefaultParcel p, long time) {
+        unclaimedParcels.add(p);
+        // notify all users of the new parcel
+        for (final BlackboardUser bu : communicators) {
+            bu.update();
+        }
+    }
 
-	/**
-	 * @return All unclaimed parcels.
-	 */
-	public Set<Parcel> getUnclaimedParcels() {
-		return unmodifiableSet(unclaimedParcels);
-	}
+    /**
+     * @return All unclaimed parcels.
+     */
+    public Set<DefaultParcel> getUnclaimedParcels() {
+        return unmodifiableSet(unclaimedParcels);
+    }
 
-	@Override
-	public boolean register(BlackboardUser element) {
-		super.register(element);
-		element.init(this);
-		return true;
-	}
+    @Override
+    public boolean register(BlackboardUser element) {
+        super.register(element);
+        element.init(this);
+        return true;
+    }
 
-	public Class<BlackboardUser> getSupportedType() {
-		return BlackboardUser.class;
-	}
+    public Class<BlackboardUser> getSupportedType() {
+        return BlackboardUser.class;
+    }
 }

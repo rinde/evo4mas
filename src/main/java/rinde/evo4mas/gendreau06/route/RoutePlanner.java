@@ -10,8 +10,8 @@ import javax.annotation.Nullable;
 
 import rinde.evo4mas.gendreau06.Truck;
 import rinde.sim.core.model.pdp.PDPModel;
-import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.problem.common.DefaultParcel;
 import rinde.sim.problem.common.DefaultVehicle;
 
 /**
@@ -27,13 +27,13 @@ import rinde.sim.problem.common.DefaultVehicle;
  * <ol>
  * <li>constructor</li>
  * <li>{@link #init(RoadModel, PDPModel, DefaultVehicle)}</li>
- * <li>{@link #update(Collection, Collection, long)}</li>
+ * <li>{@link #update(Collection, long)}</li>
  * </ol>
  * Once these methods are called in this order, {@link #next(long)} may be
- * called. {@link #update(Collection, Collection, long)} may be called more than
- * once. All implementations of this interface should throw
- * {@link IllegalStateException}s when these methods are called in an incorrect
- * order (as defined by the test class).
+ * called. {@link #update(Collection, long)} may be called more than once. All
+ * implementations of this interface should throw {@link IllegalStateException}s
+ * when these methods are called in an incorrect order (as defined by the test
+ * class).
  * <p>
  * <b>Usage</b> Once the initialization is complete, {@link #current()} will
  * return the parcel that should be visited next (if there are any parcels of
@@ -41,7 +41,7 @@ import rinde.sim.problem.common.DefaultVehicle;
  * of {@link #current()} should always return the same value. That is, unless
  * one of the two <i>modifying</i> methods are called:
  * <ul>
- * <li>{@link #update(Collection, Collection, long)}</li>
+ * <li>{@link #update(Collection, long)}</li>
  * <li>{@link #next(long)}</li>
  * </ul>
  * Each time one of these is called the route <i>may</i> change. When
@@ -78,20 +78,19 @@ public interface RoutePlanner {
      * @param time The current simulation time, this may be relevant for some
      *            routeplanners that want to take time windows into account.
      */
-    void update(Collection<Parcel> onMap /* , Collection<Parcel> inCargo */,
-            long time);
+    void update(Collection<DefaultParcel> onMap, long time);
 
     /**
      * Should return the current parcel (the parcel that should be visited
      * next). Subsequent calls should always return the same destination (no
      * recomputation should be done). Only when one of the <i>modifying</i>
-     * methods is called, {@link #update(Collection, Collection, long)} or
+     * methods is called, {@link #update(Collection, long)} or
      * {@link #next(long)}, this method may return a different value.
      * @return The current parcel that should be visited next, returns
      *         <code>null</code> when there are no parcels to go to.
      */
     @Nullable
-    Parcel current();
+    DefaultParcel current();
 
     /**
      * Indicates that the current location has been visited. Computes the next
@@ -105,7 +104,7 @@ public interface RoutePlanner {
      *         parcels to visit.
      */
     @Nullable
-    Parcel next(long time);
+    DefaultParcel next(long time);
 
     /**
      * @return The value of {@link #current()} right before the last invocation
@@ -114,13 +113,13 @@ public interface RoutePlanner {
      *         {@link #next(long)} has never been called.
      */
     @Nullable
-    Parcel prev();
+    DefaultParcel prev();
 
     /**
      * @return A list of all visited parcels. A parcel is 'visited' when
      *         {@link #next(long)} is called.
      */
-    List<Parcel> getHistory();
+    List<DefaultParcel> getHistory();
 
     /**
      * @return <code>false</code> if the next invocation of {@link #next(long)}

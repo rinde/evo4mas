@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomAdaptor;
 
-import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.problem.common.DefaultParcel;
 
 /**
  * A {@link RoutePlanner} implementation that creates random routes.
@@ -26,7 +26,7 @@ import rinde.sim.core.model.pdp.Parcel;
  */
 public class RandomRoutePlanner extends AbstractRoutePlanner {
 
-    protected Queue<Parcel> assignedParcels;
+    protected Queue<DefaultParcel> assignedParcels;
     protected final Random rng;
 
     /**
@@ -39,14 +39,16 @@ public class RandomRoutePlanner extends AbstractRoutePlanner {
     }
 
     @Override
-    protected void doUpdate(Collection<Parcel> onMap, long time) {
+    protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
         checkState(pdpModel != null && vehicle != null);
-        final Collection<Parcel> inCargo = pdpModel.getContents(vehicle);
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final Collection<DefaultParcel> inCargo = Collections
+                .checkedCollection((Collection) pdpModel.getContents(vehicle), DefaultParcel.class);
         if (onMap.isEmpty() && inCargo.isEmpty()) {
             assignedParcels.clear();
         } else {
-            final List<Parcel> ps = newArrayListWithCapacity((onMap.size() * 2)
-                    + inCargo.size());
+            final List<DefaultParcel> ps = newArrayListWithCapacity((onMap
+                    .size() * 2) + inCargo.size());
             // Parcels on map need to be visited twice, once for pickup, once
             // for delivery.
             ps.addAll(onMap);
@@ -67,7 +69,7 @@ public class RandomRoutePlanner extends AbstractRoutePlanner {
     }
 
     @Nullable
-    public Parcel current() {
+    public DefaultParcel current() {
         return assignedParcels.peek();
     }
 

@@ -174,8 +174,8 @@ public class RoutePlannerTest {
         assertFalse(routePlanner.hasNext());
         assertTrue(routePlanner.getHistory().isEmpty());
 
-        final Collection<Parcel> onMap = roadModel
-                .getObjectsOfType(Parcel.class);
+        final Collection<DefaultParcel> onMap = roadModel
+                .getObjectsOfType(DefaultParcel.class);
         final Collection<Parcel> inCargo = pdpModel.getContents(truck);
         final List<Parcel> visited = newLinkedList();
         routePlanner.update(onMap, 0);
@@ -213,12 +213,14 @@ public class RoutePlannerTest {
     public void testMultiUpdate() {
         routePlanner.init(roadModel, pdpModel, truck);
 
-        final Collection<Parcel> empty = ImmutableSet.of();
-        final Collection<Parcel> singleCargo = ImmutableSet.of(pdpModel
-                .getContents(truck).iterator().next());
-        final Parcel mapParcel = roadModel.getObjectsOfType(Parcel.class)
-                .iterator().next();
-        final Collection<Parcel> singleOnMap = ImmutableSet.of(mapParcel);
+        final Collection<DefaultParcel> empty = ImmutableSet.of();
+        final Collection<DefaultParcel> singleCargo = ImmutableSet
+                .of((DefaultParcel) pdpModel.getContents(truck).iterator()
+                        .next());
+        final DefaultParcel mapParcel = roadModel
+                .getObjectsOfType(DefaultParcel.class).iterator().next();
+        final Collection<DefaultParcel> singleOnMap = ImmutableSet
+                .of(mapParcel);
 
         routePlanner.update(empty, 0);
         assertNull(routePlanner.prev());
@@ -274,7 +276,7 @@ public class RoutePlannerTest {
     public void testEmpty() {
         routePlanner.init(roadModel, pdpModel, truck);
 
-        final Collection<Parcel> s1 = ImmutableSet.of();
+        final Collection<DefaultParcel> s1 = ImmutableSet.of();
         routePlanner.update(s1, 0);
     }
 

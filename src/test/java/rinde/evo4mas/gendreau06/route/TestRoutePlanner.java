@@ -7,9 +7,10 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newLinkedList;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Queue;
 
-import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.problem.common.DefaultParcel;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -17,13 +18,13 @@ import rinde.sim.core.model.pdp.Parcel;
  */
 public class TestRoutePlanner extends AbstractRoutePlanner {
 
-    protected final Queue<Parcel> route;
+    protected final Queue<DefaultParcel> route;
 
     public TestRoutePlanner() {
         route = newLinkedList();
     }
 
-    public Parcel current() {
+    public DefaultParcel current() {
         return route.peek();
     }
 
@@ -32,9 +33,11 @@ public class TestRoutePlanner extends AbstractRoutePlanner {
     }
 
     @Override
-    protected void doUpdate(Collection<Parcel> onMap, long time) {
+    protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
         checkState(pdpModel != null && vehicle != null);
-        final Collection<Parcel> inCargo = pdpModel.getContents(vehicle);
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+        final Collection<DefaultParcel> inCargo = Collections
+                .checkedCollection((Collection) pdpModel.getContents(vehicle), DefaultParcel.class);
         route.clear();
         route.addAll(onMap);
         route.addAll(inCargo);
