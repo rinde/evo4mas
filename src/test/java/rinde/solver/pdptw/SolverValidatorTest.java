@@ -3,14 +3,15 @@
  */
 package rinde.solver.pdptw;
 
+import static org.junit.Assert.fail;
 import static rinde.solver.pdptw.SolverValidator.validate;
 import static rinde.solver.pdptw.SolverValidator.validateInputs;
 import static rinde.solver.pdptw.SolverValidator.wrap;
 
+import java.lang.reflect.Constructor;
+
 import org.junit.Test;
 
-import rinde.solver.pdptw.SingleVehicleArraysSolver;
-import rinde.solver.pdptw.SolutionObject;
 import rinde.solver.pdptw.single.MipTest;
 
 /**
@@ -114,6 +115,144 @@ public class SolverValidatorTest {
         validateInputs(new int[6][6], new int[6], new int[6], new int[][] {
                 new int[] { 4, 2 }, new int[] { 3, 1 } }, new int[6]);
     }
+
+    /*
+     * VALIDATE MULTI VEHICLE INPUTS
+     */
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidNoVehicles() {
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] {
+                new int[] { 4, 2 }, new int[] { 3, 1 } }, new int[6],//
+                new int[0][0], new int[0][0], new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidVehicleTravelTimes1() {
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] {
+                new int[] { 4, 2 }, new int[] { 3, 1 } }, new int[6], //
+                new int[2][0], new int[0][0], new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidVehicleTravelTimes2() {
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] {
+                new int[] { 4, 2 }, new int[] { 3, 1 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, -1, 0 } }, //
+                new int[0][0], new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidInventories1() {
+        // inventory too big
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] {
+                new int[] { 4, 2 }, new int[] { 3, 1 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 0 } }, new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidInventories2() {
+        // inventory too small
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                3, 1 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 0 } }, new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidInventories3() {
+        // invalid inventory dimensions
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                3, 1 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 0 }, { 0 } }, new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidInventories4a() {
+        // non existing vehicle
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                3, 1 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 2, 0 }, { 2, 0 } }, new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidInventories4b() {
+        // non existing vehicle
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                3, 1 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { -1, 0 }, { 2, 0 } }, new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidInventories5a() {
+        // non existing location
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                3, 1 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 1, 0 }, { 1, 0 } }, new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidInventories5b() {
+        // non existing location
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                3, 1 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 1, 5 }, { 1, 5 } }, new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidInventories6() {
+        // reference to still available location in inventory
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                3, 1 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 1, 1 }, { 1, 1 } }, new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidInventories7() {
+        // duplicate inventory entry
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                4, 2 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 1, 1 }, { 1, 1 } }, new int[0]);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidRemainingServiceTimes1() {
+        // incorrect size of array
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                4, 2 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 1, 1 }, { 1, 3 } }, new int[] { 1 });
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInputsInvalidRemainingServiceTimes2() {
+        // incorrect time value
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                4, 2 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 1, 1 }, { 1, 3 } }, new int[] { 300, -1 });
+    }
+
+    @Test
+    public void validateInputsValidMulti() {
+        // incorrect time value
+        validateInputs(new int[6][6], new int[6], new int[6], new int[][] { new int[] {
+                4, 2 } }, new int[6], //
+                new int[][] { { 0, 0, 0, 0, 0, 0 }, { 0, 0, 0, 0, 0, 0 } }, //
+                new int[][] { { 1, 1 }, { 1, 3 } }, new int[] { 300, 0 });
+    }
+
+    /*
+     * VALIDATE SOLUTION
+     */
 
     @Test(expected = IllegalArgumentException.class)
     public void validateInvalidRouteLength() {
@@ -236,22 +375,59 @@ public class SolverValidatorTest {
     }
 
     @Test
-    public void testWrap() {
-
-        final SingleVehicleArraysSolver s = wrap(new FakeSolver(new SolutionObject(new int[] { 0,
-                1, 2, 3 }, new int[] { 0, 10, 100, 108 }, 238)));
+    public void testWrapSingle() {
+        final SingleVehicleArraysSolver s = wrap(new FakeSingleSolver(
+                new SolutionObject(new int[] { 0, 1, 2, 3 }, new int[] { 0, 10,
+                        100, 108 }, 238)));
         s.solve(travelTimes, new int[4], new int[4], new int[][] {}, new int[4]);
     }
 
-    class FakeSolver implements SingleVehicleArraysSolver {
+    public static <T> void testPrivateConstructor(Class<T> clazz) {
+        try {
+            final Constructor<T> c = clazz.getDeclaredConstructor();
+            c.setAccessible(true);
+            c.newInstance();
+        } catch (final Exception e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testWrapMulti() {
+        testPrivateConstructor(SolverValidator.class);
+
+        final MultiVehicleArraysSolver s = wrap(new FakeMultiSolver(
+                new SolutionObject[] { new SolutionObject(new int[] { 0, 1, 2,
+                        3 }, new int[] { 0, 10, 100, 108 }, 238) }));
+
+        s.solve(travelTimes, new int[4], new int[4], new int[][] {}, new int[4], new int[2][4], new int[][] {
+                { 0, 1 }, { 0, 2 } }, new int[2]);
+    }
+
+    class FakeSingleSolver implements SingleVehicleArraysSolver {
         SolutionObject answer;
 
-        FakeSolver(SolutionObject answer) {
+        FakeSingleSolver(SolutionObject answer) {
             this.answer = answer;
         }
 
         public SolutionObject solve(int[][] travelTime, int[] releaseDates,
                 int[] dueDates, int[][] servicePairs, int serviceTimes[]) {
+            return answer;
+        }
+    }
+
+    class FakeMultiSolver implements MultiVehicleArraysSolver {
+        SolutionObject[] answer;
+
+        FakeMultiSolver(SolutionObject[] answer) {
+            this.answer = answer;
+        }
+
+        public SolutionObject[] solve(int[][] travelTime, int[] releaseDates,
+                int[] dueDates, int[][] servicePairs, int[] serviceTimes,
+                int[][] vehicleTravelTimes, int[][] inventories,
+                int[] remainingServiceTimes) {
             return answer;
         }
     }

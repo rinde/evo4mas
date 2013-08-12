@@ -8,55 +8,84 @@ import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.DiscreteDomains;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ranges;
 
 /**
- * Provides methods for validating input to {@link SingleVehicleArraysSolver}s and for
- * validating output from {@link SingleVehicleArraysSolver}s. Also provides a
- * {@link #wrap(SingleVehicleArraysSolver)} method which wraps any solver such that
- * both inputs and outputs are validated every time
- * {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])} is
- * called.
+ * Provides methods for validating input to {@link SingleVehicleArraysSolver}s
+ * and for validating output from {@link SingleVehicleArraysSolver}s. Also
+ * provides a {@link #wrap(SingleVehicleArraysSolver)} method which wraps any
+ * solver such that both inputs and outputs are validated every time
+ * {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
+ * is called.
  * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
-public final class SolverValidator implements SingleVehicleArraysSolver {
+public final class SolverValidator {
 
-    private final SingleVehicleArraysSolver delegateSolver;
+    private SolverValidator() {}
 
-    private SolverValidator(SingleVehicleArraysSolver delegate) {
-        delegateSolver = delegate;
+    private static class SingleValidator implements SingleVehicleArraysSolver {
+        private final SingleVehicleArraysSolver delegateSolver;
+
+        private SingleValidator(SingleVehicleArraysSolver delegate) {
+            delegateSolver = delegate;
+        }
+
+        public SolutionObject solve(int[][] travelTime, int[] releaseDates,
+                int[] dueDates, int[][] servicePairs, int[] serviceTimes) {
+            // first check inputs
+            validateInputs(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+            // execute solver
+            final SolutionObject output = delegateSolver
+                    .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+            // check outputs
+            return validate(output, travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+        }
     }
 
-    public SolutionObject solve(int[][] travelTime, int[] releaseDates,
-            int[] dueDates, int[][] servicePairs, int[] serviceTimes) {
-        // first check inputs
-        validateInputs(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
-        // execute solver
-        final SolutionObject output = delegateSolver
-                .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
-        // check outputs
-        return validate(output, travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+    private static class MultiValidator implements MultiVehicleArraysSolver {
+        private final MultiVehicleArraysSolver delegateSolver;
+
+        private MultiValidator(MultiVehicleArraysSolver delegate) {
+            delegateSolver = delegate;
+        }
+
+        public SolutionObject[] solve(int[][] travelTime, int[] releaseDates,
+                int[] dueDates, int[][] servicePairs, int[] serviceTimes,
+                int[][] vehicleTravelTimes, int[][] inventories,
+                int[] remainingServiceTimes) {
+            validateInputs(travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
+            final SolutionObject[] output = delegateSolver
+                    .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
+            return validate(output, travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
+        }
     }
 
     /**
-     * Wraps the original {@link SingleVehicleArraysSolver} such that both the inputs
-     * to the solver and the outputs from the solver are validated. When an
-     * invalid input or output is detected a {@link IllegalArgumentException is
-     * thrown}.
-     * @param delegate The {@link SingleVehicleArraysSolver} that will be used for the
-     *            actual solving.
+     * Wraps the original {@link SingleVehicleArraysSolver} such that both the
+     * inputs to the solver and the outputs from the solver are validated. When
+     * an invalid input or output is detected a {@link IllegalArgumentException
+     * is thrown}.
+     * @param delegate The {@link SingleVehicleArraysSolver} that will be used
+     *            for the actual solving.
      * @return The wrapped solver.
      */
-    public static SingleVehicleArraysSolver wrap(SingleVehicleArraysSolver delegate) {
-        return new SolverValidator(delegate);
+    public static SingleVehicleArraysSolver wrap(
+            SingleVehicleArraysSolver delegate) {
+        return new SingleValidator(delegate);
+    }
+
+    public static MultiVehicleArraysSolver wrap(
+            MultiVehicleArraysSolver delegate) {
+        return new MultiValidator(delegate);
     }
 
     /**
-     * Validates the inputs for the {@link SingleVehicleArraysSolver}. This method
-     * checks all properties as defined in
-     * {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}.
-     * If the inputs are not correct an {@link IllegalArgumentException} is
+     * Validates the inputs for the {@link SingleVehicleArraysSolver}. This
+     * method checks all properties as defined in
+     * {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
+     * . If the inputs are not correct an {@link IllegalArgumentException} is
      * thrown.
      * @param travelTime Parameter as specified by
      *            {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
@@ -121,7 +150,40 @@ public final class SolverValidator implements SingleVehicleArraysSolver {
 
         // number of vehicles v
         final int v = vehicleTravelTimes.length;
+        final int n = travelTime.length;
+        checkArgument(v > 0, "At least one vehicle is required.");
 
+        for (int i = 0; i < v; i++) {
+            checkArgument(n == vehicleTravelTimes[i].length, "We expected vehicleTravelTimes matrix of size v x %s, but we found v x %s at index %s.", n, vehicleTravelTimes[i].length, i);
+            for (int j = 0; j < n; j++) {
+                checkArgument(vehicleTravelTimes[i][j] >= 0, "Found an invalid vehicle travel time (%s) at position %s,%s. All times must be >= 0.", vehicleTravelTimes[i][j], i, j);
+            }
+        }
+
+        final ImmutableSet.Builder<Integer> b = ImmutableSet.builder();
+        for (int i = 0; i < servicePairs.length; i++) {
+            b.add(servicePairs[i][0]);
+            b.add(servicePairs[i][1]);
+        }
+        final Set<Integer> availLocs = b.build();
+
+        final int m = n - 2 - (servicePairs.length * 2);
+        checkArgument(inventories.length == m, "Invalid number of inventory entries, expected %s found %s.", m, servicePairs.length);
+
+        final Set<Integer> parcelsInInventory = newHashSet();
+        for (int i = 0; i < m; i++) {
+            checkArgument(2 == inventories[i].length, "We expected inventories matrix of size m x 2, but we found m x %s at index %s.", inventories[i].length, i);
+            checkArgument(inventories[i][0] >= 0 && inventories[i][0] < v, "Found a reference to a non-existing vehicle (%s) at row %s.", inventories[i][0], i);
+            checkArgument(inventories[i][1] >= 1 && inventories[i][1] < n - 1, "Found a reference to a non-existing location (%s) at row %s.", inventories[i][1], i);
+            checkArgument(!availLocs.contains(inventories[i][1]), "Found a reference to a location (%s) at row %s which is available, as such, it can not be in the inventory.", inventories[i][1], i);
+            checkArgument(!parcelsInInventory.contains(inventories[i][1]), "Found a duplicate inventory entry, first duplicate at row %s.", i);
+            parcelsInInventory.add(inventories[i][1]);
+        }
+
+        checkArgument(v == remainingServiceTimes.length, "We expected remainingServiceTimes array of size %s, but we found %s.", v, remainingServiceTimes.length);
+        for (int i = 0; i < v; i++) {
+            checkArgument(remainingServiceTimes[i] >= 0, "Remaining service time must be >= 0, found %s.", remainingServiceTimes[i]);
+        }
     }
 
     /**
@@ -227,6 +289,15 @@ public final class SolverValidator implements SingleVehicleArraysSolver {
         checkArgument(sol.objectiveValue == totalTravelTime + tardiness, "Incorrect objective value (%s), it should be travel time + tardiness = %s + %s = %s.", sol.objectiveValue, totalTravelTime, tardiness, totalTravelTime
                 + tardiness);
         return sol;
+    }
+
+    public static SolutionObject[] validate(SolutionObject[] sols,
+            int[][] travelTime, int[] releaseDates, int[] dueDates,
+            int[][] servicePairs, int[] serviceTimes,
+            int[][] vehicleTravelTimes, int[][] inventories,
+            int[] remainingServiceTimes) {
+
+        return sols;
     }
 
     static Set<Integer> toSet(int[] arr) {
