@@ -7,6 +7,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
+import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
 
@@ -14,6 +15,7 @@ import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 
 import javax.measure.Measure;
 import javax.measure.converter.UnitConverter;
@@ -161,6 +163,17 @@ public final class ArraysSolvers {
                             .doubleValue(outputTimeUnit), RoundingMode.CEILING);
         }
         return remainingServiceTimes;
+    }
+
+    public static Queue<? extends DefaultParcel> convertSolutionObject(
+            SolutionObject sol, Map<Point, DefaultParcel> point2parcel,
+            List<Point> locations) {
+        final Queue<DefaultParcel> newRoute = newLinkedList();
+        // ignore first (current pos) and last (depot)
+        for (int i = 1; i < sol.route.length - 1; i++) {
+            newRoute.add(point2parcel.get(locations.get(sol.route[i])));
+        }
+        return newRoute;
     }
 
     // input units

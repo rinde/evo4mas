@@ -76,12 +76,8 @@ public class SingleVehicleSolverAdapter implements Solver {
         final SolutionObject sol = solver
                 .solve(ao.travelTime, ao.releaseDates, ao.dueDates, ao.servicePairs, ao.serviceTimes);
 
-        final Queue<DefaultParcel> newRoute = newLinkedList();
-        // ignore first (current pos) and last (depot)
-        for (int i = 1; i < sol.route.length - 1; i++) {
-            newRoute.add(ao.point2parcel.get(ao.locations.get(sol.route[i])));
-        }
-        return ImmutableList.of(newRoute);
+        return ImmutableList.of(ArraysSolvers
+                .convertSolutionObject(sol, ao.point2parcel, ao.locations));
     }
 
     static int fixTWstart(long start, long time) {
