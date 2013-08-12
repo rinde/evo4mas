@@ -5,6 +5,7 @@ package rinde.solver.pdptw;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newArrayListWithCapacity;
 import static com.google.common.collect.Maps.newHashMap;
 import static java.util.Arrays.asList;
@@ -29,6 +30,7 @@ import rinde.sim.problem.common.DefaultParcel;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.UnmodifiableIterator;
 import com.google.common.math.DoubleMath;
 
 /**
@@ -83,12 +85,90 @@ public final class ArraysSolvers {
         return matrix;
     }
 
+    public static MVArraysObject toMultiVehicleArrays(GlobalStateObject state,
+            Unit<Duration> outputTimeUnit) {
+        final ArraysObject singleVehicleArrays = toSingleVehicleArrays(state, outputTimeUnit);
+        checkArgument(state.vehicles.size() > 0, "We need at least one vehicle");
+
+        final int[][] vehicleTravelTimes = toVehicleTravelTimes(state, singleVehicleArrays, outputTimeUnit);
+        final int[][] inventories = toInventoriesArray(state, singleVehicleArrays);
+        final int[] remainingServiceTimes = toRemainingServiceTimes(state, outputTimeUnit);
+        return new MVArraysObject(singleVehicleArrays, vehicleTravelTimes,
+                inventories, remainingServiceTimes);
+    }
+
+    static int[][] toVehicleTravelTimes(GlobalStateObject state,
+            ArraysObject sva, Unit<Duration> outputTimeUnit) {
+        final int v = state.vehicles.size();
+        final int n = sva.travelTime.length;
+        // compute vehicle travel times
+        final int[][] vehicleTravelTimes = new int[v][n];
+
+        final UnmodifiableIterator<VehicleState> iterator = state.vehicles
+                .iterator();
+
+        for (int i = 0; i < v; i++) {
+            final VehicleState cur = iterator.next();
+            for (int j = 1; j < n; j++) {
+                final double dist = Point.distance(cur.location, sva.locations
+                        .get(j));
+
+                final Measure<Double, Velocity> speed = Measure
+                        .valueOf(cur.vehicle.getSpeed(), state.speedUnit);
+                final double duration = convertSpeed(speed, Measure.valueOf(dist, state.distUnit), outputTimeUnit);
+                vehicleTravelTimes[i][j] = DoubleMath
+                        .roundToInt(duration, RoundingMode.CEILING);
+            }
+        }
+        return vehicleTravelTimes;
+    }
+
+    static int[][] toInventoriesArray(GlobalStateObject state, ArraysObject sva) {
+        final ImmutableMap.Builder<Point, Integer> point2indexBuilder = ImmutableMap
+                .builder();
+        for (int i = 0; i < sva.locations.size(); i++) {
+            point2indexBuilder.put(sva.locations.get(i), i);
+        }
+        final Map<Point, Integer> point2index = point2indexBuilder.build();
+        final UnmodifiableIterator<VehicleState> iterator = state.vehicles
+                .iterator();
+        final List<List<Integer>> inventoryPairs = newArrayList();
+        for (int i = 0; i < state.vehicles.size(); i++) {
+            final VehicleState cur = iterator.next();
+            for (final DefaultParcel dp : cur.contents) {
+                inventoryPairs.add(newArrayList(i, point2index.get(dp
+                        .getDestination())));
+            }
+        }
+
+        final int[][] inventories = new int[inventoryPairs.size()][2];
+        for (int i = 0; i < inventoryPairs.size(); i++) {
+            inventories[i][0] = inventoryPairs.get(i).get(0);
+            inventories[i][1] = inventoryPairs.get(i).get(1);
+        }
+        return inventories;
+    }
+
+    static int[] toRemainingServiceTimes(GlobalStateObject state,
+            Unit<Duration> outputTimeUnit) {
+        final UnmodifiableIterator<VehicleState> iterator = state.vehicles
+                .iterator();
+        final int[] remainingServiceTimes = new int[state.vehicles.size()];
+        for (int i = 0; i < state.vehicles.size(); i++) {
+            remainingServiceTimes[i] = DoubleMath
+                    .roundToInt(Measure
+                            .valueOf(iterator.next().remainingServiceTime, state.timeUnit)
+                            .doubleValue(outputTimeUnit), RoundingMode.CEILING);
+        }
+        return remainingServiceTimes;
+    }
+
     // input units
     // time: ms, distance: km, speed: km/h
     // output units
     // time: seconds
 
-    public static ArraysObject toArrays(GlobalStateObject state,
+    public static ArraysObject toSingleVehicleArrays(GlobalStateObject state,
             Unit<Duration> outputTimeUnit) {
 
         final UnitConverter timeConverter = state.timeUnit
@@ -163,6 +243,9 @@ public final class ArraysSolvers {
 
     // computes duration which is required to travel length with the given
     // velocity
+    // note although times are normally in long, we use double here instead.
+    // Converting it to long in this method would introduce rounding in a too
+    // early stage.
     static double convertSpeed(Measure<Double, Velocity> speed,
             Measure<Double, Length> distance, Unit<Duration> outputTimeUnit) {
         return Measure.valueOf(distance.doubleValue(SI.METER)// meters
@@ -191,6 +274,33 @@ public final class ArraysSolvers {
             this.serviceTimes = serviceTimes;
             this.locations = ImmutableList.copyOf(asList(locations));
             this.point2parcel = ImmutableMap.copyOf(point2parcel);
+        }
+    }
+
+    public static class MVArraysObject extends ArraysObject {
+        public final int[][] vehicleTravelTimes;
+        public final int[][] inventories;
+        public final int[] remainingServiceTimes;
+
+        MVArraysObject(int[][] travelTime, int[] releaseDates, int[] dueDates,
+                int[][] servicePairs, int[] serviceTimes, Point[] locations,
+                Map<Point, DefaultParcel> point2parcel,
+                int[][] vehicleTravelTimes, int[][] inventories,
+                int[] remainingServiceTimes) {
+            super(travelTime, releaseDates, dueDates, servicePairs,
+                    serviceTimes, locations, point2parcel);
+            this.vehicleTravelTimes = vehicleTravelTimes;
+            this.inventories = inventories;
+            this.remainingServiceTimes = remainingServiceTimes;
+        }
+
+        MVArraysObject(ArraysObject ao, int[][] vehicleTravelTimes,
+                int[][] inventories, int[] remainingServiceTimes) {
+            this(ao.travelTime, ao.releaseDates, ao.dueDates, ao.servicePairs,
+                    ao.serviceTimes, ao.locations
+                            .toArray(new Point[ao.locations.size()]),
+                    ao.point2parcel, vehicleTravelTimes, inventories,
+                    remainingServiceTimes);
         }
     }
 

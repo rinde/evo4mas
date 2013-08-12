@@ -42,7 +42,8 @@ public class SingleVehicleSolverAdapter implements Solver {
 
     public ImmutableList<? extends Queue<? extends DefaultParcel>> solve(
             GlobalStateObject state) {
-        checkArgument(state.vehicles.size() == 1, "This solver can only deal with one vehicle.");
+        checkArgument(state.vehicles.size() == 1, "This solver can only deal with the single vehicle problem, found %s vehicles.", state.vehicles
+                .size());
 
         final VehicleState v = state.vehicles.iterator().next();
         checkArgument(v.remainingServiceTime == 0, "This solver can not deal with remaining service time, it should be 0, it was %s.", v.remainingServiceTime);
@@ -69,7 +70,8 @@ public class SingleVehicleSolverAdapter implements Solver {
         }
         // else, we are going to look for the optimal solution
 
-        final ArraysObject ao = ArraysSolvers.toArrays(state, outputTimeUnit);
+        final ArraysObject ao = ArraysSolvers
+                .toSingleVehicleArrays(state, outputTimeUnit);
 
         final SolutionObject sol = solver
                 .solve(ao.travelTime, ao.releaseDates, ao.dueDates, ao.servicePairs, ao.serviceTimes);
