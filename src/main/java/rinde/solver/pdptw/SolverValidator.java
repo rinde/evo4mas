@@ -4,12 +4,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.DiscreteDomains;
+import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 import com.google.common.collect.Ranges;
+import com.google.common.primitives.Ints;
 
 /**
  * Provides methods for validating input to {@link SingleVehicleArraysSolver}s
@@ -211,84 +216,131 @@ public final class SolverValidator {
     public static SolutionObject validate(SolutionObject sol,
             int[][] travelTime, int[] releaseDates, int[] dueDates,
             int[][] servicePairs, int[] serviceTimes) {
+
+        // convert single vehicle version to multi vehicle version for checking
+        // of inputs
+
         final int n = travelTime.length;
-        /*
-         * CHECK SERVICE SEQUENCE
-         */
-        checkArgument(sol.route.length == n, "The route should always contain all locations.");
-        checkArgument(sol.route[0] == 0, "The route should always start with the vehicle start location (0).");
-        checkArgument(sol.route[n - 1] == n - 1, "The route should always finish with the depot.");
 
-        final Set<Integer> routeSet = toSet(sol.route);
-        final Set<Integer> locationSet = Ranges
-                .closedOpen(0, travelTime.length)
-                .asSet(DiscreteDomains.integers());
-
-        // checks duplicates
-        checkArgument(routeSet.size() == n, "Every location in route should appear exactly once.");
-        // checks for completeness of tour
-        checkArgument(routeSet.equals(locationSet), "Not all locations are serviced, there is probably a non-existing location in the route.");
-
-        // check service pairs ordering, pickups shoud be visited before their
-        // corresponding delivery location
-        final Map<Integer, Integer> pairs = newHashMap();
-        for (int i = 0; i < servicePairs.length; i++) {
-            pairs.put(servicePairs[i][0], servicePairs[i][1]);
-        }
-        final Set<Integer> seen = newHashSet();
-        for (int i = 1; i < n - 1; i++) {
-            if (pairs.containsKey(sol.route[i])) {
-                checkArgument(!seen.contains(pairs.get(sol.route[i])), "Pickups should be visited before their corresponding deliveries. Location %s should be visited after location %s.", pairs
-                        .get(sol.route[i]), sol.route[i]);
-            }
-            seen.add(sol.route[i]);
-        }
-
-        /*
-         * CHECK ARRIVAL TIMES
-         */
-        checkArgument(sol.arrivalTimes.length == n, "Number of arrival times should equal number of locations.");
-        checkArgument(sol.arrivalTimes[0] == 0, "The first arrival time should always be 0.");
-
-        // check feasibility
-        for (int i = 1; i < n; i++) {
-            final int prev = sol.route[i - 1];
-            final int cur = sol.route[i];
-
-            // we compute the first possible arrival time for the vehicle to
-            // arrive at location i, given that it first visited location i-1
-            final int earliestArrivalTime = sol.arrivalTimes[prev]
-                    + serviceTimes[prev] + travelTime[prev][cur];
-
-            // we also have to take into account the time window
-            final int minArrivalTime = Math
-                    .max(earliestArrivalTime, releaseDates[cur]);
-
-            checkArgument(sol.arrivalTimes[cur] >= minArrivalTime, "Route index %s, arrivalTime (%s) needs to be greater or equal to minArrivalTime (%s).", i, sol.arrivalTimes[sol.route[i]], minArrivalTime);
-        }
-
-        /*
-         * CHECK OBJECTIVE VALUE
-         */
-
-        // sum travel time
-        int totalTravelTime = 0;
-        for (int i = 1; i < n; i++) {
-            totalTravelTime += travelTime[sol.route[i - 1]][sol.route[i]];
-        }
-
-        // sum tardiness
-        int tardiness = 0;
+        final int[][] vehicleTravelTimes = new int[1][n];
+        // copy first row
         for (int i = 0; i < n; i++) {
-            final int lateness = (sol.arrivalTimes[i] + serviceTimes[i])
-                    - dueDates[i];
-            if (lateness > 0) {
-                tardiness += lateness;
-            }
+            vehicleTravelTimes[0][i] = travelTime[0][i];
         }
-        checkArgument(sol.objectiveValue == totalTravelTime + tardiness, "Incorrect objective value (%s), it should be travel time + tardiness = %s + %s = %s.", sol.objectiveValue, totalTravelTime, tardiness, totalTravelTime
-                + tardiness);
+        final Set<Integer> locationSet = newHashSet(Ranges.closedOpen(1, n - 1)
+                .asSet(DiscreteDomains.integers()));
+        for (int i = 0; i < servicePairs.length; i++) {
+            locationSet.remove(servicePairs[i][0]);
+            locationSet.remove(servicePairs[i][1]);
+        }
+
+        final int[][] inventories = new int[locationSet.size()][2];
+        final Iterator<Integer> locationSetIterator = locationSet.iterator();
+        for (int i = 0; i < locationSet.size(); i++) {
+            inventories[i][0] = 0;// vehicle 0
+            inventories[i][1] = locationSetIterator.next();
+        }
+
+        final int[] remainingServiceTimes = new int[] { 0 };
+        // check inputs again since we just modified them
+        validateInputs(travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
+
+        final SolutionObject[] sols = new SolutionObject[] { sol };
+        validate(sols, travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
         return sol;
+
+        // final int n = travelTime.length;
+        // /*
+        // * CHECK SERVICE SEQUENCE
+        // */
+        // checkArgument(sol.route.length == n,
+        // "The route should always contain all locations.");
+        // checkArgument(sol.route[0] == 0,
+        // "The route should always start with the vehicle start location (0).");
+        // checkArgument(sol.route[n - 1] == n - 1,
+        // "The route should always finish with the depot.");
+        //
+        // final Set<Integer> routeSet = toSet(sol.route);
+        // final Set<Integer> locationSet = Ranges
+        // .closedOpen(0, travelTime.length)
+        // .asSet(DiscreteDomains.integers());
+        //
+        // // checks duplicates
+        // checkArgument(routeSet.size() == n,
+        // "Every location in route should appear exactly once.");
+        // // checks for completeness of tour
+        // checkArgument(routeSet.equals(locationSet),
+        // "Not all locations are serviced, there is probably a non-existing location in the route.");
+        //
+        // // check service pairs ordering, pickups shoud be visited before
+        // their
+        // // corresponding delivery location
+        // final Map<Integer, Integer> pairs = newHashMap();
+        // for (int i = 0; i < servicePairs.length; i++) {
+        // pairs.put(servicePairs[i][0], servicePairs[i][1]);
+        // }
+        // final Set<Integer> seen = newHashSet();
+        // for (int i = 1; i < n - 1; i++) {
+        // if (pairs.containsKey(sol.route[i])) {
+        // checkArgument(!seen.contains(pairs.get(sol.route[i])),
+        // "Pickups should be visited before their corresponding deliveries. Location %s should be visited after location %s.",
+        // pairs
+        // .get(sol.route[i]), sol.route[i]);
+        // }
+        // seen.add(sol.route[i]);
+        // }
+        //
+        // /*
+        // * CHECK ARRIVAL TIMES
+        // */
+        // checkArgument(sol.arrivalTimes.length == n,
+        // "Number of arrival times should equal number of locations.");
+        // checkArgument(sol.arrivalTimes[0] == 0,
+        // "The first arrival time should always be 0.");
+        //
+        // // check feasibility
+        // for (int i = 1; i < n; i++) {
+        // final int prev = sol.route[i - 1];
+        // final int cur = sol.route[i];
+        //
+        // // we compute the first possible arrival time for the vehicle to
+        // // arrive at location i, given that it first visited location i-1
+        // final int earliestArrivalTime = sol.arrivalTimes[prev]
+        // + serviceTimes[prev] + travelTime[prev][cur];
+        //
+        // // we also have to take into account the time window
+        // final int minArrivalTime = Math
+        // .max(earliestArrivalTime, releaseDates[cur]);
+        //
+        // checkArgument(sol.arrivalTimes[cur] >= minArrivalTime,
+        // "Route index %s, arrivalTime (%s) needs to be greater or equal to minArrivalTime (%s).",
+        // i, sol.arrivalTimes[sol.route[i]], minArrivalTime);
+        // }
+        //
+        // /*
+        // * CHECK OBJECTIVE VALUE
+        // */
+        //
+        // // sum travel time
+        // int totalTravelTime = 0;
+        // for (int i = 1; i < n; i++) {
+        // totalTravelTime += travelTime[sol.route[i - 1]][sol.route[i]];
+        // }
+        //
+        // // sum tardiness
+        // int tardiness = 0;
+        // for (int i = 0; i < n; i++) {
+        // final int lateness = (sol.arrivalTimes[i] + serviceTimes[i])
+        // - dueDates[i];
+        // if (lateness > 0) {
+        // tardiness += lateness;
+        // }
+        // }
+        // checkArgument(sol.objectiveValue == totalTravelTime + tardiness,
+        // "Incorrect objective value (%s), it should be travel time + tardiness = %s + %s = %s.",
+        // sol.objectiveValue, totalTravelTime, tardiness, totalTravelTime
+        // + tardiness);
+        // return sol;
     }
 
     public static SolutionObject[] validate(SolutionObject[] sols,
@@ -296,6 +348,134 @@ public final class SolverValidator {
             int[][] servicePairs, int[] serviceTimes,
             int[][] vehicleTravelTimes, int[][] inventories,
             int[] remainingServiceTimes) {
+
+        final int n = travelTime.length;
+
+        final ImmutableSet.Builder<Integer> routeSetBuilder = ImmutableSet
+                .builder();
+        int visitedLocations = 0;
+        for (final SolutionObject sol : sols) {
+            routeSetBuilder.addAll(toSet(sol.route));
+            visitedLocations += sol.route.length - 2;
+        }
+        final Set<Integer> routeSet = routeSetBuilder.build();
+        final Set<Integer> locationSet = Ranges
+                .closedOpen(0, travelTime.length)
+                .asSet(DiscreteDomains.integers());
+
+        checkArgument(visitedLocations == n - 2, "The number of visits in routes should equal the number of locations.");
+
+        // checks duplicates
+        checkArgument(routeSet.size() == n, "Every location in route should appear exactly once.");
+        // checks for completeness of tour
+        checkArgument(routeSet.equals(locationSet), "Not all locations are serviced, there is probably a non-existing location in the route.");
+
+        final ImmutableMultimap.Builder<Integer, Integer> inventoryBuilder = ImmutableMultimap
+                .builder();
+        for (int i = 0; i < inventories.length; i++) {
+            inventoryBuilder.put(inventories[i][0], inventories[i][1]);
+        }
+        final Multimap<Integer, Integer> inventoryMap = inventoryBuilder
+                .build();
+
+        for (int v = 0; v < sols.length; v++) {
+            final SolutionObject sol = sols[v];
+
+            /*
+             * CHECK SERVICE SEQUENCE
+             */
+            // checkArgument(sol.route.length == n,
+            // "The route should always contain all locations.");
+            checkArgument(sol.route[0] == 0, "The route should always start with the vehicle start location (0).");
+            checkArgument(sol.route[n - 1] == n - 1, "The route should always finish with the depot.");
+
+            final Set<Integer> locs = ImmutableSet.copyOf(Ints
+                    .asList(sol.route));
+            final Collection<Integer> inventory = inventoryMap.get(v);
+            for (final Integer i : inventory) {
+                checkArgument(locs.contains(i), "Every location in the inventory of a vehicle should occur in its route, route for vehicle %s does not contains location %s.", v, i);
+            }
+
+            // final Set<Integer> routeSet = toSet(sol.route);
+            // final Set<Integer> locationSet = Ranges
+            // .closedOpen(0, travelTime.length)
+            // .asSet(DiscreteDomains.integers());
+            //
+            // // checks duplicates
+            // checkArgument(routeSet.size() == n,
+            // "Every location in route should appear exactly once.");
+            // // checks for completeness of tour
+            // checkArgument(routeSet.equals(locationSet),
+            // "Not all locations are serviced, there is probably a non-existing location in the route.");
+
+            // check service pairs ordering, pickups should be visited before
+            // their corresponding delivery location
+            final Map<Integer, Integer> pairs = newHashMap();
+            for (int i = 0; i < servicePairs.length; i++) {
+                pairs.put(servicePairs[i][0], servicePairs[i][1]);
+            }
+            final Set<Integer> seen = newHashSet();
+            for (int i = 1; i < n - 1; i++) {
+                if (pairs.containsKey(sol.route[i])) {
+                    checkArgument(!seen.contains(pairs.get(sol.route[i])), "Pickups should be visited before their corresponding deliveries. Location %s should be visited after location %s.", pairs
+                            .get(sol.route[i]), sol.route[i]);
+                }
+                seen.add(sol.route[i]);
+            }
+
+            /*
+             * CHECK ARRIVAL TIMES
+             */
+            checkArgument(sol.arrivalTimes.length == n, "Number of arrival times should equal number of locations.");
+            checkArgument(sol.arrivalTimes[0] == remainingServiceTimes[v], "The first arrival time should be the remaining service time for this vehicle, expected %s, was %s.", remainingServiceTimes[v], sol.arrivalTimes[0]);
+
+            // check feasibility
+            for (int i = 1; i < n; i++) {
+                final int prev = sol.route[i - 1];
+                final int cur = sol.route[i];
+
+                // we compute the travel time. If it is the first step in the
+                // route, we use the time from vehicle location to the next
+                // location in the route.
+                final int tt = i == 1 ? vehicleTravelTimes[v][cur]
+                        : travelTime[prev][cur];
+
+                // we compute the first possible arrival time for the vehicle to
+                // arrive at location i, given that it first visited location
+                // i-1
+                final int earliestArrivalTime = sol.arrivalTimes[prev]
+                        + serviceTimes[prev] + tt;
+
+                // we also have to take into account the time window
+                final int minArrivalTime = Math
+                        .max(earliestArrivalTime, releaseDates[cur]);
+
+                checkArgument(sol.arrivalTimes[cur] >= minArrivalTime, "Route index %s, arrivalTime (%s) needs to be greater or equal to minArrivalTime (%s).", i, sol.arrivalTimes[sol.route[i]], minArrivalTime);
+            }
+
+            /*
+             * CHECK OBJECTIVE VALUE
+             */
+
+            // sum travel time
+            int totalTravelTime = 0;
+            for (int i = 1; i < n; i++) {
+                totalTravelTime += travelTime[sol.route[i - 1]][sol.route[i]];
+            }
+
+            // sum tardiness
+            int tardiness = 0;
+            for (int i = 0; i < n; i++) {
+                final int lateness = (sol.arrivalTimes[i] + serviceTimes[i])
+                        - dueDates[i];
+                if (lateness > 0) {
+                    tardiness += lateness;
+                }
+            }
+            checkArgument(sol.objectiveValue == totalTravelTime + tardiness, "Incorrect objective value (%s), it should be travel time + tardiness = %s + %s = %s.", sol.objectiveValue, totalTravelTime, tardiness, totalTravelTime
+                    + tardiness);
+
+        }
 
         return sols;
     }
