@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Ranges;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 
 /**
@@ -68,10 +69,10 @@ public final class SolverValidator {
     }
 
     /**
-     * Wraps the original {@link SingleVehicleArraysSolver} such that both the
-     * inputs to the solver and the outputs from the solver are validated. When
-     * an invalid input or output is detected a {@link IllegalArgumentException
-     * is thrown}.
+     * Decorates the original {@link SingleVehicleArraysSolver} such that both
+     * the inputs to the solver and the outputs from the solver are validated.
+     * When an invalid input or output is detected a
+     * {@link IllegalArgumentException is thrown}.
      * @param delegate The {@link SingleVehicleArraysSolver} that will be used
      *            for the actual solving.
      * @return The wrapped solver.
@@ -81,6 +82,15 @@ public final class SolverValidator {
         return new SingleValidator(delegate);
     }
 
+    /**
+     * Decorates the original {@link MultiVehicleArraysSolver} such that both
+     * the inputs to the solver and the outputs from the solver are validated.
+     * When an invalid input or output is detected a
+     * {@link IllegalArgumentException is thrown}.
+     * @param delegate The {@link MultiVehicleArraysSolver} that will be used
+     *            for the actual solving.
+     * @return The wrapped solver.
+     */
     public static MultiVehicleArraysSolver wrap(
             MultiVehicleArraysSolver delegate) {
         return new MultiValidator(delegate);
@@ -146,6 +156,37 @@ public final class SolverValidator {
         }
     }
 
+    /**
+     * Validates the inputs for the {@link MultiVehicleArraysSolver}. This
+     * method checks all properties as defined in
+     * {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     * . If the inputs are not correct an {@link IllegalArgumentException} is
+     * thrown.
+     * @param travelTime Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param releaseDates Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param dueDates Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param servicePairs Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param serviceTimes Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param vehicleTravelTimes Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param inventories Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param remainingServiceTimes Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     */
     public static void validateInputs(int[][] travelTime, int[] releaseDates,
             int[] dueDates, int[][] servicePairs, int[] serviceTimes,
             int[][] vehicleTravelTimes, int[][] inventories,
@@ -248,101 +289,39 @@ public final class SolverValidator {
         final SolutionObject[] sols = new SolutionObject[] { sol };
         validate(sols, travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
         return sol;
-
-        // final int n = travelTime.length;
-        // /*
-        // * CHECK SERVICE SEQUENCE
-        // */
-        // checkArgument(sol.route.length == n,
-        // "The route should always contain all locations.");
-        // checkArgument(sol.route[0] == 0,
-        // "The route should always start with the vehicle start location (0).");
-        // checkArgument(sol.route[n - 1] == n - 1,
-        // "The route should always finish with the depot.");
-        //
-        // final Set<Integer> routeSet = toSet(sol.route);
-        // final Set<Integer> locationSet = Ranges
-        // .closedOpen(0, travelTime.length)
-        // .asSet(DiscreteDomains.integers());
-        //
-        // // checks duplicates
-        // checkArgument(routeSet.size() == n,
-        // "Every location in route should appear exactly once.");
-        // // checks for completeness of tour
-        // checkArgument(routeSet.equals(locationSet),
-        // "Not all locations are serviced, there is probably a non-existing location in the route.");
-        //
-        // // check service pairs ordering, pickups shoud be visited before
-        // their
-        // // corresponding delivery location
-        // final Map<Integer, Integer> pairs = newHashMap();
-        // for (int i = 0; i < servicePairs.length; i++) {
-        // pairs.put(servicePairs[i][0], servicePairs[i][1]);
-        // }
-        // final Set<Integer> seen = newHashSet();
-        // for (int i = 1; i < n - 1; i++) {
-        // if (pairs.containsKey(sol.route[i])) {
-        // checkArgument(!seen.contains(pairs.get(sol.route[i])),
-        // "Pickups should be visited before their corresponding deliveries. Location %s should be visited after location %s.",
-        // pairs
-        // .get(sol.route[i]), sol.route[i]);
-        // }
-        // seen.add(sol.route[i]);
-        // }
-        //
-        // /*
-        // * CHECK ARRIVAL TIMES
-        // */
-        // checkArgument(sol.arrivalTimes.length == n,
-        // "Number of arrival times should equal number of locations.");
-        // checkArgument(sol.arrivalTimes[0] == 0,
-        // "The first arrival time should always be 0.");
-        //
-        // // check feasibility
-        // for (int i = 1; i < n; i++) {
-        // final int prev = sol.route[i - 1];
-        // final int cur = sol.route[i];
-        //
-        // // we compute the first possible arrival time for the vehicle to
-        // // arrive at location i, given that it first visited location i-1
-        // final int earliestArrivalTime = sol.arrivalTimes[prev]
-        // + serviceTimes[prev] + travelTime[prev][cur];
-        //
-        // // we also have to take into account the time window
-        // final int minArrivalTime = Math
-        // .max(earliestArrivalTime, releaseDates[cur]);
-        //
-        // checkArgument(sol.arrivalTimes[cur] >= minArrivalTime,
-        // "Route index %s, arrivalTime (%s) needs to be greater or equal to minArrivalTime (%s).",
-        // i, sol.arrivalTimes[sol.route[i]], minArrivalTime);
-        // }
-        //
-        // /*
-        // * CHECK OBJECTIVE VALUE
-        // */
-        //
-        // // sum travel time
-        // int totalTravelTime = 0;
-        // for (int i = 1; i < n; i++) {
-        // totalTravelTime += travelTime[sol.route[i - 1]][sol.route[i]];
-        // }
-        //
-        // // sum tardiness
-        // int tardiness = 0;
-        // for (int i = 0; i < n; i++) {
-        // final int lateness = (sol.arrivalTimes[i] + serviceTimes[i])
-        // - dueDates[i];
-        // if (lateness > 0) {
-        // tardiness += lateness;
-        // }
-        // }
-        // checkArgument(sol.objectiveValue == totalTravelTime + tardiness,
-        // "Incorrect objective value (%s), it should be travel time + tardiness = %s + %s = %s.",
-        // sol.objectiveValue, totalTravelTime, tardiness, totalTravelTime
-        // + tardiness);
-        // return sol;
     }
 
+    /**
+     * Validates the {@link SolutionObject}s that are produced by a
+     * {@link MultiVehicleArraysSolver}. If any of the {@link SolutionObject}s
+     * is infeasible, an {@link IllegalArgumentException} is thrown.
+     * @param sols The {@link SolutionObject}s that are validated.
+     * @param travelTime Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param releaseDates Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param dueDates Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param servicePairs Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param serviceTimes Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param vehicleTravelTimes Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param inventories Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @param remainingServiceTimes Parameter as specified by
+     *            {@link MultiVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[], int[][], int[][], int[])}
+     *            .
+     * @return The solution as is supplied, used for method chaining.
+     */
     public static SolutionObject[] validate(SolutionObject[] sols,
             int[][] travelTime, int[] releaseDates, int[] dueDates,
             int[][] servicePairs, int[] serviceTimes,
@@ -365,10 +344,12 @@ public final class SolverValidator {
 
         checkArgument(visitedLocations == n - 2, "The number of visits in routes should equal the number of locations.");
 
-        // checks duplicates
-        checkArgument(routeSet.size() == n, "Every location in route should appear exactly once.");
+        // checks duplicates and missing locations
+        checkArgument(routeSet.size() == n, "Every location should appear exactly once in one route. Missing location: %s.", Sets
+                .difference(locationSet, routeSet));
         // checks for completeness of tour
-        checkArgument(routeSet.equals(locationSet), "Not all locations are serviced, there is probably a non-existing location in the route.");
+        checkArgument(routeSet.equals(locationSet), "Not all locations are serviced, there is probably a non-existing location in the route. Set difference: %s.", Sets
+                .difference(routeSet, locationSet));
 
         final ImmutableMultimap.Builder<Integer, Integer> inventoryBuilder = ImmutableMultimap
                 .builder();
@@ -387,13 +368,13 @@ public final class SolverValidator {
             // checkArgument(sol.route.length == n,
             // "The route should always contain all locations.");
             checkArgument(sol.route[0] == 0, "The route should always start with the vehicle start location (0).");
-            checkArgument(sol.route[n - 1] == n - 1, "The route should always finish with the depot.");
+            checkArgument(sol.route[sol.route.length - 1] == n - 1, "The route should always finish with the depot.");
 
             final Set<Integer> locs = ImmutableSet.copyOf(Ints
                     .asList(sol.route));
             final Collection<Integer> inventory = inventoryMap.get(v);
             for (final Integer i : inventory) {
-                checkArgument(locs.contains(i), "Every location in the inventory of a vehicle should occur in its route, route for vehicle %s does not contains location %s.", v, i);
+                checkArgument(locs.contains(i), "Every location in the inventory of a vehicle should occur in its route, route for vehicle %s does not contain location %s.", v, i);
             }
 
             // final Set<Integer> routeSet = toSet(sol.route);
@@ -426,11 +407,11 @@ public final class SolverValidator {
             /*
              * CHECK ARRIVAL TIMES
              */
-            checkArgument(sol.arrivalTimes.length == n, "Number of arrival times should equal number of locations.");
+            checkArgument(sol.arrivalTimes.length == sol.route.length, "Number of arrival times should equal number of locations.");
             checkArgument(sol.arrivalTimes[0] == remainingServiceTimes[v], "The first arrival time should be the remaining service time for this vehicle, expected %s, was %s.", remainingServiceTimes[v], sol.arrivalTimes[0]);
 
             // check feasibility
-            for (int i = 1; i < n; i++) {
+            for (int i = 1; i < sol.route.length; i++) {
                 final int prev = sol.route[i - 1];
                 final int cur = sol.route[i];
 
@@ -443,14 +424,14 @@ public final class SolverValidator {
                 // we compute the first possible arrival time for the vehicle to
                 // arrive at location i, given that it first visited location
                 // i-1
-                final int earliestArrivalTime = sol.arrivalTimes[prev]
+                final int earliestArrivalTime = sol.arrivalTimes[i - 1]
                         + serviceTimes[prev] + tt;
 
                 // we also have to take into account the time window
                 final int minArrivalTime = Math
                         .max(earliestArrivalTime, releaseDates[cur]);
 
-                checkArgument(sol.arrivalTimes[cur] >= minArrivalTime, "Route index %s, arrivalTime (%s) needs to be greater or equal to minArrivalTime (%s).", i, sol.arrivalTimes[sol.route[i]], minArrivalTime);
+                checkArgument(sol.arrivalTimes[i] >= minArrivalTime, "Vehicle %s, route index %s, arrivalTime (%s) needs to be greater or equal to minArrivalTime (%s).", v, i, sol.arrivalTimes[i], minArrivalTime);
             }
 
             /*
@@ -459,15 +440,19 @@ public final class SolverValidator {
 
             // sum travel time
             int totalTravelTime = 0;
-            for (int i = 1; i < n; i++) {
-                totalTravelTime += travelTime[sol.route[i - 1]][sol.route[i]];
+            for (int i = 1; i < sol.route.length; i++) {
+                if (i == 1) {
+                    totalTravelTime += vehicleTravelTimes[v][sol.route[i]];
+                } else {
+                    totalTravelTime += travelTime[sol.route[i - 1]][sol.route[i]];
+                }
             }
 
             // sum tardiness
             int tardiness = 0;
-            for (int i = 0; i < n; i++) {
-                final int lateness = (sol.arrivalTimes[i] + serviceTimes[i])
-                        - dueDates[i];
+            for (int i = 0; i < sol.route.length; i++) {
+                final int lateness = (sol.arrivalTimes[i] + serviceTimes[sol.route[i]])
+                        - dueDates[sol.route[i]];
                 if (lateness > 0) {
                     tardiness += lateness;
                 }

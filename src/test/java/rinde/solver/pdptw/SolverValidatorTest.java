@@ -19,6 +19,9 @@ import rinde.solver.pdptw.single.MipTest;
  * 
  */
 public class SolverValidatorTest {
+    /*
+     * VALIDATE SINGLE VEHICLE INPUTS
+     */
 
     @Test(expected = IllegalArgumentException.class)
     public void validateInputsEmptyTravelTimeMatrix() {
@@ -254,26 +257,41 @@ public class SolverValidatorTest {
      * VALIDATE SOLUTION
      */
 
+    /**
+     * Route length must be equal to number of locations (4).
+     */
     @Test(expected = IllegalArgumentException.class)
     public void validateInvalidRouteLength() {
         validate(new SolutionObject(new int[3], new int[1], 0), new int[4][4], new int[4], new int[4], new int[][] {}, new int[4]);
     }
 
+    /**
+     * A location may only be visited once, duplicates are not allowed.
+     */
     @Test(expected = IllegalArgumentException.class)
-    public void validateInvalidRouteStart() {
+    public void validateDuplicatesInRouteStart() {
         validate(new SolutionObject(new int[] { 1, 1, 1, 1 }, new int[1], 0), new int[4][4], new int[4], new int[4], new int[][] {}, new int[4]);
     }
 
+    /**
+     * The first location visited must always be the vehicle start location (0).
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void validateInvalidRouteDuplicates() {
+        validate(new SolutionObject(new int[] { 1, 2, 0, 3 }, new int[1], 0), new int[4][4], new int[4], new int[4], new int[][] {}, new int[4]);
+    }
+
+    /**
+     * The last location visited must always be the depot (n-1).
+     */
     @Test(expected = IllegalArgumentException.class)
     public void validateInvalidRouteDepot() {
-        validate(new SolutionObject(new int[] { 0, 1, 1, 1 }, new int[1], 0), new int[4][4], new int[4], new int[4], new int[][] {}, new int[4]);
+        validate(new SolutionObject(new int[] { 0, 1, 3, 2 }, new int[1], 0), new int[4][4], new int[4], new int[4], new int[][] {}, new int[4]);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void validateInvaliRouteDuplicates() {
-        validate(new SolutionObject(new int[] { 0, 1, 1, 3 }, new int[1], 0), new int[4][4], new int[4], new int[4], new int[][] {}, new int[4]);
-    }
-
+    /**
+     * All locations must be visited, can not visit non-existing locations.
+     */
     @Test(expected = IllegalArgumentException.class)
     public void validateInvalidRouteNonExisting() {
         validate(new SolutionObject(new int[] { 0, 1, 9, 3 }, new int[1], 0), new int[4][4], new int[4], new int[4], new int[][] {}, new int[4]);
@@ -318,6 +336,77 @@ public class SolverValidatorTest {
     public void validateInvalidObjective() {
         validate(new SolutionObject(new int[] { 0, 1, 2, 3 }, new int[] { 0,
                 10, 100, 108 }, 0), travelTimes, new int[4], new int[4], new int[][] {}, new int[4]);
+    }
+
+    /*
+     * VALIDATE MULTI VEHICLE
+     */
+
+    @Test(expected = IllegalArgumentException.class)
+    public void validateMissingLocation2Vehicles() {
+        final SolutionObject sol1 = new SolutionObject(new int[] { 0, 2, 3 },
+                new int[] { 0, 10, 100, 108 }, 238);
+        final SolutionObject sol2 = new SolutionObject(new int[] { 0, 2, 3 },
+                new int[] { 0, 10, 100, 108 }, 238);
+        validate(new SolutionObject[] { sol1, sol2 }, travelTimes, new int[4], new int[4], new int[][] {}, new int[4], new int[2][4], new int[2][2], new int[2]);
+    }
+
+    @Test
+    public void validateMultiVehicleCorrect() {
+        final int[][] travelTime = new int[][] {
+        /* */new int[] { 999, 999, 999, 999 },
+        /* */new int[] { 999, 0, 999, 3 },
+        /* */new int[] { 999, 999, 0, 7 },
+        /* */new int[] { 999, 999, 999, 0 } };
+
+        final int[] releaseDates = { 0, 7, 8, 0 };
+        final int[] dueDates = { 0, 9, 100, 40 };
+
+        final int[][] vehicleTravelTime = new int[][] {
+        /* */new int[] { 999, 9, 999, 999 },
+        /* */new int[] { 999, 999, 2, 999 } };
+
+        // travel time for this route: 9 + 3
+        // tardiness: 1 + 60
+        final SolutionObject sol1 = new SolutionObject(new int[] { 0, 1, 3 },
+                new int[] { 0, 10, 100 }, 73);
+        // travel time for this route: 2 + 7
+        // tardiness: 0 + 50
+        final SolutionObject sol2 = new SolutionObject(new int[] { 0, 2, 3 },
+                new int[] { 0, 15, 90 }, 59);
+
+        validate(new SolutionObject[] { sol1, sol2 }, travelTime, releaseDates, dueDates, new int[][] {}, new int[4], vehicleTravelTime, new int[2][2], new int[2]);
+    }
+
+    /**
+     * In this test the vehicles attempt to deliver parcels which are not in
+     * their own inventory.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void validateRouteWithoutInventoryLocations() {
+        final SolutionObject sol1 = new SolutionObject(new int[] { 0, 1, 3 },
+                new int[] { 0, 10, 100 }, 73);
+        final SolutionObject sol2 = new SolutionObject(new int[] { 0, 2, 3 },
+                new int[] { 0, 15, 90 }, 59);
+        // vehicle 0 has location 2
+        // vehicle 1 has location 1
+        final int[][] inventories = new int[][] { { 0, 2 }, { 1, 1 } };
+
+        validate(new SolutionObject[] { sol1, sol2 }, new int[4][4], new int[4], new int[4], new int[][] {}, new int[4], new int[2][4], inventories, new int[2]);
+    }
+
+    /**
+     * The first arrival time should reflect the remainingServiceTime for each
+     * vehicle.
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void validateRemainingServiceTime() {
+        final SolutionObject sol1 = new SolutionObject(new int[] { 0, 1, 3 },
+                new int[] { 0, 10, 100 }, 73);
+        final SolutionObject sol2 = new SolutionObject(new int[] { 0, 2, 3 },
+                new int[] { 0, 15, 90 }, 59);
+        final int[] remainingServiceTimes = new int[] { 3, 700 };
+        validate(new SolutionObject[] { sol1, sol2 }, new int[4][4], new int[4], new int[4], new int[][] {}, new int[4], new int[2][4], new int[0][0], remainingServiceTimes);
     }
 
     @Test
@@ -398,7 +487,7 @@ public class SolverValidatorTest {
 
         final MultiVehicleArraysSolver s = wrap(new FakeMultiSolver(
                 new SolutionObject[] { new SolutionObject(new int[] { 0, 1, 2,
-                        3 }, new int[] { 0, 10, 100, 108 }, 238) }));
+                        3 }, new int[] { 0, 10, 100, 108 }, 228) }));
 
         s.solve(travelTimes, new int[4], new int[4], new int[][] {}, new int[4], new int[2][4], new int[][] {
                 { 0, 1 }, { 0, 2 } }, new int[2]);
