@@ -77,7 +77,7 @@ public final class SolverValidator {
     }
 
     /**
-     * Validat4es the inputs for {@link Solver#solve(GlobalStateObject)} method.
+     * Validates the inputs for {@link Solver#solve(GlobalStateObject)} method.
      * If the input is not correct an {@link IllegalArgumentException} is
      * thrown.
      * @param state The state to validate.
