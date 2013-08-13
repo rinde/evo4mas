@@ -3,18 +3,28 @@
  */
 package rinde.solver.pdptw;
 
-import java.util.List;
-import java.util.Queue;
-
 import rinde.sim.central.GlobalStateObject;
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.problem.common.ParcelDTO;
+
+import com.google.common.collect.ImmutableList;
 
 /**
+ * Interface for solvers of the pickup-and-delivery problem with time windows
+ * (PDPTW).
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
- * 
  */
 public interface Solver {
 
-    List<? extends Queue<? extends DefaultParcel>> solve(GlobalStateObject state);
-
+    /**
+     * Computes a solution for the PDPTW as specified by the
+     * {@link GlobalStateObject}. The returned solution does not necessarily
+     * need to be optimal but it needs to be feasible. The
+     * {@link SolverValidator} can check whether a {@link Solver} produces a
+     * valid solution and it can check whether the input parameters of the
+     * {@link Solver} are valid.
+     * @param state The state of the world, or problem instance.
+     * @return A list of routes, one for every vehicle in the
+     *         {@link GlobalStateObject}.
+     */
+    ImmutableList<ImmutableList<ParcelDTO>> solve(GlobalStateObject state);
 }

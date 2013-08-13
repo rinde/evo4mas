@@ -2,14 +2,15 @@ package rinde.solver.pdptw;
 
 /**
  * Interface for solvers for the single vehicle pickup-and-delivery problem with
- * time windows (SPDPTW).
+ * time windows (SPDPTW). This interface uses <code>int</code> arrays for
+ * specification of the inputs and outputs.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public interface SingleVehicleArraysSolver {
 
     /**
      * Gives a solution for the single vehicle PDPTW as specified by the
-     * parameters. The returned solution does not necessary need to be optimal
+     * parameters. The returned solution does not necessarily need to be optimal
      * but it needs to be feasible. The {@link SolverValidator} can check
      * whether a {@link SingleVehicleArraysSolver} produces a valid solution and
      * it can check whether the parameters for the

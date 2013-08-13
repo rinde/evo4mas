@@ -14,6 +14,7 @@ import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
 import rinde.sim.central.Converter;
+import rinde.sim.central.Converter.StateContext;
 import rinde.sim.problem.common.DefaultParcel;
 import rinde.solver.pdptw.SolutionObject;
 import rinde.solver.pdptw.Solver;
@@ -44,10 +45,12 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
     @Override
     protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
         checkState(roadModel != null && pdpModel != null && vehicle != null);
-        route = solver
-                .solve(Converter.convert(roadModel, pdpModel, vehicle, onMap, time, SI
-                        .MILLI(SI.SECOND), NonSI.KILOMETERS_PER_HOUR, SI.KILOMETER))
-                .iterator().next();
+
+        final StateContext state = Converter
+                .convert(roadModel, pdpModel, vehicle, onMap, time, SI
+                        .MILLI(SI.SECOND), NonSI.KILOMETERS_PER_HOUR, SI.KILOMETER);
+        route = Converter.convertRoutes(state, solver.solve(state.state))
+                .get(0);
     }
 
     public boolean hasNext() {

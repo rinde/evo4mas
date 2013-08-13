@@ -4,19 +4,16 @@
 package rinde.solver.pdptw;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.Lists.newLinkedList;
 
 import java.math.RoundingMode;
 import java.util.Collection;
-import java.util.LinkedList;
-import java.util.Queue;
 
 import javax.measure.quantity.Duration;
 import javax.measure.unit.Unit;
 
 import rinde.sim.central.GlobalStateObject;
 import rinde.sim.central.GlobalStateObject.VehicleState;
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.problem.common.ParcelDTO;
 import rinde.solver.pdptw.ArraysSolvers.ArraysObject;
 
 import com.google.common.collect.ImmutableList;
@@ -26,7 +23,6 @@ import com.google.common.primitives.Ints;
 /**
  * Adapter for {@link SingleVehicleArraysSolver} to conform to the
  * {@link Solver} interface.
- * 
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public class SingleVehicleSolverAdapter implements Solver {
@@ -34,20 +30,24 @@ public class SingleVehicleSolverAdapter implements Solver {
     private final SingleVehicleArraysSolver solver;
     private final Unit<Duration> outputTimeUnit;
 
+    /**
+     * @param solver The solver to use.
+     * @param outputTimeUnit The time unit which is expected by the specified
+     *            solver.
+     */
     public SingleVehicleSolverAdapter(SingleVehicleArraysSolver solver,
             Unit<Duration> outputTimeUnit) {
         this.solver = solver;
         this.outputTimeUnit = outputTimeUnit;
     }
 
-    public ImmutableList<? extends Queue<? extends DefaultParcel>> solve(
-            GlobalStateObject state) {
+    public ImmutableList<ImmutableList<ParcelDTO>> solve(GlobalStateObject state) {
         checkArgument(state.vehicles.size() == 1, "This solver can only deal with the single vehicle problem, found %s vehicles.", state.vehicles
                 .size());
 
         final VehicleState v = state.vehicles.iterator().next();
         checkArgument(v.remainingServiceTime == 0, "This solver can not deal with remaining service time, it should be 0, it was %s.", v.remainingServiceTime);
-        final Collection<DefaultParcel> inCargo = v.contents;
+        final Collection<ParcelDTO> inCargo = v.contents;
 
         // there are always two locations: the current vehicle location and
         // the depot
@@ -56,17 +56,17 @@ public class SingleVehicleSolverAdapter implements Solver {
 
         if (numLocations == 2) {
             // there are no orders
-            return ImmutableList.of(new LinkedList<DefaultParcel>());
+            final ImmutableList<ParcelDTO> empty = ImmutableList.of();
+            return ImmutableList.of(empty);
         } else if (state.availableParcels.size() + inCargo.size() == 1) {
             // if there is only one order, the solution is trivial
             if (!state.availableParcels.isEmpty()) {
                 // parcels on the map require two visits (one for pickup, one
                 // for delivery)
-                final Queue<DefaultParcel> route = newLinkedList(state.availableParcels);
-                route.addAll(state.availableParcels);
-                return ImmutableList.of(route);
+                final ParcelDTO dto = state.availableParcels.iterator().next();
+                return ImmutableList.of(ImmutableList.of(dto, dto));
             } // else
-            return ImmutableList.of(new LinkedList<DefaultParcel>(inCargo));
+            return ImmutableList.of(ImmutableList.copyOf(inCargo));
         }
         // else, we are going to look for the optimal solution
 
@@ -77,7 +77,7 @@ public class SingleVehicleSolverAdapter implements Solver {
                 .solve(ao.travelTime, ao.releaseDates, ao.dueDates, ao.servicePairs, ao.serviceTimes);
 
         return ImmutableList.of(ArraysSolvers
-                .convertSolutionObject(sol, ao.point2parcel, ao.locations));
+                .convertSolutionObject(sol, ao.point2dto, ao.locations));
     }
 
     static int fixTWstart(long start, long time) {

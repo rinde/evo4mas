@@ -5,11 +5,18 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import rinde.sim.central.GlobalStateObject;
+import rinde.sim.central.GlobalStateObject.VehicleState;
+import rinde.sim.problem.common.ParcelDTO;
+
 import com.google.common.collect.DiscreteDomains;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMultimap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
@@ -18,54 +25,27 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 
 /**
- * Provides methods for validating input to {@link SingleVehicleArraysSolver}s
- * and for validating output from {@link SingleVehicleArraysSolver}s. Also
- * provides a {@link #wrap(SingleVehicleArraysSolver)} method which wraps any
- * solver such that both inputs and outputs are validated every time
- * {@link SingleVehicleArraysSolver#solve(int[][], int[], int[], int[][], int[])}
- * is called.
- * 
+ * Provides methods for validating input to and output from {@link Solver}s,
+ * {@link SingleVehicleArraysSolver}s and {@link MultiVehicleArraysSolver}. Also
+ * provides <code>wrap(..)</code> methods which decorates any solver such that
+ * both inputs and outputs are validated every time <code>solve(..)</code> is
+ * called.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public final class SolverValidator {
 
     private SolverValidator() {}
 
-    private static class SingleValidator implements SingleVehicleArraysSolver {
-        private final SingleVehicleArraysSolver delegateSolver;
-
-        private SingleValidator(SingleVehicleArraysSolver delegate) {
-            delegateSolver = delegate;
-        }
-
-        public SolutionObject solve(int[][] travelTime, int[] releaseDates,
-                int[] dueDates, int[][] servicePairs, int[] serviceTimes) {
-            // first check inputs
-            validateInputs(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
-            // execute solver
-            final SolutionObject output = delegateSolver
-                    .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
-            // check outputs
-            return validate(output, travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
-        }
-    }
-
-    private static class MultiValidator implements MultiVehicleArraysSolver {
-        private final MultiVehicleArraysSolver delegateSolver;
-
-        private MultiValidator(MultiVehicleArraysSolver delegate) {
-            delegateSolver = delegate;
-        }
-
-        public SolutionObject[] solve(int[][] travelTime, int[] releaseDates,
-                int[] dueDates, int[][] servicePairs, int[] serviceTimes,
-                int[][] vehicleTravelTimes, int[][] inventories,
-                int[] remainingServiceTimes) {
-            validateInputs(travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
-            final SolutionObject[] output = delegateSolver
-                    .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
-            return validate(output, travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
-        }
+    /**
+     * Decorates the original {@link Solver} such that both the inputs to the
+     * solver and the outputs from the solver are validated. When an invalid
+     * input or output is detected a {@link IllegalArgumentException is thrown}.
+     * @param delegate The {@link Solver} that will be used for the actual
+     *            solving.
+     * @return The wrapped solver.
+     */
+    public static Solver wrap(Solver delegate) {
+        return new Validator(delegate);
     }
 
     /**
@@ -94,6 +74,30 @@ public final class SolverValidator {
     public static MultiVehicleArraysSolver wrap(
             MultiVehicleArraysSolver delegate) {
         return new MultiValidator(delegate);
+    }
+
+    /**
+     * Validat4es the inputs for {@link Solver#solve(GlobalStateObject)} method.
+     * If the input is not correct an {@link IllegalArgumentException} is
+     * thrown.
+     * @param state The state to validate.
+     * @return The state.
+     */
+    public static GlobalStateObject validateInputs(GlobalStateObject state) {
+        checkArgument(state.time >= 0, "Time must be >= 0, is %s.", state.time);
+        final Set<ParcelDTO> inventoryParcels = newHashSet();
+        for (final VehicleState vs : state.vehicles) {
+            checkArgument(vs.remainingServiceTime >= 0, "Remaining service time must be >= 0, is %s.", vs.remainingServiceTime);
+            checkArgument(vs.speed > 0, "Speed must be positive, is %s.", vs.speed);
+            final Set<ParcelDTO> intersection = Sets
+                    .intersection(state.availableParcels, vs.contents);
+            checkArgument(intersection.isEmpty(), "Parcels can not be available AND in the inventory of a vehicle, found: %s.", intersection);
+            final Set<ParcelDTO> inventoryIntersection = Sets
+                    .intersection(inventoryParcels, vs.contents);
+            checkArgument(inventoryIntersection.isEmpty(), "Parcels can not be in the inventory of two vehicles at the same time, found: %s.", inventoryIntersection);
+            inventoryParcels.addAll(vs.contents);
+        }
+        return state;
     }
 
     /**
@@ -233,6 +237,50 @@ public final class SolverValidator {
     }
 
     /**
+     * Validates the routes that are produced by a {@link Solver}. If one of the
+     * routes is infeasible an {@link IllegalArgumentException} is thrown.
+     * @param routes The routes that are validated.
+     * @param state Parameter as specified by
+     *            {@link Solver#solve(GlobalStateObject)}.
+     * @return The routes.
+     */
+    public static ImmutableList<ImmutableList<ParcelDTO>> validateOutputs(
+            ImmutableList<ImmutableList<ParcelDTO>> routes,
+            GlobalStateObject state) {
+
+        checkArgument(routes.size() == state.vehicles.size(), "There must be exactly one route for every vehicle, found %s routes with %s vehicles.", routes
+                .size(), state.vehicles.size());
+
+        final Set<ParcelDTO> inputParcels = newHashSet(state.availableParcels);
+
+        final Set<ParcelDTO> outputParcels = newHashSet();
+        for (int i = 0; i < routes.size(); i++) {
+            final List<ParcelDTO> route = routes.get(i);
+            final Set<ParcelDTO> routeSet = ImmutableSet.copyOf(route);
+            checkArgument(routeSet.containsAll(state.vehicles.get(i).contents), "The route of vehicle %s doesn't visit all parcels in its cargo.", i);
+            inputParcels.addAll(state.vehicles.get(i).contents);
+
+            for (final ParcelDTO p : route) {
+                checkArgument(!outputParcels.contains(p), "Found a parcel which is already in another route: %s.", p);
+                final int frequency = Collections.frequency(route, p);
+                if (state.availableParcels.contains(p)) {
+                    // if the parcel is available, it needs to occur twice in
+                    // the route (once for pickup, once for delivery).
+                    checkArgument(frequency == 2, "A parcel that is picked up needs to be delivered as well, so it should occur twice in the route, found %s occurences of parcel %s.", frequency, p);
+                } else {
+                    checkArgument(state.vehicles.get(i).contents.contains(p), "The parcel in this route is not available, which means it should be in the contents of this vehicle. Parcel: %s.", p);
+                    checkArgument(frequency == 1, "A parcel that is already in cargo should occur once in the route, found %s occurences of parcel %s.", frequency, p);
+                }
+            }
+            outputParcels.addAll(route);
+        }
+        checkArgument(inputParcels.equals(outputParcels), "The number of distinct parcels in the routes should equal the number of parcels in the input, parcels that should be added in routes: %s, parcels that should be removed from routes: %s.", Sets
+                .difference(inputParcels, outputParcels), Sets
+                .difference(outputParcels, inputParcels));
+        return routes;
+    }
+
+    /**
      * Validates the {@link SolutionObject} that is produced by a
      * {@link SingleVehicleArraysSolver} . If the {@link SolutionObject} is
      * infeasible, an {@link IllegalArgumentException} is thrown.
@@ -254,15 +302,12 @@ public final class SolverValidator {
      *            .
      * @return The solution as is supplied, used for method chaining.
      */
-    public static SolutionObject validate(SolutionObject sol,
+    public static SolutionObject validateOutputs(SolutionObject sol,
             int[][] travelTime, int[] releaseDates, int[] dueDates,
             int[][] servicePairs, int[] serviceTimes) {
-
         // convert single vehicle version to multi vehicle version for checking
         // of inputs
-
         final int n = travelTime.length;
-
         final int[][] vehicleTravelTimes = new int[1][n];
         // copy first row
         for (int i = 0; i < n; i++) {
@@ -287,7 +332,7 @@ public final class SolverValidator {
         validateInputs(travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
 
         final SolutionObject[] sols = new SolutionObject[] { sol };
-        validate(sols, travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
+        validateOutputs(sols, travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
         return sol;
     }
 
@@ -322,7 +367,7 @@ public final class SolverValidator {
      *            .
      * @return The solution as is supplied, used for method chaining.
      */
-    public static SolutionObject[] validate(SolutionObject[] sols,
+    public static SolutionObject[] validateOutputs(SolutionObject[] sols,
             int[][] travelTime, int[] releaseDates, int[] dueDates,
             int[][] servicePairs, int[] serviceTimes,
             int[][] vehicleTravelTimes, int[][] inventories,
@@ -376,18 +421,6 @@ public final class SolverValidator {
             for (final Integer i : inventory) {
                 checkArgument(locs.contains(i), "Every location in the inventory of a vehicle should occur in its route, route for vehicle %s does not contain location %s.", v, i);
             }
-
-            // final Set<Integer> routeSet = toSet(sol.route);
-            // final Set<Integer> locationSet = Ranges
-            // .closedOpen(0, travelTime.length)
-            // .asSet(DiscreteDomains.integers());
-            //
-            // // checks duplicates
-            // checkArgument(routeSet.size() == n,
-            // "Every location in route should appear exactly once.");
-            // // checks for completeness of tour
-            // checkArgument(routeSet.equals(locationSet),
-            // "Not all locations are serviced, there is probably a non-existing location in the route.");
 
             // check service pairs ordering, pickups should be visited before
             // their corresponding delivery location
@@ -473,4 +506,53 @@ public final class SolverValidator {
         return set;
     }
 
+    private static class Validator implements Solver {
+        private final Solver delegateSolver;
+
+        private Validator(Solver delegate) {
+            delegateSolver = delegate;
+        }
+
+        public ImmutableList<ImmutableList<ParcelDTO>> solve(
+                GlobalStateObject state) {
+            return validateOutputs(delegateSolver.solve(validateInputs(state)), state);
+        }
+    }
+
+    private static class SingleValidator implements SingleVehicleArraysSolver {
+        private final SingleVehicleArraysSolver delegateSolver;
+
+        private SingleValidator(SingleVehicleArraysSolver delegate) {
+            delegateSolver = delegate;
+        }
+
+        public SolutionObject solve(int[][] travelTime, int[] releaseDates,
+                int[] dueDates, int[][] servicePairs, int[] serviceTimes) {
+            // first check inputs
+            validateInputs(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+            // execute solver
+            final SolutionObject output = delegateSolver
+                    .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+            // check outputs
+            return validateOutputs(output, travelTime, releaseDates, dueDates, servicePairs, serviceTimes);
+        }
+    }
+
+    private static class MultiValidator implements MultiVehicleArraysSolver {
+        private final MultiVehicleArraysSolver delegateSolver;
+
+        private MultiValidator(MultiVehicleArraysSolver delegate) {
+            delegateSolver = delegate;
+        }
+
+        public SolutionObject[] solve(int[][] travelTime, int[] releaseDates,
+                int[] dueDates, int[][] servicePairs, int[] serviceTimes,
+                int[][] vehicleTravelTimes, int[][] inventories,
+                int[] remainingServiceTimes) {
+            validateInputs(travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
+            final SolutionObject[] output = delegateSolver
+                    .solve(travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
+            return validateOutputs(output, travelTime, releaseDates, dueDates, servicePairs, serviceTimes, vehicleTravelTimes, inventories, remainingServiceTimes);
+        }
+    }
 }

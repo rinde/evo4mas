@@ -5,14 +5,15 @@ package rinde.solver.pdptw;
 
 /**
  * Interface for solvers for the multi vehicle pickup-and-delivery problem with
- * time windows (PDPTW).
+ * time windows (PDPTW). This interface uses <code>int</code> arrays for
+ * specification of the inputs and outputs.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public interface MultiVehicleArraysSolver {
 
     /**
      * Computes a solution for the multi vehicle PDPTW as specified by the
-     * parameters. The returned solution does not necessary need to be optimal
+     * parameters. The returned solution does not necessarily need to be optimal
      * but it needs to be feasible. The {@link SolverValidator} can check
      * whether a {@link MultiVehicleArraysSolver} produces a valid solution and
      * it can check whether the parameters for the
