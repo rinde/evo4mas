@@ -89,6 +89,18 @@ public class MipSolver implements SingleVehicleArraysSolver {
             e.printStackTrace();
         }
 
+        // ADDED BY RINDE TO CONFORM TO CHANGED SOLUTION OBJECT SPEC
+        // SEE SolutionObject.arrivalTimes
+        final int[] newArrivalTimes = new int[solution.route.length];
+        for (int i = 0; i < solution.arrivalTimes.length; i++) {
+            newArrivalTimes[i] = solution.arrivalTimes[solution.route[i]];
+        }
+        for (int i = 0; i < solution.arrivalTimes.length; i++) {
+            solution.arrivalTimes[i] = newArrivalTimes[i];
+        }
+
+        // END ADDED BY RINDE
+
         return solution;
     }
 

@@ -59,6 +59,18 @@ public class HeuristicSolver implements SingleVehicleArraysSolver {
         final int maxIterations = 100000;
         final SolutionObject bestSol = performLateAcceptance(travelTime, releaseDates, dueDates, servicePairs, serviceTime, pickupToDeliveryMap, deliveryToPickupMap, laListSize, maxIterations);
 
+        // ADDED BY RINDE TO CONFORM TO CHANGED SOLUTION OBJECT SPEC
+        // SEE SolutionObject.arrivalTimes
+        final int[] newArrivalTimes = new int[bestSol.route.length];
+        for (int i = 0; i < bestSol.arrivalTimes.length; i++) {
+            newArrivalTimes[i] = bestSol.arrivalTimes[bestSol.route[i]];
+        }
+        for (int i = 0; i < bestSol.arrivalTimes.length; i++) {
+            bestSol.arrivalTimes[i] = newArrivalTimes[i];
+        }
+
+        // END ADDED BY RINDE
+
         return bestSol;
     }
 
