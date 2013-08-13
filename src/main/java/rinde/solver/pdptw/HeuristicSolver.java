@@ -7,8 +7,8 @@ import java.util.List;
 import org.apache.commons.math3.random.RandomAdaptor;
 import org.apache.commons.math3.random.RandomGenerator;
 
-import rinde.sim.pdptw.central.solver.SingleVehicleArraysSolver;
-import rinde.sim.pdptw.central.solver.SolutionObject;
+import rinde.sim.pdptw.central.arrays.SingleVehicleArraysSolver;
+import rinde.sim.pdptw.central.arrays.SolutionObject;
 
 /**
  * This class contains a heuristic implementation of the solver interface.

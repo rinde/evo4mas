@@ -11,7 +11,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import rinde.sim.core.graph.Point;
-import rinde.sim.pdptw.central.solver.ArraysSolvers;
+import rinde.sim.pdptw.central.arrays.ArraysSolvers;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -31,7 +31,7 @@ public class MultiVehicleSolverTest {
 
         System.out.println(Arrays.deepToString(travelTime));
 
-        // SolverValidator
+        // ArraysSolverValidator
         // .validateInputs(travelTime, releaseDates, dueDates, servicePairs,
         // serviceTimes, vehicleTravelTimes, inventories,
         // remainingServiceTimes);

@@ -36,11 +36,11 @@ import rinde.evo4mas.gendreau06.route.SolverRoutePlanner;
 import rinde.sim.core.Simulator;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.Model;
-import rinde.sim.pdptw.central.solver.SingleVehicleArraysSolver;
-import rinde.sim.pdptw.central.solver.SingleVehicleSolverAdapter;
-import rinde.sim.pdptw.central.solver.SolutionObject;
-import rinde.sim.pdptw.central.solver.SolverDebugger;
-import rinde.sim.pdptw.central.solver.SolverValidator;
+import rinde.sim.pdptw.central.arrays.ArraysSolverDebugger;
+import rinde.sim.pdptw.central.arrays.ArraysSolverValidator;
+import rinde.sim.pdptw.central.arrays.SingleVehicleArraysSolver;
+import rinde.sim.pdptw.central.arrays.SingleVehicleSolverAdapter;
+import rinde.sim.pdptw.central.arrays.SolutionObject;
 import rinde.sim.problem.common.AddParcelEvent;
 import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.ObjectiveFunction;
@@ -211,7 +211,7 @@ public class SingleVehicleSolverTest {
     }
 
     static class TestConfigurator implements Configurator {
-        final List<SolverDebugger> debuggers;
+        final List<ArraysSolverDebugger> debuggers;
         final SingleVehicleArraysSolver solver;
         final Unit<Duration> timeUnit;
 
@@ -226,7 +226,7 @@ public class SingleVehicleSolverTest {
             final Communicator c = new RandomBidder(123);
             sim.register(c);
 
-            final SolverDebugger sd = SolverDebugger.wrap(SolverValidator
+            final ArraysSolverDebugger sd = ArraysSolverDebugger.wrap(ArraysSolverValidator
                     .wrap(solver), false);
             debuggers.add(sd);
             return sim.register(new Truck(event.vehicleDTO,

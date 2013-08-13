@@ -7,9 +7,9 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
 
-import rinde.sim.pdptw.central.solver.SingleVehicleArraysSolver;
-import rinde.sim.pdptw.central.solver.SolverDebugger;
-import rinde.sim.pdptw.central.solver.SolverValidator;
+import rinde.sim.pdptw.central.arrays.ArraysSolverDebugger;
+import rinde.sim.pdptw.central.arrays.ArraysSolverValidator;
+import rinde.sim.pdptw.central.arrays.SingleVehicleArraysSolver;
 import rinde.solver.pdptw.MipSolver;
 
 public class MipTest {
@@ -18,8 +18,8 @@ public class MipTest {
 
     @Before
     public void setUp() {
-        solver = SolverDebugger
-                .wrap(SolverValidator.wrap(new MipSolver()), false);
+        solver = ArraysSolverDebugger
+                .wrap(ArraysSolverValidator.wrap(new MipSolver()), false);
     }
 
     @Test

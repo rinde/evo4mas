@@ -45,8 +45,8 @@ import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.pdp.Vehicle;
 import rinde.sim.core.model.road.RoadModel;
-import rinde.sim.pdptw.central.solver.SingleVehicleSolverAdapter;
-import rinde.sim.pdptw.central.solver.SolverValidator;
+import rinde.sim.pdptw.central.arrays.ArraysSolverValidator;
+import rinde.sim.pdptw.central.arrays.SingleVehicleSolverAdapter;
 import rinde.sim.problem.common.AddParcelEvent;
 import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.DefaultParcel;
@@ -93,13 +93,13 @@ public class RoutePlannerTest {
         { new RPBuilder() {
             public RoutePlanner build() {
                 return new SolverRoutePlanner(new SingleVehicleSolverAdapter(
-                        SolverValidator.wrap(new MipSolver()), NonSI.MINUTE));
+                        ArraysSolverValidator.wrap(new MipSolver()), NonSI.MINUTE));
             }
         } },/* */
         { new RPBuilder() {
             public RoutePlanner build() {
                 return new SolverRoutePlanner(new SingleVehicleSolverAdapter(
-                        SolverValidator.wrap(new HeuristicSolver(
+                        ArraysSolverValidator.wrap(new HeuristicSolver(
                                 new MersenneTwister(123))), NonSI.MINUTE));
             }
         } }, /* */

@@ -3,7 +3,7 @@
  */
 package rinde.evo4mas.gendreau06.comm;
 
-import rinde.sim.pdptw.central.solver.SingleVehicleArraysSolver;
+import rinde.sim.pdptw.central.arrays.SingleVehicleArraysSolver;
 import rinde.sim.problem.common.DefaultParcel;
 
 /**

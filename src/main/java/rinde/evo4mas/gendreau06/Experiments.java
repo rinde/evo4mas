@@ -26,9 +26,9 @@ import rinde.evo4mas.gendreau06.route.RandomRoutePlanner;
 import rinde.evo4mas.gendreau06.route.SolverRoutePlanner;
 import rinde.sim.core.Simulator;
 import rinde.sim.core.model.Model;
-import rinde.sim.pdptw.central.solver.SingleVehicleSolverAdapter;
-import rinde.sim.pdptw.central.solver.SolverDebugger;
-import rinde.sim.pdptw.central.solver.SolverValidator;
+import rinde.sim.pdptw.central.arrays.ArraysSolverDebugger;
+import rinde.sim.pdptw.central.arrays.ArraysSolverValidator;
+import rinde.sim.pdptw.central.arrays.SingleVehicleSolverAdapter;
 import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
@@ -168,7 +168,7 @@ public class Experiments {
             sim.register(c);
             return sim.register(new Truck(event.vehicleDTO,
                     new SolverRoutePlanner(new SingleVehicleSolverAdapter(
-                            SolverDebugger.wrap(SolverValidator
+                            ArraysSolverDebugger.wrap(ArraysSolverValidator
                                     .wrap(new MipSolver())), SI.SECOND)), c));
         }
 

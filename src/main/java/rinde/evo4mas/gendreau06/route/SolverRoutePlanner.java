@@ -13,9 +13,9 @@ import javax.annotation.Nullable;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import rinde.sim.pdptw.central.Converter;
-import rinde.sim.pdptw.central.solver.SolutionObject;
-import rinde.sim.pdptw.central.solver.Solver;
+import rinde.sim.pdptw.central.Solvers;
+import rinde.sim.pdptw.central.Solver;
+import rinde.sim.pdptw.central.arrays.SolutionObject;
 import rinde.sim.problem.common.DefaultParcel;
 
 /**
@@ -44,7 +44,7 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
     @Override
     protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
         checkState(roadModel != null && pdpModel != null && vehicle != null);
-        route = Converter
+        route = Solvers
                 .solve(solver, roadModel, pdpModel, vehicle, onMap, time, SI
                         .MILLI(SI.SECOND), NonSI.KILOMETERS_PER_HOUR, SI.KILOMETER);
     }

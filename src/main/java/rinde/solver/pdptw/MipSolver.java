@@ -7,8 +7,8 @@ import ilog.cplex.IloCplex;
 
 import java.util.Arrays;
 
-import rinde.sim.pdptw.central.solver.SingleVehicleArraysSolver;
-import rinde.sim.pdptw.central.solver.SolutionObject;
+import rinde.sim.pdptw.central.arrays.SingleVehicleArraysSolver;
+import rinde.sim.pdptw.central.arrays.SolutionObject;
 
 public class MipSolver implements SingleVehicleArraysSolver {
 
