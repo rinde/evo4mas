@@ -3,8 +3,8 @@
  */
 package rinde.evo4mas.gendreau06.comm;
 
+import rinde.sim.pdptw.central.solver.SingleVehicleArraysSolver;
 import rinde.sim.problem.common.DefaultParcel;
-import rinde.solver.pdptw.SingleVehicleArraysSolver;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

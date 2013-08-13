@@ -20,14 +20,14 @@ import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.pdptw.central.solver.SingleVehicleArraysSolver;
+import rinde.sim.pdptw.central.solver.SolutionObject;
+import rinde.sim.pdptw.central.solver.SolverDebugger;
+import rinde.sim.pdptw.central.solver.SolverValidator;
 import rinde.sim.problem.common.VehicleDTO;
 import rinde.sim.util.fsm.State;
 import rinde.sim.util.fsm.StateMachine;
-import rinde.solver.pdptw.SingleVehicleArraysSolver;
-import rinde.solver.pdptw.SolutionObject;
-import rinde.solver.pdptw.SolverDebugger;
-import rinde.solver.pdptw.SolverValidator;
-import rinde.solver.pdptw.single.MipSolver;
+import rinde.solver.pdptw.MipSolver;
 
 import com.google.common.primitives.Ints;
 

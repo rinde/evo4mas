@@ -36,6 +36,11 @@ import rinde.evo4mas.gendreau06.route.SolverRoutePlanner;
 import rinde.sim.core.Simulator;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.Model;
+import rinde.sim.pdptw.central.solver.SingleVehicleArraysSolver;
+import rinde.sim.pdptw.central.solver.SingleVehicleSolverAdapter;
+import rinde.sim.pdptw.central.solver.SolutionObject;
+import rinde.sim.pdptw.central.solver.SolverDebugger;
+import rinde.sim.pdptw.central.solver.SolverValidator;
 import rinde.sim.problem.common.AddParcelEvent;
 import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.ObjectiveFunction;
@@ -46,8 +51,8 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
 import rinde.sim.problem.gendreau06.GendreauTestUtil;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
-import rinde.solver.pdptw.single.HeuristicSolver;
-import rinde.solver.pdptw.single.MipSolver;
+import rinde.solver.pdptw.HeuristicSolver;
+import rinde.solver.pdptw.MipSolver;
 
 /**
  * Checks whether the objective as calculated by the simulator via

@@ -26,13 +26,13 @@ import rinde.evo4mas.gendreau06.route.RandomRoutePlanner;
 import rinde.evo4mas.gendreau06.route.SolverRoutePlanner;
 import rinde.sim.core.Simulator;
 import rinde.sim.core.model.Model;
+import rinde.sim.pdptw.central.solver.SingleVehicleSolverAdapter;
+import rinde.sim.pdptw.central.solver.SolverDebugger;
+import rinde.sim.pdptw.central.solver.SolverValidator;
 import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
 import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
-import rinde.solver.pdptw.SingleVehicleSolverAdapter;
-import rinde.solver.pdptw.SolverDebugger;
-import rinde.solver.pdptw.SolverValidator;
-import rinde.solver.pdptw.single.MipSolver;
+import rinde.solver.pdptw.MipSolver;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;

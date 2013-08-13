@@ -11,6 +11,7 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import rinde.sim.core.graph.Point;
+import rinde.sim.pdptw.central.solver.ArraysSolvers;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

@@ -13,10 +13,10 @@ import javax.annotation.Nullable;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import rinde.sim.central.Converter;
+import rinde.sim.pdptw.central.Converter;
+import rinde.sim.pdptw.central.solver.SolutionObject;
+import rinde.sim.pdptw.central.solver.Solver;
 import rinde.sim.problem.common.DefaultParcel;
-import rinde.solver.pdptw.SolutionObject;
-import rinde.solver.pdptw.Solver;
 
 /**
  * A {@link RoutePlanner} implementation that uses a {@link Solver} that

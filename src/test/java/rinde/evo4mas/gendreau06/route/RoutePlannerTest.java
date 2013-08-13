@@ -45,6 +45,8 @@ import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.pdp.Vehicle;
 import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.pdptw.central.solver.SingleVehicleSolverAdapter;
+import rinde.sim.pdptw.central.solver.SolverValidator;
 import rinde.sim.problem.common.AddParcelEvent;
 import rinde.sim.problem.common.AddVehicleEvent;
 import rinde.sim.problem.common.DefaultParcel;
@@ -56,10 +58,8 @@ import rinde.sim.problem.gendreau06.Gendreau06Scenario;
 import rinde.sim.problem.gendreau06.GendreauTestUtil;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
-import rinde.solver.pdptw.SingleVehicleSolverAdapter;
-import rinde.solver.pdptw.SolverValidator;
-import rinde.solver.pdptw.single.HeuristicSolver;
-import rinde.solver.pdptw.single.MipSolver;
+import rinde.solver.pdptw.HeuristicSolver;
+import rinde.solver.pdptw.MipSolver;
 
 import com.google.common.collect.ImmutableSet;
 
