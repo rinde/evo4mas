@@ -11,7 +11,7 @@
 	<inceptionYear>2012</inceptionYear>
 
 	<properties>
-		<rinsim.version>2.2.0-SNAPSHOT</rinsim.version>
+		<rinsim.version>2.3.0-SNAPSHOT</rinsim.version>
 		<rinecj.version>0.0.1-SNAPSHOT</rinecj.version>
 	</properties>
 
