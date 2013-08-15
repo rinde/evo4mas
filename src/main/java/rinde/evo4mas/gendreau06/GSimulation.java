@@ -6,14 +6,14 @@ package rinde.evo4mas.gendreau06;
 import java.io.IOException;
 
 import rinde.sim.core.model.Model;
-import rinde.sim.problem.common.AddVehicleEvent;
-import rinde.sim.problem.common.DynamicPDPTWProblem;
-import rinde.sim.problem.common.DynamicPDPTWProblem.Creator;
-import rinde.sim.problem.common.DynamicPDPTWProblem.DefaultUICreator;
-import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
-import rinde.sim.problem.common.TimeLinePanel;
-import rinde.sim.problem.gendreau06.Gendreau06Parser;
-import rinde.sim.problem.gendreau06.Gendreau06Scenario;
+import rinde.sim.pdptw.common.AddVehicleEvent;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem;
+import rinde.sim.pdptw.common.TimeLinePanel;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem.Creator;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem.DefaultUICreator;
+import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
+import rinde.sim.pdptw.gendreau06.Gendreau06Parser;
+import rinde.sim.pdptw.gendreau06.Gendreau06Scenario;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

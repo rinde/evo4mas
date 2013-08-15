@@ -6,7 +6,7 @@ package rinde.evo4mas.gendreau06.comm;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
 
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 /**
  * A {@link Bidder} implementation that creates random bids.

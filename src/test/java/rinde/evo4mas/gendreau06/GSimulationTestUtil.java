@@ -4,8 +4,8 @@
 package rinde.evo4mas.gendreau06;
 
 import rinde.evo4mas.gendreau06.GSimulation.Configurator;
-import rinde.sim.problem.common.DynamicPDPTWProblem;
-import rinde.sim.problem.gendreau06.Gendreau06Scenario;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem;
+import rinde.sim.pdptw.gendreau06.Gendreau06Scenario;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

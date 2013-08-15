@@ -13,7 +13,7 @@ import java.util.Set;
 import rinde.sim.event.Event;
 import rinde.sim.event.EventDispatcher;
 import rinde.sim.event.Listener;
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 /**
  * Basic implementation for {@link Bidder}.

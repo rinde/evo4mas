@@ -16,7 +16,7 @@ import rinde.sim.core.model.pdp.PDPModel.PDPModelEvent;
 import rinde.sim.core.model.pdp.PDPModel.PDPModelEventType;
 import rinde.sim.event.Event;
 import rinde.sim.event.Listener;
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 /**
  * This class provides a common base for classes that implement a communication

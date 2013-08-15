@@ -9,9 +9,9 @@ import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.evo4mas.common.TruckContext;
 import rinde.jppf.ComputationTask;
-import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
-import rinde.sim.problem.fabrirecht.FabriRechtParser;
-import rinde.sim.problem.fabrirecht.FabriRechtScenario;
+import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
+import rinde.sim.pdptw.fabrirecht.FabriRechtParser;
+import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

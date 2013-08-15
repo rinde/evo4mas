@@ -9,7 +9,7 @@ import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.event.Event;
 import rinde.sim.event.EventDispatcher;
 import rinde.sim.event.Listener;
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 /**
  * This {@link Communicator} implementation allows communication via a

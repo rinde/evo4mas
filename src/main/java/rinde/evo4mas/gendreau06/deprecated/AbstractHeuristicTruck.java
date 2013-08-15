@@ -18,10 +18,10 @@ import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.pdp.Vehicle;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.DefaultVehicle;
-import rinde.sim.problem.common.ParcelDTO;
-import rinde.sim.problem.common.VehicleDTO;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultVehicle;
+import rinde.sim.pdptw.common.ParcelDTO;
+import rinde.sim.pdptw.common.VehicleDTO;
 import rinde.sim.util.fsm.State;
 import rinde.sim.util.fsm.StateMachine;
 

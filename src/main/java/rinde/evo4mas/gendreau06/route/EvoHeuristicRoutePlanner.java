@@ -18,7 +18,7 @@ import rinde.evo4mas.gendreau06.GCBuilderReceiver;
 import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.evo4mas.gendreau06.GendreauContextBuilder;
 import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 import com.google.common.collect.ImmutableSet;
 

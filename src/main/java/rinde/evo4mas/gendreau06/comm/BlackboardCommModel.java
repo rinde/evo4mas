@@ -10,7 +10,7 @@ import static java.util.Collections.unmodifiableSet;
 import java.util.Set;
 
 import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 /**
  * This is an implementation of a blackboard communication model. It allows

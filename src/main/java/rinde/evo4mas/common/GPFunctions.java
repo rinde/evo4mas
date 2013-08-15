@@ -10,7 +10,7 @@ import java.util.Collection;
 
 import rinde.ecj.GPFunc;
 import rinde.sim.core.graph.Point;
-import rinde.sim.problem.common.ParcelDTO;
+import rinde.sim.pdptw.common.ParcelDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

@@ -12,9 +12,9 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
-import rinde.sim.problem.common.AddParcelEvent;
-import rinde.sim.problem.fabrirecht.FabriRechtParser;
-import rinde.sim.problem.fabrirecht.FabriRechtScenario;
+import rinde.sim.pdptw.common.AddParcelEvent;
+import rinde.sim.pdptw.fabrirecht.FabriRechtParser;
+import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.ScenarioBuilder;
 import rinde.sim.scenario.TimedEvent;
 

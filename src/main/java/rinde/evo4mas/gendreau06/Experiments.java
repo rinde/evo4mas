@@ -29,9 +29,9 @@ import rinde.sim.core.model.Model;
 import rinde.sim.pdptw.central.arrays.ArraysSolverDebugger;
 import rinde.sim.pdptw.central.arrays.ArraysSolverValidator;
 import rinde.sim.pdptw.central.arrays.SingleVehicleSolverAdapter;
-import rinde.sim.problem.common.AddVehicleEvent;
-import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
-import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
+import rinde.sim.pdptw.common.AddVehicleEvent;
+import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
+import rinde.sim.pdptw.gendreau06.Gendreau06ObjectiveFunction;
 import rinde.solver.pdptw.MipSolver;
 
 import com.google.common.base.Charsets;

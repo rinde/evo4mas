@@ -12,7 +12,7 @@ import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.event.Event;
 import rinde.sim.event.Listener;
-import rinde.sim.problem.common.VehicleDTO;
+import rinde.sim.pdptw.common.VehicleDTO;
 import rinde.sim.util.fsm.State;
 import rinde.sim.util.fsm.StateMachine;
 

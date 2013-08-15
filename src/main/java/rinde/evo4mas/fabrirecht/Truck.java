@@ -16,12 +16,12 @@ import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.PDPModel.VehicleParcelActionInfo;
 import rinde.sim.core.model.pdp.PDPModel.VehicleState;
 import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.DefaultVehicle;
-import rinde.sim.problem.common.ParcelDTO;
-import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
-import rinde.sim.problem.common.VehicleDTO;
-import rinde.sim.problem.fabrirecht.FabriRechtScenario;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultVehicle;
+import rinde.sim.pdptw.common.ParcelDTO;
+import rinde.sim.pdptw.common.VehicleDTO;
+import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
+import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 
 class Truck extends DefaultVehicle implements CoordAgent {
 

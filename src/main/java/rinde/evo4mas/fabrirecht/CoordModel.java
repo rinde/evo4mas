@@ -20,8 +20,8 @@ import rinde.sim.core.model.pdp.PDPModel.PDPModelEvent;
 import rinde.sim.core.model.pdp.PDPModel.PDPModelEventType;
 import rinde.sim.event.Event;
 import rinde.sim.event.Listener;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.ParcelDTO;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.ParcelDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

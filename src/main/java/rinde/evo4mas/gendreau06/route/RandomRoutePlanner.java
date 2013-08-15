@@ -18,7 +18,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomAdaptor;
 
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 /**
  * A {@link RoutePlanner} implementation that creates random routes.

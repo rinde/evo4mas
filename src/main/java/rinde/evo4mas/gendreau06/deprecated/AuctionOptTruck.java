@@ -24,7 +24,7 @@ import rinde.sim.pdptw.central.arrays.ArraysSolverDebugger;
 import rinde.sim.pdptw.central.arrays.ArraysSolverValidator;
 import rinde.sim.pdptw.central.arrays.SingleVehicleArraysSolver;
 import rinde.sim.pdptw.central.arrays.SolutionObject;
-import rinde.sim.problem.common.VehicleDTO;
+import rinde.sim.pdptw.common.VehicleDTO;
 import rinde.sim.util.fsm.State;
 import rinde.sim.util.fsm.StateMachine;
 import rinde.solver.pdptw.MipSolver;

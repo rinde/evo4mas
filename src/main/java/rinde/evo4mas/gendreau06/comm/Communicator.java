@@ -6,7 +6,7 @@ package rinde.evo4mas.gendreau06.comm;
 import java.util.Collection;
 
 import rinde.sim.event.Listener;
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 /**
  * Interface of communications. Facade for communication system. acts on behalve

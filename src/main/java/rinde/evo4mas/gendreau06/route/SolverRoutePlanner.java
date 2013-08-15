@@ -16,8 +16,8 @@ import javax.measure.unit.SI;
 import rinde.sim.pdptw.central.Solver;
 import rinde.sim.pdptw.central.Solvers;
 import rinde.sim.pdptw.central.arrays.SolutionObject;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.PDPRoadModel;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.PDPRoadModel;
 
 /**
  * A {@link RoutePlanner} implementation that uses a {@link Solver} that

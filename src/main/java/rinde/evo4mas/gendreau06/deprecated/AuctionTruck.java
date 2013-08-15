@@ -16,8 +16,8 @@ import rinde.evo4mas.gendreau06.deprecated.HeuristicTruck.GotoPickup;
 import rinde.evo4mas.gendreau06.deprecated.HeuristicTruck.Pickup;
 import rinde.evo4mas.gendreau06.deprecated.HeuristicTruck.TruckEvent;
 import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.VehicleDTO;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.VehicleDTO;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;

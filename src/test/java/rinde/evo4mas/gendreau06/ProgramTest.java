@@ -11,7 +11,7 @@ import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
 import rinde.evo4mas.gendreau06.deprecated.GSimulationTask;
 import rinde.evo4mas.gendreau06.deprecated.GSimulationTask.SolutionType;
-import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
+import rinde.sim.pdptw.gendreau06.Gendreau06ObjectiveFunction;
 import rinde.sim.ui.View;
 
 /**

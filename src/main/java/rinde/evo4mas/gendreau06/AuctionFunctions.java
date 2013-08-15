@@ -36,8 +36,8 @@ import rinde.evo4mas.gendreau06.GendreauFunctions.Midc;
 import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.ParcelDTO;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.ParcelDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

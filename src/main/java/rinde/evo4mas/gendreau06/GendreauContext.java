@@ -13,8 +13,8 @@ import java.util.Set;
 import rinde.evo4mas.common.TruckContext;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.problem.common.ParcelDTO;
-import rinde.sim.problem.common.VehicleDTO;
+import rinde.sim.pdptw.common.ParcelDTO;
+import rinde.sim.pdptw.common.VehicleDTO;
 
 /**
  * Context object used in GP.

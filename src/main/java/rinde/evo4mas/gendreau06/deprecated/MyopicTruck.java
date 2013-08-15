@@ -15,8 +15,8 @@ import rinde.evo4mas.gendreau06.deprecated.HeuristicTruck.Pickup;
 import rinde.evo4mas.gendreau06.deprecated.HeuristicTruck.TruckEvent;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.VehicleDTO;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.VehicleDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

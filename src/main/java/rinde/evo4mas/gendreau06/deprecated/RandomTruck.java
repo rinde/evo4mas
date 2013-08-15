@@ -8,7 +8,7 @@ import org.apache.commons.math3.random.RandomGenerator;
 
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.gendreau06.GendreauContext;
-import rinde.sim.problem.common.VehicleDTO;
+import rinde.sim.pdptw.common.VehicleDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

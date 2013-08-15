@@ -8,8 +8,8 @@ import static java.util.Collections.unmodifiableCollection;
 import java.util.Collection;
 
 import rinde.sim.core.graph.Point;
-import rinde.sim.problem.common.ParcelDTO;
-import rinde.sim.problem.common.VehicleDTO;
+import rinde.sim.pdptw.common.ParcelDTO;
+import rinde.sim.pdptw.common.VehicleDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

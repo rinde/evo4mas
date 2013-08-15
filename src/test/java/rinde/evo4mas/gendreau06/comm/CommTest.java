@@ -31,9 +31,9 @@ import rinde.sim.core.TimeLapse;
 import rinde.sim.core.model.Model;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
-import rinde.sim.problem.common.AddVehicleEvent;
-import rinde.sim.problem.common.DynamicPDPTWProblem;
-import rinde.sim.problem.gendreau06.Gendreau06Parser;
+import rinde.sim.pdptw.common.AddVehicleEvent;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem;
+import rinde.sim.pdptw.gendreau06.Gendreau06Parser;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

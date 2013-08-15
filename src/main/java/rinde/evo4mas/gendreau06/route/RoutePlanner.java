@@ -11,8 +11,8 @@ import javax.annotation.Nullable;
 import rinde.evo4mas.gendreau06.Truck;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.road.RoadModel;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.DefaultVehicle;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultVehicle;
 
 /**
  * This is a route planner interface. It is unusual in the sense that it reveals

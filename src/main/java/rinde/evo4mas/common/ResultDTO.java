@@ -8,7 +8,7 @@ import java.io.Serializable;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 import rinde.jppf.GPComputationResult;
-import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
+import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

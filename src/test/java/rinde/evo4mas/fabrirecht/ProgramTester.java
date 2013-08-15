@@ -13,9 +13,9 @@ import rinde.ecj.GPProgramParser;
 import rinde.evo4mas.common.TruckContext;
 import rinde.evo4mas.fabrirecht.FRFunctions;
 import rinde.evo4mas.fabrirecht.Simulation;
-import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
-import rinde.sim.problem.fabrirecht.FabriRechtParser;
-import rinde.sim.problem.fabrirecht.FabriRechtScenario;
+import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
+import rinde.sim.pdptw.fabrirecht.FabriRechtParser;
+import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.ConfigurationException;
 
 /**

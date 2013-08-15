@@ -13,11 +13,11 @@ import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.DynamicPDPTWProblem.SimulationInfo;
-import rinde.sim.problem.common.DynamicPDPTWProblem.StopCondition;
-import rinde.sim.problem.common.ParcelDTO;
-import rinde.sim.problem.fabrirecht.FabriRechtScenario;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.ParcelDTO;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopCondition;
+import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.ConfigurationException;
 import rinde.sim.scenario.TimedEvent;
 

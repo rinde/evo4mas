@@ -9,7 +9,7 @@ import rinde.ecj.Heuristic;
 import rinde.evo4mas.gendreau06.GCBuilderReceiver;
 import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.evo4mas.gendreau06.GendreauContextBuilder;
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 /**
  * This is a {@link Bidder} implementation that uses an evolved heuristic to

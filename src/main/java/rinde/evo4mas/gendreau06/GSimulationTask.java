@@ -12,11 +12,11 @@ import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.evo4mas.gendreau06.GSimulation.Configurator;
 import rinde.jppf.ComputationTask;
-import rinde.sim.problem.common.ObjectiveFunction;
-import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
-import rinde.sim.problem.gendreau06.Gendreau06ObjectiveFunction;
-import rinde.sim.problem.gendreau06.Gendreau06Parser;
-import rinde.sim.problem.gendreau06.Gendreau06Scenario;
+import rinde.sim.pdptw.common.ObjectiveFunction;
+import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
+import rinde.sim.pdptw.gendreau06.Gendreau06ObjectiveFunction;
+import rinde.sim.pdptw.gendreau06.Gendreau06Parser;
+import rinde.sim.pdptw.gendreau06.Gendreau06Scenario;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

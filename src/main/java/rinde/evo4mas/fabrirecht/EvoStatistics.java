@@ -8,7 +8,7 @@ import java.util.List;
 import rinde.ecj.GPStats;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.jppf.GPComputationResult;
-import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
+import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
 import ec.EvolutionState;
 import ec.Individual;
 

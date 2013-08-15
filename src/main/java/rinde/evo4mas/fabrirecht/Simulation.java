@@ -6,15 +6,15 @@ package rinde.evo4mas.fabrirecht;
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.TruckContext;
 import rinde.sim.core.Simulator;
-import rinde.sim.problem.common.AddParcelEvent;
-import rinde.sim.problem.common.AddVehicleEvent;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.DynamicPDPTWProblem;
-import rinde.sim.problem.common.DynamicPDPTWProblem.Creator;
-import rinde.sim.problem.common.DynamicPDPTWProblem.SimulationInfo;
-import rinde.sim.problem.common.DynamicPDPTWProblem.StopCondition;
-import rinde.sim.problem.common.StatsTracker.StatisticsDTO;
-import rinde.sim.problem.fabrirecht.FabriRechtScenario;
+import rinde.sim.pdptw.common.AddParcelEvent;
+import rinde.sim.pdptw.common.AddVehicleEvent;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem.Creator;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopCondition;
+import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
+import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

@@ -14,8 +14,8 @@ import javax.annotation.Nullable;
 
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.road.RoadModel;
-import rinde.sim.problem.common.DefaultParcel;
-import rinde.sim.problem.common.DefaultVehicle;
+import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultVehicle;
 
 /**
  * A partial {@link RoutePlanner} implementation, it already implements much of

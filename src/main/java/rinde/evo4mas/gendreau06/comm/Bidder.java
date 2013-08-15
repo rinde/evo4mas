@@ -3,7 +3,7 @@
  */
 package rinde.evo4mas.gendreau06.comm;
 
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 /**
  * Implementations of this interface can participate in auctions.

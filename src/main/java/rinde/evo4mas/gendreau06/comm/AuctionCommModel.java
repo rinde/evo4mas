@@ -7,7 +7,7 @@ import static com.google.common.base.Preconditions.checkState;
 
 import java.util.Iterator;
 
-import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultParcel;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
