@@ -29,6 +29,7 @@ import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.pdp.Vehicle;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.problem.common.AddParcelEvent;
+import rinde.sim.problem.common.DefaultParcel;
 import rinde.sim.problem.common.DynamicPDPTWProblem;
 import rinde.sim.problem.common.ParcelDTO;
 import rinde.sim.problem.gendreau06.Gendreau06Scenario;
@@ -88,9 +89,9 @@ public class SingleTruckTest {
 
     @Test
     public void oneParcel() {
-        final ParcelDTO parcel1dto = new ParcelDTO(new Point(1, 1), new Point(
-                3, 3), new TimeWindow(1, 60000), new TimeWindow(1, 60000), 0,
-                1, 3000, 3000);
+        final ParcelDTO parcel1dto =
+                new ParcelDTO(new Point(1, 1), new Point(3, 3), new TimeWindow(
+                        1, 60000), new TimeWindow(1, 60000), 0, 1, 3000, 3000);
 
         setUp(asList(parcel1dto), 1);
 
@@ -99,17 +100,21 @@ public class SingleTruckTest {
 
         simulator.tick();
         assertEquals(1, roadModel.getObjectsOfType(Parcel.class).size());
-        final Parcel parcel1 = roadModel.getObjectsOfType(Parcel.class)
-                .iterator().next();
+        final Parcel parcel1 =
+                roadModel.getObjectsOfType(Parcel.class).iterator().next();
         assertEquals(ParcelState.AVAILABLE, pdpModel.getParcelState(parcel1));
         assertTrue(truck.stateMachine.getCurrentState() instanceof Goto);
         assertFalse(truck.getDTO().startPosition.equals(roadModel
                 .getPosition(truck)));
-        assertEquals(parcel1dto.pickupLocation, ((Goto) truck.stateMachine.getCurrentState()).destination);
+        final DefaultParcel cur2 =
+                ((Goto) truck.stateMachine.getCurrentState()).cur;
+        assertNotNull(cur2);
+        assertEquals(parcel1dto, cur2.dto);
 
         // move to pickup
         while (truck.stateMachine.getCurrentState() instanceof Goto) {
-            assertEquals(ParcelState.AVAILABLE, pdpModel.getParcelState(parcel1));
+            assertEquals(ParcelState.AVAILABLE,
+                pdpModel.getParcelState(parcel1));
             simulator.tick();
         }
         assertTrue(truck.stateMachine.getCurrentState() instanceof Service);
@@ -118,28 +123,35 @@ public class SingleTruckTest {
 
         // pickup
         while (truck.stateMachine.getCurrentState() instanceof Service) {
-            assertEquals(parcel1dto.pickupLocation, roadModel.getPosition(truck));
-            assertEquals(ParcelState.PICKING_UP, pdpModel.getParcelState(parcel1));
+            assertEquals(parcel1dto.pickupLocation,
+                roadModel.getPosition(truck));
+            assertEquals(ParcelState.PICKING_UP,
+                pdpModel.getParcelState(parcel1));
             simulator.tick();
         }
         assertTrue(truck.stateMachine.getCurrentState() instanceof Goto);
         assertEquals(ParcelState.IN_CARGO, pdpModel.getParcelState(parcel1));
-        assertEquals(new LinkedHashSet<Parcel>(asList(parcel1)), pdpModel.getContents(truck));
+        assertEquals(new LinkedHashSet<Parcel>(asList(parcel1)),
+            pdpModel.getContents(truck));
 
         // move to delivery
         while (truck.stateMachine.getCurrentState() instanceof Goto) {
             assertEquals(ParcelState.IN_CARGO, pdpModel.getParcelState(parcel1));
-            assertEquals(new LinkedHashSet<Parcel>(asList(parcel1)), pdpModel.getContents(truck));
+            assertEquals(new LinkedHashSet<Parcel>(asList(parcel1)),
+                pdpModel.getContents(truck));
             simulator.tick();
         }
         assertTrue(truck.stateMachine.getCurrentState() instanceof Service);
-        assertEquals(parcel1dto.destinationLocation, roadModel.getPosition(truck));
+        assertEquals(parcel1dto.destinationLocation,
+            roadModel.getPosition(truck));
         assertEquals(ParcelState.DELIVERING, pdpModel.getParcelState(parcel1));
 
         // deliver
         while (truck.stateMachine.getCurrentState() instanceof Service) {
-            assertEquals(parcel1dto.destinationLocation, roadModel.getPosition(truck));
-            assertEquals(ParcelState.DELIVERING, pdpModel.getParcelState(parcel1));
+            assertEquals(parcel1dto.destinationLocation,
+                roadModel.getPosition(truck));
+            assertEquals(ParcelState.DELIVERING,
+                pdpModel.getParcelState(parcel1));
             simulator.tick();
         }
         assertEquals(ParcelState.DELIVERED, pdpModel.getParcelState(parcel1));
@@ -147,8 +159,8 @@ public class SingleTruckTest {
         assertTrue(truck.stateMachine.getCurrentState() instanceof Wait);
 
         while (truck.stateMachine.getCurrentState() instanceof Wait
-                && !roadModel.getPosition(truck)
-                        .equals(truck.getDTO().startPosition)) {
+                && !roadModel.getPosition(truck).equals(
+                    truck.getDTO().startPosition)) {
             simulator.tick();
         }
         assertTrue(truck.stateMachine.getCurrentState() instanceof Wait);
@@ -157,15 +169,15 @@ public class SingleTruckTest {
 
     @Test
     public void twoParcels() {
-        final ParcelDTO parcel1dto = new ParcelDTO(new Point(1, 1), new Point(
-                3, 3), new TimeWindow(1, 60000), new TimeWindow(1, 60000), 0,
-                1, 3000, 3000);
-        final ParcelDTO parcel2dto = new ParcelDTO(new Point(1, 1), new Point(
-                3, 3), new TimeWindow(1, 60000), new TimeWindow(1, 60000), 0,
-                1, 3000, 3000);
-        final ParcelDTO parcel3dto = new ParcelDTO(new Point(1, 1), new Point(
-                3, 3), new TimeWindow(1, 60000), new TimeWindow(1, 60000), 0,
-                1, 3000, 3000);
+        final ParcelDTO parcel1dto =
+                new ParcelDTO(new Point(1, 1), new Point(3, 3), new TimeWindow(
+                        1, 60000), new TimeWindow(1, 60000), 0, 1, 3000, 3000);
+        final ParcelDTO parcel2dto =
+                new ParcelDTO(new Point(1, 1), new Point(3, 3), new TimeWindow(
+                        1, 60000), new TimeWindow(1, 60000), 0, 1, 3000, 3000);
+        final ParcelDTO parcel3dto =
+                new ParcelDTO(new Point(1, 1), new Point(3, 3), new TimeWindow(
+                        1, 60000), new TimeWindow(1, 60000), 0, 1, 3000, 3000);
 
         setUp(asList(parcel1dto, parcel2dto, parcel3dto), 2);
 

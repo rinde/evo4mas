@@ -93,7 +93,8 @@ public class RoutePlannerTest {
         { new RPBuilder() {
             public RoutePlanner build() {
                 return new SolverRoutePlanner(new SingleVehicleSolverAdapter(
-                        ArraysSolverValidator.wrap(new MipSolver()), NonSI.MINUTE));
+                        ArraysSolverValidator.wrap(new MipSolver()),
+                        NonSI.MINUTE));
             }
         } },/* */
         { new RPBuilder() {
@@ -133,9 +134,9 @@ public class RoutePlannerTest {
         final RandomGenerator rng = new MersenneTwister(123);
         final List<TimedEvent> events = newLinkedList();
         for (int i = 0; i < numOnMap; i++) {
-            events.add(newParcelEvent(new Point(rng.nextDouble() * 5, rng
-                    .nextDouble() * 5), new Point(rng.nextDouble() * 5, rng
-                    .nextDouble() * 5)));
+            events.add(newParcelEvent(
+                new Point(rng.nextDouble() * 5, rng.nextDouble() * 5),
+                new Point(rng.nextDouble() * 5, rng.nextDouble() * 5)));
         }
         final Gendreau06Scenario scen = GendreauTestUtil.create(events);
 
@@ -146,8 +147,9 @@ public class RoutePlannerTest {
         simulator.tick();
 
         assertEquals(1, roadModel.getObjectsOfType(Vehicle.class).size());
-        truck = roadModel.getObjectsOfType(DefaultVehicle.class).iterator()
-                .next();
+        truck =
+                roadModel.getObjectsOfType(DefaultVehicle.class).iterator()
+                        .next();
 
         for (int i = 0; i < numInCargo; i++) {
             final Parcel p = createParcel(rng);
@@ -176,8 +178,8 @@ public class RoutePlannerTest {
         assertFalse(routePlanner.hasNext());
         assertTrue(routePlanner.getHistory().isEmpty());
 
-        final Collection<DefaultParcel> onMap = roadModel
-                .getObjectsOfType(DefaultParcel.class);
+        final Collection<DefaultParcel> onMap =
+                roadModel.getObjectsOfType(DefaultParcel.class);
         final Collection<Parcel> inCargo = pdpModel.getContents(truck);
         final List<Parcel> visited = newLinkedList();
         routePlanner.update(onMap, 0);
@@ -189,8 +191,9 @@ public class RoutePlannerTest {
 
         while (routePlanner.hasNext()) {
             visited.add(routePlanner.current());
-            assertEquals("current must keep the same value during repeated invocations", routePlanner
-                    .current(), routePlanner.current());
+            assertEquals(
+                "current must keep the same value during repeated invocations",
+                routePlanner.current(), routePlanner.current());
             routePlanner.next(0);
             assertEquals(visited.get(visited.size() - 1), routePlanner.prev());
         }
@@ -199,8 +202,8 @@ public class RoutePlannerTest {
         assertNull(routePlanner.current());
         assertNull(routePlanner.next(0));
 
-        assertEquals("total number of stops should equal num locations", (onMap.size() * 2)
-                + inCargo.size(), visited.size());
+        assertEquals("total number of stops should equal num locations",
+            (onMap.size() * 2) + inCargo.size(), visited.size());
 
         for (final Parcel p : onMap) {
             assertEquals(2, Collections.frequency(visited, p));
@@ -216,13 +219,14 @@ public class RoutePlannerTest {
         routePlanner.init(roadModel, pdpModel, truck);
 
         final Collection<DefaultParcel> empty = ImmutableSet.of();
-        final Collection<DefaultParcel> singleCargo = ImmutableSet
-                .of((DefaultParcel) pdpModel.getContents(truck).iterator()
-                        .next());
-        final DefaultParcel mapParcel = roadModel
-                .getObjectsOfType(DefaultParcel.class).iterator().next();
-        final Collection<DefaultParcel> singleOnMap = ImmutableSet
-                .of(mapParcel);
+        final Collection<DefaultParcel> singleCargo =
+                ImmutableSet.of((DefaultParcel) pdpModel.getContents(truck)
+                        .iterator().next());
+        final DefaultParcel mapParcel =
+                roadModel.getObjectsOfType(DefaultParcel.class).iterator()
+                        .next();
+        final Collection<DefaultParcel> singleOnMap =
+                ImmutableSet.of(mapParcel);
 
         routePlanner.update(empty, 0);
         assertNull(routePlanner.prev());
@@ -236,12 +240,12 @@ public class RoutePlannerTest {
         while (it.hasNext()) {
             final Parcel cur = it.next();
             while (!roadModel.getPosition(truck).equals(cur.getDestination())) {
-                roadModel.moveTo(truck, cur.getDestination(), TimeLapseFactory
-                        .create(time, time + 1000));
+                roadModel.moveTo(truck, cur,
+                    TimeLapseFactory.create(time, time + 1000));
                 time += 1000;
             }
-            pdpModel.deliver(truck, cur, TimeLapseFactory
-                    .create(time, time + 10000));
+            pdpModel.deliver(truck, cur,
+                TimeLapseFactory.create(time, time + 10000));
             time += 10000;
         }
 
@@ -308,8 +312,8 @@ public class RoutePlannerTest {
                 delivery, 0, -1, 300000, 300000));
     }
 
-    static Heuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(
-            new GPFuncNode<GendreauContext>(
+    static Heuristic<GendreauContext> DUMMY_HEURISTIC =
+            new GPProgram<GendreauContext>(new GPFuncNode<GendreauContext>(
                     new GenericFunctions.Constant<GendreauContext>(0d)));
 
     class TestConfigurator implements Configurator {

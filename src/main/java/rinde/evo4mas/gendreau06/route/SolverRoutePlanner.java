@@ -13,10 +13,11 @@ import javax.annotation.Nullable;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import rinde.sim.pdptw.central.Solvers;
 import rinde.sim.pdptw.central.Solver;
+import rinde.sim.pdptw.central.Solvers;
 import rinde.sim.pdptw.central.arrays.SolutionObject;
 import rinde.sim.problem.common.DefaultParcel;
+import rinde.sim.problem.common.PDPRoadModel;
 
 /**
  * A {@link RoutePlanner} implementation that uses a {@link Solver} that
@@ -44,9 +45,11 @@ public class SolverRoutePlanner extends AbstractRoutePlanner {
     @Override
     protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
         checkState(roadModel != null && pdpModel != null && vehicle != null);
-        route = Solvers
-                .solve(solver, roadModel, pdpModel, vehicle, onMap, time, SI
-                        .MILLI(SI.SECOND), NonSI.KILOMETERS_PER_HOUR, SI.KILOMETER);
+        checkState(roadModel instanceof PDPRoadModel);
+        route =
+                Solvers.solve(solver, (PDPRoadModel) roadModel, pdpModel,
+                    vehicle, onMap, time, SI.MILLI(SI.SECOND),
+                    NonSI.KILOMETERS_PER_HOUR, SI.KILOMETER);
     }
 
     public boolean hasNext() {
