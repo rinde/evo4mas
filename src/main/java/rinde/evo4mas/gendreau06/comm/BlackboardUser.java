@@ -5,11 +5,14 @@ package rinde.evo4mas.gendreau06.comm;
 
 import java.util.Collection;
 
+import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.event.Event;
 import rinde.sim.event.EventDispatcher;
 import rinde.sim.event.Listener;
 import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultVehicle;
 
 /**
  * This {@link Communicator} implementation allows communication via a
@@ -61,5 +64,8 @@ public class BlackboardUser implements Communicator {
     public Collection<DefaultParcel> getParcels() {
         return bcModel.getUnclaimedParcels();
     }
+
+    // not needed
+    public void init(RoadModel rm, PDPModel pm, DefaultVehicle v) {}
 
 }

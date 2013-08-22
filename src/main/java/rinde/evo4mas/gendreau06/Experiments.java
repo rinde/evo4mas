@@ -10,7 +10,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import javax.measure.quantity.Duration;
 import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
 
 import org.apache.commons.math3.random.MersenneTwister;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -22,17 +24,21 @@ import rinde.evo4mas.gendreau06.comm.BlackboardCommModel;
 import rinde.evo4mas.gendreau06.comm.BlackboardUser;
 import rinde.evo4mas.gendreau06.comm.Communicator;
 import rinde.evo4mas.gendreau06.comm.RandomBidder;
+import rinde.evo4mas.gendreau06.comm.SolverBidder;
 import rinde.evo4mas.gendreau06.route.RandomRoutePlanner;
+import rinde.evo4mas.gendreau06.route.RoutePlanner;
 import rinde.evo4mas.gendreau06.route.SolverRoutePlanner;
 import rinde.sim.core.Simulator;
 import rinde.sim.core.model.Model;
-import rinde.sim.pdptw.central.arrays.ArraysSolverDebugger;
+import rinde.sim.pdptw.central.Solver;
+import rinde.sim.pdptw.central.SolverValidator;
 import rinde.sim.pdptw.central.arrays.ArraysSolverValidator;
+import rinde.sim.pdptw.central.arrays.SingleVehicleArraysSolver;
 import rinde.sim.pdptw.central.arrays.SingleVehicleSolverAdapter;
 import rinde.sim.pdptw.common.AddVehicleEvent;
 import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
 import rinde.sim.pdptw.gendreau06.Gendreau06ObjectiveFunction;
-import rinde.solver.pdptw.MipSolver;
+import rinde.solver.pdptw.HeuristicSolver;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
@@ -74,7 +80,12 @@ public class Experiments {
 
     public static void main(String[] args) {
 
-        experiments(123, 1, new RandomSolver());
+        // fullExperiment(new HeuristicAuctioneerHeuristicSolver(), 123, 1,
+        // ExperimentClass.SHORT_LOW_FREQ);
+        fullExperiment(new RandomAuctioneerHeuristicSolver(), 123, 10,
+            ExperimentClass.SHORT_LOW_FREQ);
+
+        // experiments(123, 1, new RandomAuctioneerHeuristicSolver());
     }
 
     static void experiments(long masterSeed, int repetitions,
@@ -93,8 +104,9 @@ public class Experiments {
 
     static void fullExperiment(Configurator c, long masterSeed,
             int repetitions, ExperimentClass claz) {
-        final List<String> files = ExperimentUtil
-                .getFilesFromDir("files/scenarios/gendreau06/", claz.fileId);
+        final List<String> files =
+                ExperimentUtil.getFilesFromDir("files/scenarios/gendreau06/",
+                    claz.fileId);
         final RandomGenerator rng = new MersenneTwister(masterSeed);
         final long[] seeds = new long[repetitions];
         for (int i = 0; i < repetitions; i++) {
@@ -107,9 +119,10 @@ public class Experiments {
                 if (c instanceof RandomSeed) {
                     ((RandomSeed) c).setSeed(seeds[i]);
                 }
-                final StatisticsDTO stats = GSimulation
-                        .simulate(file, claz.vehicles, c, false);
-                final Gendreau06ObjectiveFunction obj = new Gendreau06ObjectiveFunction();
+                final StatisticsDTO stats =
+                        GSimulation.simulate(file, claz.vehicles, c, false);
+                final Gendreau06ObjectiveFunction obj =
+                        new Gendreau06ObjectiveFunction();
                 checkState(obj.isValidResult(stats));
 
                 // example: req_rapide_1_240_24
@@ -136,9 +149,9 @@ public class Experiments {
         if (!dir.exists() || !dir.isDirectory()) {
             dir.mkdir();
         }
-        final File file = new File(dir.getPath() + "/"
-                + c.getClass().getSimpleName() + "_" + masterSeed + claz.fileId
-                + ".txt");
+        final File file =
+                new File(dir.getPath() + "/" + c.getClass().getSimpleName()
+                        + "_" + masterSeed + claz.fileId + ".txt");
         if (file.exists()) {
             file.delete();
         }
@@ -154,12 +167,52 @@ public class Experiments {
         void setSeed(long seed);
     }
 
-    // random auctioneer with solver route planner
-    public static class RandomSolver implements Configurator, RandomSeed {
+    public static Solver wrapSafe(SingleVehicleArraysSolver solver,
+            Unit<Duration> timeUnit) {
+        return SolverValidator.wrap(new SingleVehicleSolverAdapter(
+                ArraysSolverValidator.wrap(solver), timeUnit));
+    }
+
+    public static class HeuristicAuctioneerHeuristicSolver implements
+            Configurator, RandomSeed {
+
+        private final RandomGenerator rng;
+
+        public HeuristicAuctioneerHeuristicSolver() {
+            rng = new MersenneTwister(0L);
+        }
+
+        public boolean create(Simulator sim, AddVehicleEvent event) {
+            final Communicator c =
+                    new SolverBidder(
+                            ArraysSolverValidator.wrap(new HeuristicSolver(
+                                    new MersenneTwister(rng.nextLong()))));
+
+            sim.register(c);
+
+            final RoutePlanner r =
+                    new SolverRoutePlanner(wrapSafe(new HeuristicSolver(
+                            new MersenneTwister(rng.nextLong())), SI.SECOND));
+
+            return sim.register(new Truck(event.vehicleDTO, r, c));
+        }
+
+        public void setSeed(long seed) {
+            rng.setSeed(seed);
+        }
+
+        public Model<?>[] createModels() {
+            return new Model<?>[] { new AuctionCommModel() };
+        }
+    }
+
+    // random auctioneer with random solver route planner
+    public static class RandomAuctioneerHeuristicSolver implements
+            Configurator, RandomSeed {
 
         protected final RandomGenerator rng;
 
-        public RandomSolver() {
+        public RandomAuctioneerHeuristicSolver() {
             rng = new MersenneTwister(0L);
         }
 
@@ -167,9 +220,13 @@ public class Experiments {
             final Communicator c = new RandomBidder(rng.nextLong());
             sim.register(c);
             return sim.register(new Truck(event.vehicleDTO,
-                    new SolverRoutePlanner(new SingleVehicleSolverAdapter(
-                            ArraysSolverDebugger.wrap(ArraysSolverValidator
-                                    .wrap(new MipSolver())), SI.SECOND)), c));
+                    new SolverRoutePlanner(SolverValidator
+                            .wrap(new SingleVehicleSolverAdapter(
+                                    ArraysSolverValidator
+                                            .wrap(new HeuristicSolver(
+                                                    new MersenneTwister(rng
+                                                            .nextLong()))),
+                                    SI.SECOND))), c));
         }
 
         public void setSeed(long seed) {

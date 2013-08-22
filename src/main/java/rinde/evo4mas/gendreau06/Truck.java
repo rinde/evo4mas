@@ -78,6 +78,8 @@ public class Truck extends DefaultVehicle implements Listener {
         final RoadModel rm = roadModel.get();
         final PDPModel pm = pdpModel.get();
 
+        // TODO remove these special case, corresponding code should be moved
+        // into init() methods
         // insert GendreauContextBuilder if needed
         if (routePlanner instanceof GCBuilderReceiver) {
             ((GCBuilderReceiver) routePlanner)
@@ -88,6 +90,7 @@ public class Truck extends DefaultVehicle implements Listener {
                     .receive(new GendreauContextBuilder(rm, pm, this));
         }
         routePlanner.init(rm, pm, this);
+        communicator.init(rm, pm, this);
 
         final Set<DefaultDepot> depots =
                 rm.getObjectsOfType(DefaultDepot.class);

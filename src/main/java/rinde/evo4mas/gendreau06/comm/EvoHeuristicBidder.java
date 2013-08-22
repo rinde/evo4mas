@@ -9,7 +9,10 @@ import rinde.ecj.Heuristic;
 import rinde.evo4mas.gendreau06.GCBuilderReceiver;
 import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.evo4mas.gendreau06.GendreauContextBuilder;
+import rinde.sim.core.model.pdp.PDPModel;
+import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultVehicle;
 
 /**
  * This is a {@link Bidder} implementation that uses an evolved heuristic to
@@ -43,5 +46,8 @@ public class EvoHeuristicBidder extends AbstractBidder implements
     public void receive(GendreauContextBuilder gcb) {
         gendreauContextBuilder = gcb;
     }
+
+    // not needed
+    public void init(RoadModel rm, PDPModel pm, DefaultVehicle v) {}
 
 }
