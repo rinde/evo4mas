@@ -72,21 +72,23 @@ public class Truck extends DefaultVehicle implements Listener {
     @Override
     public void initRoadPDP(RoadModel pRoadModel, PDPModel pPdpModel) {
         super.initRoadPDP(pRoadModel, pPdpModel);
+
+        final RoadModel rm = roadModel.get();
+        final PDPModel pm = pdpModel.get();
+
         // insert GendreauContextBuilder if needed
         if (routePlanner instanceof GCBuilderReceiver) {
             ((GCBuilderReceiver) routePlanner)
-                    .receive(new GendreauContextBuilder(roadModel, pdpModel,
-                            this));
+                    .receive(new GendreauContextBuilder(rm, pm, this));
         }
         if (communicator instanceof GCBuilderReceiver) {
             ((GCBuilderReceiver) communicator)
-                    .receive(new GendreauContextBuilder(roadModel, pdpModel,
-                            this));
+                    .receive(new GendreauContextBuilder(rm, pm, this));
         }
-        routePlanner.init(roadModel, pdpModel, this);
+        routePlanner.init(rm, pm, this);
 
         final Set<DefaultDepot> depots =
-                roadModel.getObjectsOfType(DefaultDepot.class);
+                rm.getObjectsOfType(DefaultDepot.class);
         checkState(depots.size() == 1,
             "This truck can only deal with problems with a single depot.");
         depot = depots.iterator().next();
@@ -100,12 +102,12 @@ public class Truck extends DefaultVehicle implements Listener {
 
     protected boolean isTooEarly(Parcel p) {
         final boolean isPickup =
-                pdpModel.getParcelState(p) != ParcelState.IN_CARGO;
+                pdpModel.get().getParcelState(p) != ParcelState.IN_CARGO;
         final Point loc =
                 isPickup ? ((DefaultParcel) p).dto.pickupLocation : p
                         .getDestination();
         final long travelTime =
-                (long) ((Point.distance(loc, roadModel.getPosition(this)) / 30d) * 3600000d);
+                (long) ((Point.distance(loc, roadModel.get().getPosition(this)) / 30d) * 3600000d);
         long timeUntilAvailable =
                 (isPickup ? p.getPickupTimeWindow().begin : p
                         .getDeliveryTimeWindow().begin)
@@ -121,7 +123,7 @@ public class Truck extends DefaultVehicle implements Listener {
     protected boolean isEndOfDay() {
         return currentTime.hasTimeLeft()
                 && currentTime.getTime() > dto.availabilityTimeWindow.end
-                        - ((Point.distance(roadModel.getPosition(this),
+                        - ((Point.distance(roadModel.get().getPosition(this),
                             dto.startPosition) / getSpeed()) * 3600000);
     }
 
@@ -144,8 +146,8 @@ public class Truck extends DefaultVehicle implements Listener {
             }
 
             if (cur == null && isEndOfDay()
-                    && !roadModel.equalPosition(context, depot)) {
-                roadModel.moveTo(context, depot, context.currentTime);
+                    && !roadModel.get().equalPosition(context, depot)) {
+                roadModel.get().moveTo(context, depot, context.currentTime);
             }
             return null;
         }
@@ -160,7 +162,7 @@ public class Truck extends DefaultVehicle implements Listener {
         public void onEntry(TruckEvent event, Truck context) {
             cur = routePlanner.current();
             checkState(cur != null, "RoutePlanner.current() can not be null");
-            if (pdpModel.getParcelState(cur) != ParcelState.IN_CARGO) {
+            if (pdpModel.get().getParcelState(cur) != ParcelState.IN_CARGO) {
                 communicator.claim(cur);
             }
         }
@@ -170,8 +172,8 @@ public class Truck extends DefaultVehicle implements Listener {
         public TruckEvent handle(TruckEvent event, Truck context) {
             checkState(cur != null, "Destination can not be null");
             // move to service location
-            roadModel.moveTo(context, cur, currentTime);
-            if (roadModel.equalPosition(context, cur)) {
+            roadModel.get().moveTo(context, cur, currentTime);
+            if (roadModel.get().equalPosition(context, cur)) {
                 return TruckEvent.DONE;
             }
             return null;
@@ -183,7 +185,7 @@ public class Truck extends DefaultVehicle implements Listener {
         public void onEntry(TruckEvent event, Truck context) {
             final Parcel cur = routePlanner.current();
             checkState(cur != null);
-            pdpModel.service(context, cur, currentTime);
+            pdpModel.get().service(context, cur, currentTime);
             routePlanner.next(currentTime.getTime());
         }
 
@@ -201,7 +203,6 @@ public class Truck extends DefaultVehicle implements Listener {
         if (e.getEventType() == CommunicatorEventType.CHANGE) {
             changed = true;
         }
-
     }
 
 }

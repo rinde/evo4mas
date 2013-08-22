@@ -12,15 +12,17 @@ import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.TruckContext;
 import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
+import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.PDPModel.VehicleParcelActionInfo;
 import rinde.sim.core.model.pdp.PDPModel.VehicleState;
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.pdptw.common.DefaultParcel;
 import rinde.sim.pdptw.common.DefaultVehicle;
 import rinde.sim.pdptw.common.ParcelDTO;
-import rinde.sim.pdptw.common.VehicleDTO;
 import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
+import rinde.sim.pdptw.common.VehicleDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 
 class Truck extends DefaultVehicle implements CoordAgent {
@@ -85,8 +87,9 @@ class Truck extends DefaultVehicle implements CoordAgent {
     // }
 
     protected ParcelDTO next(long time) {
-        return next(program, dto, todoSet, convert(pdpModel.getContents(this)), roadModel
-                .getPosition(this), time);
+        return next(program, dto, todoSet,
+            convert(pdpModel.get().getContents(this)), roadModel.get()
+                    .getPosition(this), time);
     }
 
     protected static ParcelDTO next(Heuristic<TruckContext> program,
@@ -101,16 +104,18 @@ class Truck extends DefaultVehicle implements CoordAgent {
 
         double bestValue = Double.POSITIVE_INFINITY;
         for (final ParcelDTO p : todo) {
-            final double v = program.compute(new TruckContext(dto, truckPos,
-                    contents, p, time, false));
+            final double v =
+                    program.compute(new TruckContext(dto, truckPos, contents,
+                            p, time, false));
             if (v < bestValue) {
                 best = p;
                 bestValue = v;
             }
         }
         for (final ParcelDTO p : contents) {
-            final double v = program.compute(new TruckContext(dto, truckPos,
-                    contents, p, time, true));
+            final double v =
+                    program.compute(new TruckContext(dto, truckPos, contents,
+                            p, time, true));
             if (v < bestValue) {
                 best = p;
                 bestValue = v;
@@ -137,13 +142,15 @@ class Truck extends DefaultVehicle implements CoordAgent {
     @Override
     protected void tickImpl(TimeLapse time) {
         try {
+            final RoadModel rm = roadModel.get();
+            final PDPModel pm = pdpModel.get();
 
             // check if we have enough time to get back, if needed we turn
             // around
-            final double d = Point.distance(getDTO().startPosition, roadModel
-                    .getPosition(this));
+            final double d =
+                    Point.distance(getDTO().startPosition, rm.getPosition(this));
             if (getDTO().availabilityTimeWindow.end - time.getEndTime() < d) {
-                roadModel.moveTo(this, getDTO().startPosition, time);
+                rm.moveTo(this, getDTO().startPosition, time);
             } else {
 
                 if (currentTarget == null && time.hasTimeLeft()) {
@@ -162,32 +169,28 @@ class Truck extends DefaultVehicle implements CoordAgent {
                 // }
 
                 if (currentTarget != null && time.hasTimeLeft()) {
-                    if (pdpModel.getParcelState(currentTarget) == ParcelState.IN_CARGO) {
-                        roadModel
-                                .moveTo(this, currentTarget.getDestination(), time);
-                        if (roadModel.getPosition(this)
-                                .equals(currentTarget.getDestination())
-                                && pdpModel
-                                        .getTimeWindowPolicy()
-                                        .canDeliver(currentTarget.getDeliveryTimeWindow(), time
-                                                .getStartTime(), currentTarget
-                                                .getDeliveryDuration())) {
-                            pdpModel.deliver(this, currentTarget, time);
+                    if (pm.getParcelState(currentTarget) == ParcelState.IN_CARGO) {
+                        rm.moveTo(this, currentTarget.getDestination(), time);
+                        if (rm.getPosition(this).equals(
+                            currentTarget.getDestination())
+                                && pm.getTimeWindowPolicy().canDeliver(
+                                    currentTarget.getDeliveryTimeWindow(),
+                                    time.getStartTime(),
+                                    currentTarget.getDeliveryDuration())) {
+                            pm.deliver(this, currentTarget, time);
                             currentTarget = null;
                         }
 
                     } else {
-                        roadModel.moveTo(this, currentTarget, time);
+                        rm.moveTo(this, currentTarget, time);
 
                         // System.out.println(time.getTime() + " move");
-                        if (roadModel.equalPosition(this, currentTarget)
-                                && pdpModel
-                                        .getTimeWindowPolicy()
-                                        .canPickup(currentTarget.getPickupTimeWindow(), time
-                                                .getStartTime(), currentTarget
-                                                .getPickupDuration())
-                                && getCapacity() >= pdpModel
-                                        .getContentsSize(this)
+                        if (rm.equalPosition(this, currentTarget)
+                                && pm.getTimeWindowPolicy().canPickup(
+                                    currentTarget.getPickupTimeWindow(),
+                                    time.getStartTime(),
+                                    currentTarget.getPickupDuration())
+                                && getCapacity() >= pm.getContentsSize(this)
                                         + currentTarget.getMagnitude()) {
 
                             if (!(this instanceof SubTruck)
@@ -197,7 +200,7 @@ class Truck extends DefaultVehicle implements CoordAgent {
                                 // System.err.println("pickup tardiness "
                                 // + currentTarget);
                             }
-                            pdpModel.pickup(this, currentTarget, time);
+                            pm.pickup(this, currentTarget, time);
                             todoSet.remove(((DefaultParcel) currentTarget).dto);
                             currentTarget = null;
                         }
@@ -236,9 +239,9 @@ class Truck extends DefaultVehicle implements CoordAgent {
     }
 
     public double getCost(ParcelDTO p) {
-        return program.compute(new TruckContext(dto, roadModel
-                .getPosition(this), convert(pdpModel.getContents(this)), p,
-                p.orderArrivalTime, false));
+        return program.compute(new TruckContext(dto, roadModel.get()
+                .getPosition(this), convert(pdpModel.get().getContents(this)),
+                p, p.orderArrivalTime, false));
     }
 
     public Heuristic<TruckContext> getProgram() {
@@ -252,35 +255,38 @@ class Truck extends DefaultVehicle implements CoordAgent {
             newTodoSet.addAll(todoSet);
             newTodoSet.add(newParcel);
 
-            int totalParcels = newTodoSet.size()
-                    + pdpModel.getContents(this).size();
+            final PDPModel pm = pdpModel.get();
+
+            int totalParcels = newTodoSet.size() + pm.getContents(this).size();
             checkState(totalParcels > 0);
 
             // in case we are currently busy delivering / picking up we need to
             // make sure to finish that action first
-            final VehicleParcelActionInfo v = pdpModel.getVehicleState(this) == VehicleState.DELIVERING
-                    || pdpModel.getVehicleState(this) == VehicleState.PICKING_UP ? pdpModel
-                    .getVehicleActionInfo(this) : null;
+            final VehicleParcelActionInfo v =
+                    pm.getVehicleState(this) == VehicleState.DELIVERING
+                            || pm.getVehicleState(this) == VehicleState.PICKING_UP ? pm
+                            .getVehicleActionInfo(this) : null;
             // get the parcel which we are currently performing either
             // delivery/pickup on
-            final ParcelDTO process = v == null ? null : ((DefaultParcel) v
-                    .getParcel()).dto;
+            final ParcelDTO process =
+                    v == null ? null : ((DefaultParcel) v.getParcel()).dto;
             // how much time is needed for completion of this action
             final long timeleft = v == null ? 0 : v.timeNeeded();
-            final boolean ispickup = pdpModel.getVehicleState(this) == VehicleState.PICKING_UP;
+            final boolean ispickup =
+                    pm.getVehicleState(this) == VehicleState.PICKING_UP;
 
             if (process != null) {
                 if (ispickup) {
                     newTodoSet.add(process);
-                    checkState(pdpModel.getContentsSize(this)
-                            + process.neededCapacity <= pdpModel
+                    checkState(pm.getContentsSize(this)
+                            + process.neededCapacity <= pm
                                 .getContainerCapacity(this));
                 } else {
                     totalParcels += 1;
                 }
             }
 
-            final Collection<Parcel> contents = pdpModel.getContents(this);
+            final Collection<Parcel> contents = pm.getContents(this);
             final Set<ParcelDTO> dtos = newLinkedHashSet();
             for (final Parcel p : contents) {
                 if (v == null || p != v.getParcel()) {
@@ -288,9 +294,10 @@ class Truck extends DefaultVehicle implements CoordAgent {
                 }
             }
 
-            final SubSimulation sim = new SubSimulation(scenario,
-                    newParcel.orderArrivalTime, this, process, timeleft,
-                    ispickup, roadModel.getPosition(this), newTodoSet, dtos);
+            final SubSimulation sim =
+                    new SubSimulation(scenario, newParcel.orderArrivalTime,
+                            this, process, timeleft, ispickup, roadModel.get()
+                                    .getPosition(this), newTodoSet, dtos);
             final StatisticsDTO stats = sim.start();
 
             // if (newParcel.pickupLocation.equals(new Point(22, 75))) {
@@ -304,10 +311,10 @@ class Truck extends DefaultVehicle implements CoordAgent {
                 checkState(false);
             }
 
-            final boolean verdict = stats.deliveryTardiness == 0
-                    && stats.pickupTardiness == 0
-                    && stats.totalDeliveries == totalParcels
-                    && stats.vehiclesAtDepot == 1;
+            final boolean verdict =
+                    stats.deliveryTardiness == 0 && stats.pickupTardiness == 0
+                            && stats.totalDeliveries == totalParcels
+                            && stats.vehiclesAtDepot == 1;
 
             // if (verdict && newParcel.pickupLocation.equals(new Point(28,
             // 52))) {
