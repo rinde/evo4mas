@@ -27,6 +27,8 @@ import rinde.sim.pdptw.common.VehicleDTO;
 import rinde.sim.util.fsm.AbstractState;
 import rinde.sim.util.fsm.StateMachine;
 
+import com.google.common.base.Optional;
+
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
@@ -43,7 +45,7 @@ public class Truck extends DefaultVehicle implements Listener {
     protected TimeLapse currentTime;
     protected boolean changed;
 
-    protected DefaultDepot depot;
+    protected Optional<DefaultDepot> depot;
 
     /**
      * Create a new Truck using the specified {@link RoutePlanner} and
@@ -52,12 +54,12 @@ public class Truck extends DefaultVehicle implements Listener {
      * @param rp The route planner used.
      * @param c The communicator used.
      */
-    @SuppressWarnings("null")
     public Truck(VehicleDTO pDto, RoutePlanner rp, Communicator c) {
         super(pDto);
         routePlanner = rp;
         communicator = c;
         communicator.addUpdateListener(this);
+        depot = Optional.absent();
 
         final AbstractTruckState wait = new Wait();
         final AbstractTruckState go = new Goto();
@@ -91,7 +93,7 @@ public class Truck extends DefaultVehicle implements Listener {
                 rm.getObjectsOfType(DefaultDepot.class);
         checkState(depots.size() == 1,
             "This truck can only deal with problems with a single depot.");
-        depot = depots.iterator().next();
+        depot = Optional.of(depots.iterator().next());
     }
 
     @Override
@@ -146,8 +148,9 @@ public class Truck extends DefaultVehicle implements Listener {
             }
 
             if (cur == null && isEndOfDay()
-                    && !roadModel.get().equalPosition(context, depot)) {
-                roadModel.get().moveTo(context, depot, context.currentTime);
+                    && !roadModel.get().equalPosition(context, depot.get())) {
+                roadModel.get().moveTo(context, depot.get(),
+                    context.currentTime);
             }
             return null;
         }
