@@ -27,10 +27,5 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/rindevanlon/Applications/IBM/ILOG/CPLEX_Studio125/cplex/lib/cplex.jar">
-		<attributes>
-			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/rindevanlon/Applications/IBM/ILOG/CPLEX_Studio125/cplex/bin/x86-64_darwin"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

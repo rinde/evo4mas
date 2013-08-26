@@ -1,5 +1,5 @@
 /**
- * This package contains {@link rinde.evo4mas.gendreau06.route.RoutePlanner}
+ * This package contains {@link rinde.logistics.pdptw.mas.route.RoutePlanner}
  * which provides a common interface for agent routing.
  */
 @ParametersAreNonnullByDefault

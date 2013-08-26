@@ -14,11 +14,15 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import rinde.ecj.Heuristic;
-import rinde.evo4mas.gendreau06.GCBuilderReceiver;
 import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.evo4mas.gendreau06.GendreauContextBuilder;
 import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
+import rinde.logistics.pdptw.mas.route.AbstractRoutePlanner;
+import rinde.logistics.pdptw.mas.route.RoutePlanner;
+import rinde.sim.core.model.pdp.PDPModel;
+import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.pdptw.common.DefaultParcel;
+import rinde.sim.pdptw.common.DefaultVehicle;
 
 import com.google.common.collect.ImmutableSet;
 
@@ -28,8 +32,7 @@ import com.google.common.collect.ImmutableSet;
  * time.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
-public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
-        GCBuilderReceiver {
+public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
 
     protected final Heuristic<GendreauContext> heuristic;
     protected final TimeUntilAvailable<GendreauContext> tua;
@@ -58,8 +61,10 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
         checkState(pdpModel != null && vehicle != null);
         // this is safe because the code actually checks the type
         @SuppressWarnings({ "unchecked", "rawtypes" })
-        final Collection<DefaultParcel> checked = Collections
-                .checkedCollection((Collection) pdpModel.getContents(vehicle), DefaultParcel.class);
+        final Collection<DefaultParcel> checked =
+                Collections.checkedCollection(
+                    (Collection) pdpModel.getContents(vehicle),
+                    DefaultParcel.class);
         inCargoSet = newHashSet(checked);
         computeCurrent(time);
     }
@@ -87,8 +92,8 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
         for (final DefaultParcel p : todo) {
             // filter out the already claimed parcels
             if (!alreadyClaimed.contains(p)) {
-                final GendreauContext gc = gcb
-                        .buildInRepetition(p, false, false);
+                final GendreauContext gc =
+                        gcb.buildInRepetition(p, false, false);
                 @SuppressWarnings("null")
                 final double res = tua.execute(null, gc);
 
@@ -164,7 +169,9 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
             return;
         }
         // current should exist in exactly one of the sets
-        checkArgument(onMapSet.contains(current) ^ inCargoSet.contains(current), "current: %s should exist in one of the sets", current);
+        checkArgument(
+            onMapSet.contains(current) ^ inCargoSet.contains(current),
+            "current: %s should exist in one of the sets", current);
         if (onMapSet.contains(current)) {
             inCargoSet.add(current);
             onMapSet.remove(current);
@@ -174,8 +181,9 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner implements
         computeCurrent(time);
     }
 
-    public void receive(GendreauContextBuilder gcb) {
-        gendreauContextBuilder = gcb;
-
+    @Override
+    public void init(RoadModel rm, PDPModel pm, DefaultVehicle dv) {
+        super.init(rm, pm, dv);
+        gendreauContextBuilder = new GendreauContextBuilder(rm, pm, dv);
     }
 }

@@ -10,8 +10,9 @@ import org.jppf.task.storage.DataProvider;
 
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ResultDTO;
-import rinde.evo4mas.gendreau06.GSimulation.Configurator;
 import rinde.jppf.ComputationTask;
+import rinde.logistics.pdptw.mas.GSimulation;
+import rinde.logistics.pdptw.mas.GSimulation.Configurator;
 import rinde.sim.pdptw.common.ObjectiveFunction;
 import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
 import rinde.sim.pdptw.gendreau06.Gendreau06ObjectiveFunction;
