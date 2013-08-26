@@ -4,7 +4,6 @@
 package rinde.evo4mas.gendreau06.route;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Sets.newHashSet;
 
 import java.util.Collection;
@@ -18,7 +17,6 @@ import rinde.evo4mas.gendreau06.GendreauContext;
 import rinde.evo4mas.gendreau06.GendreauContextBuilder;
 import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
 import rinde.logistics.pdptw.mas.route.AbstractRoutePlanner;
-import rinde.logistics.pdptw.mas.route.RoutePlanner;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.pdptw.common.DefaultParcel;
@@ -27,9 +25,9 @@ import rinde.sim.pdptw.common.DefaultVehicle;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * A {@link RoutePlanner} implementation that uses a (evolved) {@link Heuristic}
- * for determining its route. The route is build incrementally, one hop at a
- * time.
+ * A {@link rinde.logistics.pdptw.mas.route.RoutePlanner} implementation that
+ * uses a (evolved) {@link Heuristic} for determining its route. The route is
+ * build incrementally, one hop at a time.
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  */
 public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
@@ -58,7 +56,6 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
     @Override
     protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
         onMapSet = newHashSet(onMap);
-        checkState(pdpModel != null && vehicle != null);
         // this is safe because the code actually checks the type
         @SuppressWarnings({ "unchecked", "rawtypes" })
         final Collection<DefaultParcel> checked =
@@ -131,26 +128,6 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
 
         return best;
     }
-
-    /*
-     * protected GendreauContext createContext(GendreauContext gc, Parcel p,
-     * boolean isInCargo, boolean isAssignedToVehicle) { final int numWaiters =
-     * 0;// isInCargo ? // coordinationModel.getNumWaitersFor(p) : 0 return new
-     * GendreauContext(gc.vehicleDTO, gc.truckPosition, gc.truckContents,
-     * ((DefaultParcel) p).dto, gc.time, isInCargo, isAssignedToVehicle,
-     * numWaiters, gc.otherVehiclePositions, new HashSet<Parcel>()); } protected
-     * GendreauContext createGenericContext(long time) { final
-     * Collection<Parcel> contents = pdpModel.getContents(truck); final
-     * List<Point> positions = newArrayList(); final Set<Vehicle> vehicles =
-     * pdpModel.getVehicles(); for (final Vehicle v : vehicles) { if (v !=
-     * truck) { positions.add(roadModel.getPosition(v)); } } return new
-     * GendreauContext(truck.getDTO(), roadModel.getPosition(truck),
-     * convert(contents), null, time, false, false, -1, positions, new
-     * HashSet<Parcel>()); } protected static Set<ParcelDTO>
-     * convert(Collection<Parcel> parcels) { final Set<ParcelDTO> dtos =
-     * newLinkedHashSet(); for (final Parcel p : parcels) {
-     * dtos.add(((DefaultParcel) p).dto); } return dtos; }
-     */
 
     public boolean hasNext() {
         return !isUpdated() ? false : !(onMapSet.isEmpty() && inCargoSet
