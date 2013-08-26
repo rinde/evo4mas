@@ -62,9 +62,8 @@ public class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
         // this is safe because the code actually checks the type
         @SuppressWarnings({ "unchecked", "rawtypes" })
         final Collection<DefaultParcel> checked =
-                Collections.checkedCollection(
-                    (Collection) pdpModel.getContents(vehicle),
-                    DefaultParcel.class);
+                Collections.checkedCollection((Collection) pdpModel.get()
+                        .getContents(vehicle.get()), DefaultParcel.class);
         inCargoSet = newHashSet(checked);
         computeCurrent(time);
     }
