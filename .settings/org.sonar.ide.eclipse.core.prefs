@@ -1,7 +1,0 @@
-analyseLocally=false
-eclipse.preferences.version=1
-extraProperties=sonar.language\=java\r\nsonar.host.url\=http\://localhost\:9000
-lastAnalysisDate=1377523836000
-projectKey=com.github.rinde\:evo4mas
-serverUrl=http\://kraken.cs.kuleuven.be\:9000
-version=2
