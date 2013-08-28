@@ -14,3 +14,4 @@ files/scenarios/gendreau06/train/
 *.pdf
 *.load
 files/results/gend*
+org.sonar.ide.eclipse.core.prefs
