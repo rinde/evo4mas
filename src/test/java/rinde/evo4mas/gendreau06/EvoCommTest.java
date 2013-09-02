@@ -40,14 +40,14 @@ public class EvoCommTest extends CommTest {
     /**
      * @param c
      */
-    public EvoCommTest(TestConfigurator c) {
+    public EvoCommTest(TestConfiguration c) {
         super(c);
     }
 
     @Parameters
     public static Collection<Object[]> configs() {
         return asList(new Object[][] { /* */
-        { new TestConfigurator(CommTest.AUCTION_COMM_MODEL,
+        { new TestConfiguration(CommTest.AUCTION_COMM_MODEL,
                 EVO_HEURISTIC_BIDDER) } });
     }
 

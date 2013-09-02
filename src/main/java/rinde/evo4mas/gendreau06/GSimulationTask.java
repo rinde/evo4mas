@@ -11,46 +11,55 @@ import org.jppf.task.storage.DataProvider;
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.jppf.ComputationTask;
-import rinde.logistics.pdptw.mas.GSimulation;
-import rinde.logistics.pdptw.mas.GSimulation.Configurator;
-import rinde.sim.pdptw.common.ObjectiveFunction;
-import rinde.sim.pdptw.common.StatsTracker.StatisticsDTO;
-import rinde.sim.pdptw.gendreau06.Gendreau06ObjectiveFunction;
+import rinde.sim.pdptw.experiments.MASConfiguration;
 import rinde.sim.pdptw.gendreau06.Gendreau06Parser;
 import rinde.sim.pdptw.gendreau06.Gendreau06Scenario;
 
 /**
+ * FIXME refactor
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
-public class GSimulationTask extends ComputationTask<ResultDTO, Heuristic<GendreauContext>> {
-	private static final long serialVersionUID = 3936679021433997897L;
-	protected final String scenarioKey;
-	protected final int numVehicles;
-	protected final Configurator configurator;
+public class GSimulationTask extends
+        ComputationTask<ResultDTO, Heuristic<GendreauContext>> {
+    private static final long serialVersionUID = 3936679021433997897L;
+    protected final String scenarioKey;
+    protected final int numVehicles;
+    protected final MASConfiguration configurator;
 
-	public GSimulationTask(String scenario, Heuristic<GendreauContext> data, int vehicles, Configurator conf) {
-		super(data);
-		scenarioKey = scenario;
-		numVehicles = vehicles;
-		configurator = conf;
-	}
+    public GSimulationTask(String scenario, Heuristic<GendreauContext> data,
+            int vehicles, MASConfiguration conf) {
+        super(data);
+        scenarioKey = scenario;
+        numVehicles = vehicles;
+        configurator = conf;
+    }
 
-	public void run() {
-		final DataProvider dataProvider = getDataProvider();
-		Gendreau06Scenario scenario;
-		try {
-			final String scenarioString = (String) dataProvider.getValue(scenarioKey);
-			scenario = Gendreau06Parser
-					.parse(new BufferedReader(new StringReader(scenarioString)), scenarioKey, numVehicles);
-		} catch (final Exception e) {
-			throw new RuntimeException("Failed loading scenario for task: " + taskData + " " + scenarioKey, e);
-		}
+    public void run() {
+        final DataProvider dataProvider = getDataProvider();
+        Gendreau06Scenario scenario;
+        try {
+            final String scenarioString =
+                    (String) dataProvider.getValue(scenarioKey);
+            scenario =
+                    Gendreau06Parser.parse(new BufferedReader(new StringReader(
+                            scenarioString)), scenarioKey, numVehicles);
+        } catch (final Exception e) {
+            throw new RuntimeException("Failed loading scenario for task: "
+                    + taskData + " " + scenarioKey, e);
+        }
 
-		final StatisticsDTO stats = GSimulation.simulate(scenario, configurator, false);
-		final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
-		final boolean isValid = objFunc.isValidResult(stats);
-		final float fitness = isValid ? (float) objFunc.computeCost(stats) : Float.MAX_VALUE;
-		setResult(new ResultDTO(scenarioKey, taskData.getId(), stats, fitness));
-	}
+        // final StatisticsDTO stats =
+        // GSimulation.simulate(scenario, configurator, false);
+        // final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
+        //
+        //
+        // Experiment.build(objFunc).addScenario(scenario).addConfigurator(configurator)
+        //
+        // final boolean isValid = objFunc.isValidResult(stats);
+        // final float fitness =
+        // isValid ? (float) objFunc.computeCost(stats) : Float.MAX_VALUE;
+        // setResult(new ResultDTO(scenarioKey, taskData.getId(), stats,
+        // fitness));
+    }
 }
