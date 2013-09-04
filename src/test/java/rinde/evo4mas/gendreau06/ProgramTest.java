@@ -9,7 +9,6 @@ import java.util.Collection;
 import rinde.ecj.GPFunc;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
-import rinde.sim.ui.View;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -62,7 +61,7 @@ public class ProgramTest {
         // + ((i < 10 && i >= 0) ? "0" : "") + (i < 0 ? 0 : i) + "_240_24",
         // prog, 10, false, 60000, SolutionType.AUCTION);
 
-        View.setTestingMode(true);
+        // View.setTestingMode(true);
 
         // final GSimulationTask task = GSimulationTask
         // .createTestableTask("files/scenarios/gendreau06/req_rapide_2_240_24",

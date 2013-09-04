@@ -11,7 +11,7 @@ import org.jppf.task.storage.DataProvider;
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.jppf.ComputationTask;
-import rinde.sim.pdptw.experiments.MASConfiguration;
+import rinde.sim.pdptw.experiment.MASConfiguration;
 import rinde.sim.pdptw.gendreau06.Gendreau06Parser;
 import rinde.sim.pdptw.gendreau06.Gendreau06Scenario;
 

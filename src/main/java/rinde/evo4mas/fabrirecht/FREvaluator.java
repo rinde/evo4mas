@@ -28,7 +28,7 @@ import rinde.ecj.GPProgramParser;
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.ResultDTO;
 import rinde.evo4mas.common.TruckContext;
-import rinde.sim.pdptw.experiments.ExperimentUtil;
+import rinde.sim.pdptw.experiment.ExperimentUtil;
 import ec.EvolutionState;
 import ec.gp.GPTree;
 import ec.util.Parameter;
