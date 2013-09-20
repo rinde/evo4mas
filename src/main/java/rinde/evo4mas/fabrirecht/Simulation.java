@@ -15,6 +15,8 @@ import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopCondition;
 import rinde.sim.pdptw.common.StatisticsDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
+import rinde.sim.util.spec.Specification;
+import rinde.sim.util.spec.Specification.ISpecification;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -72,8 +74,9 @@ public class Simulation {
     return problemInstance.simulate();
   }
 
-  protected StopCondition createStopCondition() {
-    return StopCondition.ANY_TARDINESS.or(EARLY_STOP_CONDITION);
+  protected ISpecification<SimulationInfo> createStopCondition() {
+    return Specification.of(StopCondition.ANY_TARDINESS)
+        .or(EARLY_STOP_CONDITION).build();
   }
 
   /**
