@@ -9,14 +9,15 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import rinde.sim.core.graph.Point;
+import rinde.sim.core.model.pdp.DefaultPDPModel;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.pdptw.common.DefaultParcel;
-import rinde.sim.pdptw.common.ParcelDTO;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopCondition;
+import rinde.sim.pdptw.common.ParcelDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.ConfigurationException;
 import rinde.sim.scenario.TimedEvent;
@@ -52,7 +53,7 @@ public class SubSimulation extends Simulation {
 		final SubTruck newT = new SubTruck(t.getDTO(), t.getProgram(), srcScenario);
 		problemInstance.getSimulator().register(newT);
 		final RoadModel roadModel = problemInstance.getSimulator().getModelProvider().getModel(RoadModel.class);
-		final PDPModel pdpModel = problemInstance.getSimulator().getModelProvider().getModel(PDPModel.class);
+		final PDPModel pdpModel = problemInstance.getSimulator().getModelProvider().getModel(DefaultPDPModel.class);
 		roadModel.removeObject(newT);
 		roadModel.addObjectAt(newT, truckPos);
 

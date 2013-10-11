@@ -14,7 +14,6 @@ import rinde.sim.core.TimeLapse;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
-import rinde.sim.core.model.pdp.PDPModel.VehicleParcelActionInfo;
 import rinde.sim.core.model.pdp.PDPModel.VehicleState;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
@@ -259,7 +258,7 @@ class Truck extends DefaultVehicle implements CoordAgent {
 
       // in case we are currently busy delivering / picking up we need to
       // make sure to finish that action first
-      final VehicleParcelActionInfo v = pm.getVehicleState(this) == VehicleState.DELIVERING
+      final PDPModel.VehicleParcelActionInfo v = pm.getVehicleState(this) == VehicleState.DELIVERING
           || pm.getVehicleState(this) == VehicleState.PICKING_UP ? pm
           .getVehicleActionInfo(this) : null;
       // get the parcel which we are currently performing either

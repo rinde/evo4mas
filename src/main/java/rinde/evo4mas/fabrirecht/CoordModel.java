@@ -15,9 +15,9 @@ import java.util.Set;
 import rinde.sim.core.model.Model;
 import rinde.sim.core.model.ModelProvider;
 import rinde.sim.core.model.ModelReceiver;
-import rinde.sim.core.model.pdp.PDPModel;
-import rinde.sim.core.model.pdp.PDPModel.PDPModelEvent;
+import rinde.sim.core.model.pdp.DefaultPDPModel;
 import rinde.sim.core.model.pdp.PDPModel.PDPModelEventType;
+import rinde.sim.core.model.pdp.PDPModelEvent;
 import rinde.sim.event.Event;
 import rinde.sim.event.Listener;
 import rinde.sim.pdptw.common.DefaultParcel;
@@ -43,7 +43,7 @@ public class CoordModel implements Model<CoordAgent>, Listener, ModelReceiver {
 
     public void registerModelProvider(ModelProvider mp) {
         // TODO Auto-generated method stub
-        mp.getModel(PDPModel.class).getEventAPI()
+        mp.getModel(DefaultPDPModel.class).getEventAPI()
                 .addListener(this, PDPModelEventType.NEW_PARCEL);
     }
 
