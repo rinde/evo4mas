@@ -16,8 +16,13 @@ import rinde.ecj.GPProgram;
 import rinde.ecj.GenericFunctions;
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.gendreau06.comm.EvoHeuristicBidder;
+import rinde.logistics.pdptw.mas.TruckConfiguration;
+import rinde.logistics.pdptw.mas.comm.AuctionCommModel;
 import rinde.logistics.pdptw.mas.comm.CommTest;
-import rinde.logistics.pdptw.mas.comm.Communicator;
+import rinde.logistics.pdptw.mas.route.RandomRoutePlanner;
+import rinde.sim.pdptw.experiment.MASConfiguration;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -26,29 +31,20 @@ import rinde.logistics.pdptw.mas.comm.Communicator;
 @RunWith(Parameterized.class)
 public class EvoCommTest extends CommTest {
 
-    static Heuristic<GendreauContext> DUMMY_HEURISTIC =
-            new GPProgram<GendreauContext>(new GPFuncNode<GendreauContext>(
-                    new GenericFunctions.Constant<GendreauContext>(0d)));
+  static Heuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(
+      new GPFuncNode<GendreauContext>(
+          new GenericFunctions.Constant<GendreauContext>(0d)));
 
-    static CommunicatorCreator EVO_HEURISTIC_BIDDER =
-            new CommunicatorCreator() {
-                public Communicator create() {
-                    return new EvoHeuristicBidder(DUMMY_HEURISTIC);
-                }
-            };
+  public EvoCommTest(MASConfiguration c) {
+    super(c);
+  }
 
-    /**
-     * @param c
-     */
-    public EvoCommTest(TestConfiguration c) {
-        super(c);
-    }
-
-    @Parameters
-    public static Collection<Object[]> configs() {
-        return asList(new Object[][] { /* */
-        { new TestConfiguration(CommTest.AUCTION_COMM_MODEL,
-                EVO_HEURISTIC_BIDDER) } });
-    }
+  @Parameters
+  public static Collection<Object[]> configs() {
+    return asList(new Object[][] { /* */
+    { new TruckConfiguration(RandomRoutePlanner.supplier(),
+        EvoHeuristicBidder.supplier(DUMMY_HEURISTIC), ImmutableList.of(
+            AuctionCommModel.supplier(), CommTestModel.supplier())) } });
+  }
 
 }

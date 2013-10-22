@@ -17,6 +17,7 @@ import rinde.ecj.Heuristic;
 import rinde.evo4mas.gendreau06.route.EvoHeuristicRoutePlanner;
 import rinde.logistics.pdptw.mas.route.RoutePlanner;
 import rinde.logistics.pdptw.mas.route.RoutePlannerTest;
+import rinde.sim.util.SupplierRng;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -25,26 +26,17 @@ import rinde.logistics.pdptw.mas.route.RoutePlannerTest;
 @RunWith(Parameterized.class)
 public class EvoRoutePlannerTest extends RoutePlannerTest {
 
-    /**
-     * @param rp
-     */
-    public EvoRoutePlannerTest(RPBuilder rp) {
-        super(rp);
-    }
+  public EvoRoutePlannerTest(SupplierRng<RoutePlanner> rp) {
+    super(rp);
+  }
 
-    static Heuristic<GendreauContext> DUMMY_HEURISTIC =
-            new GPProgram<GendreauContext>(new GPFuncNode<GendreauContext>(
-                    new GenericFunctions.Constant<GendreauContext>(0d)));
+  static Heuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(
+      new GPFuncNode<GendreauContext>(
+          new GenericFunctions.Constant<GendreauContext>(0d)));
 
-    @Parameters
-    public static Collection<Object[]> configs() {
-        return Arrays.asList(new Object[][] {
-        /* */
-        { new RPBuilder() {
-            public RoutePlanner build() {
-                return new EvoHeuristicRoutePlanner(DUMMY_HEURISTIC);
-            }
-        } }, /* */
-        });
-    }
+  @Parameters
+  public static Collection<Object[]> configs() {
+    return Arrays.asList(new Object[][] { { EvoHeuristicRoutePlanner
+        .supplier(DUMMY_HEURISTIC) } });
+  }
 }
