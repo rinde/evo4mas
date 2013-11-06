@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import rinde.ecj.GPProgram;
@@ -57,6 +58,7 @@ public class SubSimulationTest {
         min, max, timeWindow, vehicleDTO);
   }
 
+  @Ignore("needs to be updated or removed")
   @Test
   public void subTest1() throws ConfigurationException {
     final Truck t = new SubTruck(vehicleDTO, program, scenario);
@@ -76,6 +78,7 @@ public class SubSimulationTest {
     assertEquals(20, stats.totalDistance, EPSILON);
   }
 
+  @Ignore("needs to be updated or removed")
   @Test
   public void subTest2() throws ConfigurationException {
     final Truck t = new SubTruck(vehicleDTO, program, scenario);

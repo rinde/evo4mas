@@ -27,13 +27,13 @@ pop.subpop.0.species.fitness = rinde.ecj.GPFitness
 #checkpoint-modulo = 1
 
 eval.solution-variant = AUCTION
-eval.host = distributed
+eval.host = local
 
 eval.test-set-dir = files/scenarios/gendreau06/
 eval.train-set-dir = files/scenarios/gendreau06/train/
 
-eval.num-scenarios-per-generation = 5
-eval.num-scenarios-at-last-generation = 10 
+eval.num-scenarios-per-generation = 1
+eval.num-scenarios-at-last-generation = 1 
 
-pop.subpop.0.size 	= 1000
-generations 		= 51
+pop.subpop.0.size 	= 30
+generations 		= 21

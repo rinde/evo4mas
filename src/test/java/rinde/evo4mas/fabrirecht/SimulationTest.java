@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.util.Collection;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import rinde.ecj.GPFunc;
@@ -43,6 +44,7 @@ public class SimulationTest {
         new Constant<TruckContext>(0)));
   }
 
+  @Ignore("needs to be updated or removed")
   @Test
   public void test() throws ConfigurationException {
     final Simulation sim = new Simulation(scenario, dummyProgram, false);
@@ -53,6 +55,7 @@ public class SimulationTest {
     // System.out.println(stats);
   }
 
+  @Ignore("needs to be updated or removed")
   @Test
   public void test2() {
     final Collection<GPFunc<TruckContext>> funcs = new FRFunctions().create();
@@ -67,6 +70,7 @@ public class SimulationTest {
 
   }
 
+  @Ignore("needs to be updated or removed")
   @Test
   public void testProgram1() throws ConfigurationException {
     final Collection<GPFunc<TruckContext>> funcs = new FRFunctions().create();
