@@ -18,7 +18,7 @@ import rinde.ecj.Heuristic;
 import rinde.evo4mas.gendreau06.comm.EvoHeuristicBidder;
 import rinde.logistics.pdptw.mas.TruckConfiguration;
 import rinde.logistics.pdptw.mas.comm.AuctionCommModel;
-import rinde.logistics.pdptw.mas.comm.CommTest;
+import rinde.logistics.pdptw.mas.comm.CommunicationIntegrationTest;
 import rinde.logistics.pdptw.mas.route.RandomRoutePlanner;
 import rinde.sim.pdptw.experiment.MASConfiguration;
 
@@ -29,7 +29,7 @@ import com.google.common.collect.ImmutableList;
  * 
  */
 @RunWith(Parameterized.class)
-public class EvoCommTest extends CommTest {
+public class EvoCommTest extends CommunicationIntegrationTest {
 
   static Heuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(
       new GPFuncNode<GendreauContext>(

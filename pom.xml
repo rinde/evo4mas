@@ -11,7 +11,7 @@
 	<inceptionYear>2012</inceptionYear>
 
 	<properties>
-		<rinsim.version>2.3.0-SNAPSHOT</rinsim.version>
+		<rinsim.version>2.3.2-SNAPSHOT</rinsim.version>
 		<rinecj.version>0.0.1-SNAPSHOT</rinecj.version>
 		<sonar.language>java</sonar.language>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

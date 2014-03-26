@@ -3,8 +3,7 @@
  */
 package rinde.evo4mas.gendreau06;
 
-import java.io.BufferedReader;
-import java.io.StringReader;
+import java.io.ByteArrayInputStream;
 
 import org.jppf.task.storage.DataProvider;
 
@@ -49,10 +48,13 @@ public class GSimulationTask extends
   public void run() {
     final DataProvider dataProvider = getDataProvider();
     Gendreau06Scenario scenario;
+
     try {
       final String scenarioString = (String) dataProvider.getValue(scenarioKey);
-      scenario = Gendreau06Parser.parse(new BufferedReader(new StringReader(
-          scenarioString)), scenarioKey, numVehicles);
+      scenario = Gendreau06Parser
+          .parser()
+          .addFile(new ByteArrayInputStream(scenarioString.getBytes()),
+              scenarioKey).setNumVehicles(numVehicles).parse().get(0);
     } catch (final Exception e) {
       throw new RuntimeException("Failed loading scenario for task: "
           + taskData + " " + scenarioKey, e);
