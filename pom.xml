@@ -9,10 +9,39 @@
 	<description>Evolutionary algorithms for designing multi-agent systems for logistics.</description>
 	<url>http://github.com/rinde/evo4mas</url>
 	<inceptionYear>2012</inceptionYear>
+	
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
+	<scm>
+		<connection>scm:git:git@github.com:rinde/evo4mas.git</connection>
+		<developerConnection>scm:git:git@github.com:rinde/evo4mas.git</developerConnection>
+		<url>http://github.com/rinde/evo4mas</url>
+	</scm>
+	
+	<developers>
+		<developer>
+			<id>rinde</id>
+			<name>Rinde van Lon</name>
+			<email>rinde.vanlon@cs.kuleuven.be</email>
+			<url>http://rinde.nl/</url>
+			<organization>DistriNet - KU Leuven</organization>
+			<organizationUrl>http://distrinet.cs.kuleuven.be/people/rinde</organizationUrl>
+			<roles>
+				<role>architect</role>
+				<role>developer</role>
+			</roles>
+			<timezone>+1</timezone>
+		</developer>
+	</developers>
 
 	<properties>
 		<rinsim.version>2.3.2-SNAPSHOT</rinsim.version>
 		<rinecj.version>0.0.1-SNAPSHOT</rinecj.version>
+		<rinlog.version>0.0.1-SNAPSHOT</rinlog.version>
 		<sonar.language>java</sonar.language>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -65,12 +94,12 @@
 		<dependency>
 			<groupId>com.github.rinde</groupId>
 			<artifactId>rinlog</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${rinlog.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.rinde</groupId>
 			<artifactId>rinlog</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${rinlog.version}</version>
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
