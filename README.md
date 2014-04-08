@@ -1,2 +1,2 @@
-evo4mas 0.1.0
+evo4mas 0.1.1-SNAPSHOT
 =======
