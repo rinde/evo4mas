@@ -15,8 +15,9 @@ import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopCondition;
 import rinde.sim.pdptw.common.StatisticsDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
-import rinde.sim.util.spec.Specification;
-import rinde.sim.util.spec.Specification.ISpecification;
+
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -74,9 +75,8 @@ public class Simulation {
     return problemInstance.simulate();
   }
 
-  protected ISpecification<SimulationInfo> createStopCondition() {
-    return Specification.of(StopCondition.ANY_TARDINESS)
-        .or(EARLY_STOP_CONDITION).build();
+  protected Predicate<SimulationInfo> createStopCondition() {
+    return Predicates.or(StopCondition.ANY_TARDINESS, EARLY_STOP_CONDITION);
   }
 
   /**
@@ -86,7 +86,7 @@ public class Simulation {
    */
   public static final StopCondition EARLY_STOP_CONDITION = new StopCondition() {
     @Override
-    public boolean isSatisfiedBy(SimulationInfo context) {
+    public boolean apply(SimulationInfo context) {
       final FabriRechtScenario s = ((FabriRechtScenario) context.scenario);
       final long perc10 = (long) (0.1 * s.timeWindow.end - s.timeWindow.begin);
       return context.stats.simulationTime - s.timeWindow.begin > perc10

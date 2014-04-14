@@ -101,7 +101,7 @@ public class FeasibilityTest {
 
       problemInstance.addStopCondition(new StopCondition() {
         @Override
-        public boolean isSatisfiedBy(SimulationInfo context) {
+        public boolean apply(SimulationInfo context) {
           return nextStopTime >= 0
               && nextStopTime >= context.stats.simulationTime;
         }
