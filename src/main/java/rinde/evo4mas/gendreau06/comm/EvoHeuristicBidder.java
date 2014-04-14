@@ -11,7 +11,7 @@ import rinde.logistics.pdptw.mas.comm.AbstractBidder;
 import rinde.logistics.pdptw.mas.comm.Bidder;
 import rinde.sim.pdptw.common.DefaultParcel;
 import rinde.sim.util.SupplierRng;
-import rinde.sim.util.SupplierRng.DefaultSupplierRng;
+import rinde.sim.util.SupplierRngs.AbstractSupplierRng;
 
 import com.google.common.base.Optional;
 
@@ -50,7 +50,7 @@ public final class EvoHeuristicBidder extends AbstractBidder {
 
   public static SupplierRng<EvoHeuristicBidder> supplier(
       final Heuristic<GendreauContext> h) {
-    return new DefaultSupplierRng<EvoHeuristicBidder>() {
+    return new AbstractSupplierRng<EvoHeuristicBidder>() {
       @Override
       public EvoHeuristicBidder get(long seed) {
         return new EvoHeuristicBidder(h);

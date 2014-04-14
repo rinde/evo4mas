@@ -17,7 +17,7 @@ import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
 import rinde.logistics.pdptw.mas.route.AbstractRoutePlanner;
 import rinde.sim.pdptw.common.DefaultParcel;
 import rinde.sim.util.SupplierRng;
-import rinde.sim.util.SupplierRng.DefaultSupplierRng;
+import rinde.sim.util.SupplierRngs.AbstractSupplierRng;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
@@ -148,7 +148,7 @@ public final class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
 
   public static SupplierRng<EvoHeuristicRoutePlanner> supplier(
       final Heuristic<GendreauContext> h) {
-    return new DefaultSupplierRng<EvoHeuristicRoutePlanner>() {
+    return new AbstractSupplierRng<EvoHeuristicRoutePlanner>() {
       @Override
       public EvoHeuristicRoutePlanner get(long seed) {
         return new EvoHeuristicRoutePlanner(h);
