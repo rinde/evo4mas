@@ -84,7 +84,7 @@ public class Simulation {
    * elapsed without one pickup.
    * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
    */
-  public static final StopCondition EARLY_STOP_CONDITION = new StopCondition() {
+  public static final Predicate<SimulationInfo> EARLY_STOP_CONDITION = new Predicate<SimulationInfo>() {
     @Override
     public boolean apply(SimulationInfo context) {
       final FabriRechtScenario s = ((FabriRechtScenario) context.scenario);

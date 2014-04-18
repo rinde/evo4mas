@@ -22,6 +22,8 @@ import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.ConfigurationException;
 import rinde.sim.scenario.TimedEvent;
 
+import com.google.common.base.Predicate;
+
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
@@ -40,7 +42,7 @@ public class SubSimulation extends Simulation {
 
     if (startTime > 0) {
       // fast forward time
-      problemInstance.addStopCondition(new StopCondition() {
+      problemInstance.addStopCondition(new Predicate<SimulationInfo>() {
         @Override
         public boolean apply(SimulationInfo context) {
           return context.stats.simulationTime == startTime - 1;

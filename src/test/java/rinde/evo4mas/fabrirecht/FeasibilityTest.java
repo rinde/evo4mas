@@ -23,12 +23,13 @@ import rinde.sim.pdptw.common.AddDepotEvent;
 import rinde.sim.pdptw.common.AddParcelEvent;
 import rinde.sim.pdptw.common.AddVehicleEvent;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
-import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopCondition;
 import rinde.sim.pdptw.common.ParcelDTO;
 import rinde.sim.pdptw.common.VehicleDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
+
+import com.google.common.base.Predicate;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -99,7 +100,7 @@ public class FeasibilityTest {
         GPProgram<TruckContext> prog) {
       super(scenario, prog);
 
-      problemInstance.addStopCondition(new StopCondition() {
+      problemInstance.addStopCondition(new Predicate<SimulationInfo>() {
         @Override
         public boolean apply(SimulationInfo context) {
           return nextStopTime >= 0
