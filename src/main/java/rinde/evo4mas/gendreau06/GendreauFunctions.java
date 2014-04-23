@@ -58,7 +58,7 @@ public class GendreauFunctions {
 
             final Point loc =
                     isPickup ? context.parcel.pickupLocation
-                            : context.parcel.destinationLocation;
+                            : context.parcel.deliveryLocation;
             final long travelTime =
                     (long) ((Point.distance(loc, context.truckPosition) / 30d) * 3600000d);
             final long timeToBegin =
@@ -83,7 +83,7 @@ public class GendreauFunctions {
         @Override
         public double execute(double[] input, C context) {
             final Point poi =
-                    context.isInCargo ? context.parcel.destinationLocation
+                    context.isInCargo ? context.parcel.deliveryLocation
                             : context.parcel.pickupLocation;
             double dist = 0;
             for (final Point p : context.otherVehiclePositions) {
@@ -104,7 +104,7 @@ public class GendreauFunctions {
         @Override
         public double execute(double[] input, C context) {
             final Point poi =
-                    context.isInCargo ? context.parcel.destinationLocation
+                    context.isInCargo ? context.parcel.deliveryLocation
                             : context.parcel.pickupLocation;
             double min = Double.POSITIVE_INFINITY;
             for (final Point p : context.otherVehiclePositions) {
@@ -127,7 +127,7 @@ public class GendreauFunctions {
         @Override
         public double execute(double[] input, C context) {
             final Point poi =
-                    context.isInCargo ? context.parcel.destinationLocation
+                    context.isInCargo ? context.parcel.deliveryLocation
                             : context.parcel.pickupLocation;
             double max = Double.NEGATIVE_INFINITY;
             for (final Point p : context.otherVehiclePositions) {

@@ -73,10 +73,10 @@ public class SubSimulation extends Simulation {
           : processTimeLeft;
 
       final ParcelDTO dto = new ParcelDTO(firstParcel.pickupLocation,
-          firstParcel.destinationLocation,
+          firstParcel.deliveryLocation,
           firstParcel.pickupTimeWindow, firstParcel.deliveryTimeWindow,
           firstParcel.neededCapacity,
-          firstParcel.orderArrivalTime, pickupDur, deliverDur);
+          firstParcel.orderAnnounceTime, pickupDur, deliverDur);
 
       final Parcel p = new DefaultParcel(dto);
       problemInstance.getSimulator().register(p);

@@ -236,7 +236,7 @@ class Truck extends DefaultVehicle implements CoordAgent {
   public double getCost(ParcelDTO p) {
     return program.compute(new TruckContext(dto, roadModel.get().getPosition(
         this), convert(pdpModel.get().getContents(this)), p,
-        p.orderArrivalTime, false));
+        p.orderAnnounceTime, false));
   }
 
   public Heuristic<TruckContext> getProgram() {
@@ -288,7 +288,7 @@ class Truck extends DefaultVehicle implements CoordAgent {
       }
 
       final SubSimulation sim = new SubSimulation(scenario,
-          newParcel.orderArrivalTime, this, process, timeleft, ispickup,
+          newParcel.orderAnnounceTime, this, process, timeleft, ispickup,
           roadModel.get().getPosition(this), newTodoSet, dtos);
       final StatisticsDTO stats = sim.start();
 

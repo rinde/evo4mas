@@ -35,14 +35,14 @@ public class GPFunctions {
 
 		@Override
 		public double execute(double[] input, T context) {
-			final Point poi = context.isInCargo ? context.parcel.destinationLocation : context.parcel.pickupLocation;
+			final Point poi = context.isInCargo ? context.parcel.deliveryLocation : context.parcel.pickupLocation;
 			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
 			}
 			double distance = 0d;
 			for (final ParcelDTO p : contents) {
-				distance += Point.distance(poi, p.destinationLocation);
+				distance += Point.distance(poi, p.deliveryLocation);
 			}
 			return distance / contents.size();
 		}
@@ -57,14 +57,14 @@ public class GPFunctions {
 
 		@Override
 		public double execute(double[] input, T context) {
-			final Point poi = context.isInCargo ? context.parcel.destinationLocation : context.parcel.pickupLocation;
+			final Point poi = context.isInCargo ? context.parcel.deliveryLocation : context.parcel.pickupLocation;
 			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
 			}
 			double minDistance = Double.POSITIVE_INFINITY;
 			for (final ParcelDTO p : contents) {
-				minDistance = min(minDistance, Point.distance(poi, p.destinationLocation));
+				minDistance = min(minDistance, Point.distance(poi, p.deliveryLocation));
 			}
 			return minDistance;
 		}
@@ -79,14 +79,14 @@ public class GPFunctions {
 
 		@Override
 		public double execute(double[] input, T context) {
-			final Point poi = context.isInCargo ? context.parcel.destinationLocation : context.parcel.pickupLocation;
+			final Point poi = context.isInCargo ? context.parcel.deliveryLocation : context.parcel.pickupLocation;
 			final Collection<ParcelDTO> contents = context.truckContents;
 			if (contents.isEmpty()) {
 				return 0d;
 			}
 			double maxDistance = Double.NEGATIVE_INFINITY;
 			for (final ParcelDTO p : contents) {
-				maxDistance = max(maxDistance, Point.distance(poi, p.destinationLocation));
+				maxDistance = max(maxDistance, Point.distance(poi, p.deliveryLocation));
 			}
 			return maxDistance;
 		}
@@ -104,7 +104,7 @@ public class GPFunctions {
 		@Override
 		public double execute(double[] input, T context) {
 			if (context.isInCargo) {
-				return Point.distance(context.truckPosition, context.parcel.destinationLocation);
+				return Point.distance(context.truckPosition, context.parcel.deliveryLocation);
 			} else {
 				return Point.distance(context.truckPosition, context.parcel.pickupLocation);
 			}

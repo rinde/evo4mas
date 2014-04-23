@@ -142,7 +142,7 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
       final List<Point> points = gatherListOfPointsToBeVisited(context);
       final double diameter = Collections.max(distances(points));
 
-      final double destEcc = eccentricity(context.parcel.destinationLocation,
+      final double destEcc = eccentricity(context.parcel.deliveryLocation,
           points);
       if (context.isInCargo) {
         return destEcc / diameter;
@@ -160,12 +160,12 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
       GendreauContext context) {
     final List<Point> points = newArrayList();
     for (final ParcelDTO dto : context.truckContents) {
-      points.add(dto.destinationLocation);
+      points.add(dto.deliveryLocation);
     }
 
     for (final Parcel p : context.todoList) {
       points.add(((DefaultParcel) p).dto.pickupLocation);
-      points.add(((DefaultParcel) p).dto.destinationLocation);
+      points.add(((DefaultParcel) p).dto.deliveryLocation);
     }
 
     points.add(context.truckPosition);
@@ -327,7 +327,7 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
       if (context.isAssignedToVehicle) {
         return 0d;
       }
-      return closest(context.parcel.destinationLocation, context)
+      return closest(context.parcel.deliveryLocation, context)
           + closest(context.parcel.pickupLocation, context);
     }
 
@@ -343,7 +343,7 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
 
       for (final ParcelDTO p : context.truckContents) {
         closestDist = Math.min(closestDist,
-            Point.distance(ref, p.destinationLocation));
+            Point.distance(ref, p.deliveryLocation));
       }
       return closestDist;
     }
