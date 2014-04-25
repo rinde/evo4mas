@@ -19,7 +19,6 @@ import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopCondition;
 import rinde.sim.pdptw.common.ParcelDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
-import rinde.sim.scenario.ConfigurationException;
 import rinde.sim.scenario.TimedEvent;
 
 import com.google.common.base.Predicate;
@@ -33,8 +32,7 @@ public class SubSimulation extends Simulation {
   public SubSimulation(final FabriRechtScenario srcScenario,
       final long startTime, Truck t, ParcelDTO firstParcel,
       long processTimeLeft, boolean isPickup, Point truckPos,
-      Set<ParcelDTO> todoSet, Set<ParcelDTO> contents)
-      throws ConfigurationException {
+      Set<ParcelDTO> todoSet, Set<ParcelDTO> contents) {
     super(new FabriRechtScenario(new ArrayList<TimedEvent>(),
         srcScenario.getPossibleEventTypes(), srcScenario.min,
         srcScenario.max, srcScenario.timeWindow, srcScenario.defaultVehicle), t

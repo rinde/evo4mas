@@ -25,7 +25,6 @@ import rinde.sim.pdptw.common.ParcelDTO;
 import rinde.sim.pdptw.common.StatisticsDTO;
 import rinde.sim.pdptw.common.VehicleDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
-import rinde.sim.scenario.ConfigurationException;
 import rinde.sim.scenario.TimedEvent;
 import rinde.sim.util.TimeWindow;
 
@@ -60,7 +59,7 @@ public class SubSimulationTest {
 
   @Ignore("needs to be updated or removed")
   @Test
-  public void subTest1() throws ConfigurationException {
+  public void subTest1() {
     final Truck t = new SubTruck(vehicleDTO, program, scenario);
     final Set<ParcelDTO> contents = newHashSet();
     final Set<ParcelDTO> todo = newHashSet(new ParcelDTO(new Point(10, 0),
@@ -80,7 +79,7 @@ public class SubSimulationTest {
 
   @Ignore("needs to be updated or removed")
   @Test
-  public void subTest2() throws ConfigurationException {
+  public void subTest2() {
     final Truck t = new SubTruck(vehicleDTO, program, scenario);
     final Set<ParcelDTO> contents = newHashSet();
     final Set<ParcelDTO> todo = newHashSet(new ParcelDTO(new Point(10, 0),

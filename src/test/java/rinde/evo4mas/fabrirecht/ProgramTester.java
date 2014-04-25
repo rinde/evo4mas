@@ -14,7 +14,6 @@ import rinde.evo4mas.common.TruckContext;
 import rinde.sim.pdptw.common.StatisticsDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtParser;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
-import rinde.sim.scenario.ConfigurationException;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -22,8 +21,7 @@ import rinde.sim.scenario.ConfigurationException;
  */
 public class ProgramTester {
 
-  public static void main(String[] args) throws FileNotFoundException,
-      ConfigurationException {
+  public static void main(String[] args) throws FileNotFoundException {
     final FabriRechtScenario scenario = FabriRechtParser.fromJson(
         new FileReader(
             "files/scenarios/fabri-recht/pdp100_mitAnrufzeit/lc109.scenario"),

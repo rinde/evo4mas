@@ -22,7 +22,6 @@ import rinde.evo4mas.common.TruckContext;
 import rinde.sim.pdptw.common.StatisticsDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtParser;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
-import rinde.sim.scenario.ConfigurationException;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -46,7 +45,7 @@ public class SimulationTest {
 
   @Ignore("needs to be updated or removed")
   @Test
-  public void test() throws ConfigurationException {
+  public void test() {
     final Simulation sim = new Simulation(scenario, dummyProgram, false);
 
     final StatisticsDTO stats = sim.start();
@@ -72,7 +71,7 @@ public class SimulationTest {
 
   @Ignore("needs to be updated or removed")
   @Test
-  public void testProgram1() throws ConfigurationException {
+  public void testProgram1() {
     final Collection<GPFunc<TruckContext>> funcs = new FRFunctions().create();
     // (add (if4 (add (add 0.0 1.0) (add 0.0 1.0)) (add ado ado) (if4 dist
     // ado ado 1.0) (if4 1.0 ado dist dist)) (if4 dist 0.0 0.0 dist))
