@@ -12,7 +12,7 @@ import rinde.sim.pdptw.common.DefaultParcel;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.Creator;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
-import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopCondition;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopConditions;
 import rinde.sim.pdptw.common.StatisticsDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 
@@ -76,7 +76,7 @@ public class Simulation {
   }
 
   protected Predicate<SimulationInfo> createStopCondition() {
-    return Predicates.or(StopCondition.ANY_TARDINESS, EARLY_STOP_CONDITION);
+    return Predicates.or(StopConditions.ANY_TARDINESS, EARLY_STOP_CONDITION);
   }
 
   /**

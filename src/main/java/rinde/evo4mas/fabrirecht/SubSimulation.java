@@ -16,7 +16,7 @@ import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
 import rinde.sim.pdptw.common.DefaultParcel;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
-import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopCondition;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopConditions;
 import rinde.sim.pdptw.common.ParcelDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.TimedEvent;
@@ -106,8 +106,8 @@ public class SubSimulation extends Simulation {
   }
 
   @Override
-  protected StopCondition createStopCondition() {
-    return StopCondition.ANY_TARDINESS;
+  protected StopConditions createStopCondition() {
+    return StopConditions.ANY_TARDINESS;
   }
 
   // this is overridden to avoid early termination of the subsimulation
