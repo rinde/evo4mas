@@ -38,7 +38,7 @@
 	</developers>
 
 	<properties>
-		<rinsim.version>2.3.3-SNAPSHOT</rinsim.version>
+		<rinsim.version>2.3.4-SNAPSHOT</rinsim.version>
 		<rinlog.version>0.1.1-SNAPSHOT</rinlog.version>
 		<rinecj.version>0.1.0</rinecj.version>
 		<sonar.language>java</sonar.language>
