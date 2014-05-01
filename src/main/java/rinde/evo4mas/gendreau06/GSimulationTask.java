@@ -60,7 +60,7 @@ public class GSimulationTask extends
           + taskData + " " + scenarioKey, e);
     }
 
-    final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
+    final ObjectiveFunction objFunc = Gendreau06ObjectiveFunction.instance();
     final TruckConfiguration config = new TruckConfiguration(
         EvoHeuristicRoutePlanner.supplier(taskData), BlackboardUser.supplier(),
         ImmutableList.of(BlackboardCommModel.supplier()));

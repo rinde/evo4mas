@@ -63,7 +63,7 @@ public class ProgramTest {
         progString, BlackboardFunctions.FUNCTIONS);
     // can also use AuctionFunctions.FUNCTIONS;
 
-    final ObjectiveFunction objFunc = new Gendreau06ObjectiveFunction();
+    final ObjectiveFunction objFunc = Gendreau06ObjectiveFunction.instance();
 
     final ExperimentResults results = Experiment
         .build(objFunc)
