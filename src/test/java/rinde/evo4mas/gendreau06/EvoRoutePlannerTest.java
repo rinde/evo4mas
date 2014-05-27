@@ -17,7 +17,7 @@ import rinde.ecj.Heuristic;
 import rinde.evo4mas.gendreau06.route.EvoHeuristicRoutePlanner;
 import rinde.logistics.pdptw.mas.route.RoutePlanner;
 import rinde.logistics.pdptw.mas.route.RoutePlannerTest;
-import rinde.sim.util.SupplierRng;
+import rinde.sim.util.StochasticSupplier;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
@@ -26,7 +26,7 @@ import rinde.sim.util.SupplierRng;
 @RunWith(Parameterized.class)
 public class EvoRoutePlannerTest extends RoutePlannerTest {
 
-  public EvoRoutePlannerTest(SupplierRng<RoutePlanner> rp) {
+  public EvoRoutePlannerTest(StochasticSupplier<RoutePlanner> rp) {
     super(rp);
   }
 

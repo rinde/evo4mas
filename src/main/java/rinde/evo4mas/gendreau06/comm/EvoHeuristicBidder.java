@@ -10,8 +10,8 @@ import rinde.evo4mas.gendreau06.GendreauContextBuilder;
 import rinde.logistics.pdptw.mas.comm.AbstractBidder;
 import rinde.logistics.pdptw.mas.comm.Bidder;
 import rinde.sim.pdptw.common.DefaultParcel;
-import rinde.sim.util.SupplierRng;
-import rinde.sim.util.SupplierRngs.AbstractSupplierRng;
+import rinde.sim.util.StochasticSupplier;
+import rinde.sim.util.StochasticSuppliers.AbstractStochasticSupplier;
 
 import com.google.common.base.Optional;
 
@@ -48,9 +48,9 @@ public final class EvoHeuristicBidder extends AbstractBidder {
         .get(), pdpModel.get(), vehicle.get()));
   }
 
-  public static SupplierRng<EvoHeuristicBidder> supplier(
+  public static StochasticSupplier<EvoHeuristicBidder> supplier(
       final Heuristic<GendreauContext> h) {
-    return new AbstractSupplierRng<EvoHeuristicBidder>() {
+    return new AbstractStochasticSupplier<EvoHeuristicBidder>() {
       @Override
       public EvoHeuristicBidder get(long seed) {
         return new EvoHeuristicBidder(h);
