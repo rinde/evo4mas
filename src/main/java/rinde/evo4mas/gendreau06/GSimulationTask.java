@@ -66,7 +66,7 @@ public class GSimulationTask extends
         ImmutableList.of(BlackboardCommModel.supplier()));
 
     final StatisticsDTO stats = Experiment.build(objFunc).addScenario(scenario)
-        .addConfiguration(config).perform().results.get(0).stats;
+        .addConfiguration(config).perform().results.asList().get(0).stats;
 
     final boolean isValid = objFunc.isValidResult(stats);
     final float fitness = isValid ? (float) objFunc.computeCost(stats)
