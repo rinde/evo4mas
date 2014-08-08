@@ -3,8 +3,8 @@
  */
 package rinde.evo4mas.fabrirecht;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 
 import rinde.ecj.GPFunc;
@@ -15,16 +15,20 @@ import rinde.sim.pdptw.common.StatisticsDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtParser;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
  */
 public class ProgramTester {
 
-  public static void main(String[] args) throws FileNotFoundException {
+  public static void main(String[] args) throws IOException {
     final FabriRechtScenario scenario = FabriRechtParser.fromJson(
-        new FileReader(
+        Files.toString(new File(
             "files/scenarios/fabri-recht/pdp100_mitAnrufzeit/lc109.scenario"),
+            Charsets.UTF_8),
         10, 4);
     final Collection<GPFunc<TruckContext>> funcs = new FRFunctions().create();
     // final String progString =

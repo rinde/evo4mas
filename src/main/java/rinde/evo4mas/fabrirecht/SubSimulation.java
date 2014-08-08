@@ -8,16 +8,17 @@ import static com.google.common.base.Preconditions.checkState;
 import java.util.ArrayList;
 import java.util.Set;
 
+import rinde.sim.core.Simulator;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.DefaultPDPModel;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
 import rinde.sim.core.model.road.RoadModel;
+import rinde.sim.core.pdptw.ParcelDTO;
 import rinde.sim.pdptw.common.DefaultParcel;
-import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
+import rinde.sim.pdptw.common.DynamicPDPTWProblem;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopConditions;
-import rinde.sim.pdptw.common.ParcelDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.TimedEvent;
 
@@ -40,10 +41,10 @@ public class SubSimulation extends Simulation {
 
     if (startTime > 0) {
       // fast forward time
-      problemInstance.addStopCondition(new Predicate<SimulationInfo>() {
+      problemInstance.addStopCondition(new Predicate<Simulator>() {
         @Override
-        public boolean apply(SimulationInfo context) {
-          return context.stats.simulationTime == startTime - 1;
+        public boolean apply(Simulator context) {
+          return DynamicPDPTWProblem.getStats(context).simulationTime == startTime - 1;
         }
       });
       problemInstance.simulate();
@@ -106,7 +107,7 @@ public class SubSimulation extends Simulation {
   }
 
   @Override
-  protected StopConditions createStopCondition() {
+  protected Predicate<Simulator> createStopCondition(FabriRechtScenario scenario) {
     return StopConditions.ANY_TARDINESS;
   }
 

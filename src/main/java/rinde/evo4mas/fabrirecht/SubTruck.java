@@ -9,7 +9,7 @@ import rinde.sim.core.TimeLapse;
 import rinde.sim.core.model.pdp.PDPModel;
 import rinde.sim.core.model.pdp.PDPModel.ParcelState;
 import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.pdptw.common.VehicleDTO;
+import rinde.sim.core.pdptw.VehicleDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 
 /**

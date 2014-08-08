@@ -6,12 +6,11 @@ package rinde.evo4mas.fabrirecht;
 import rinde.ecj.Heuristic;
 import rinde.evo4mas.common.TruckContext;
 import rinde.sim.core.Simulator;
-import rinde.sim.pdptw.common.AddParcelEvent;
-import rinde.sim.pdptw.common.AddVehicleEvent;
+import rinde.sim.core.pdptw.AddParcelEvent;
+import rinde.sim.core.pdptw.AddVehicleEvent;
 import rinde.sim.pdptw.common.DefaultParcel;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.Creator;
-import rinde.sim.pdptw.common.DynamicPDPTWProblem.SimulationInfo;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem.StopConditions;
 import rinde.sim.pdptw.common.StatisticsDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
@@ -62,7 +61,7 @@ public class Simulation {
         });
 
     // tardiness is unacceptable -> stop immediately
-    problemInstance.addStopCondition(createStopCondition());
+    problemInstance.addStopCondition(createStopCondition(scenario));
 
     // add an additional renderer for the CoordModel
     problemInstance.addRendererToUI(new CoordModelRenderer());
@@ -75,23 +74,22 @@ public class Simulation {
     return problemInstance.simulate();
   }
 
-  protected Predicate<SimulationInfo> createStopCondition() {
-    return Predicates.or(StopConditions.ANY_TARDINESS, EARLY_STOP_CONDITION);
+  protected Predicate<Simulator> createStopCondition(final FabriRechtScenario s) {
+    return Predicates.or(StopConditions.ANY_TARDINESS,
+        /**
+         * Terminate very bad solutions, stops when more than 10% of the time
+         * has elapsed without one pickup.
+         * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+         */
+        new Predicate<Simulator>() {
+          @Override
+          public boolean apply(Simulator context) {
+            final long perc10 = (long) (0.1 * s.timeWindow.end - s.timeWindow.begin);
+            final StatisticsDTO stats = DynamicPDPTWProblem.getStats(context);
+            return stats.simulationTime - s.timeWindow.begin > perc10
+                && stats.totalPickups == 0;
+          }
+        });
   }
-
-  /**
-   * Terminate very bad solutions, stops when more than 10% of the time has
-   * elapsed without one pickup.
-   * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
-   */
-  public static final Predicate<SimulationInfo> EARLY_STOP_CONDITION = new Predicate<SimulationInfo>() {
-    @Override
-    public boolean apply(SimulationInfo context) {
-      final FabriRechtScenario s = ((FabriRechtScenario) context.scenario);
-      final long perc10 = (long) (0.1 * s.timeWindow.end - s.timeWindow.begin);
-      return context.stats.simulationTime - s.timeWindow.begin > perc10
-          && context.stats.totalPickups == 0;
-    }
-  };
 
 }

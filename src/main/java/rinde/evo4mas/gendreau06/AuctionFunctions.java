@@ -36,8 +36,8 @@ import rinde.evo4mas.gendreau06.GendreauFunctions.Midc;
 import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
 import rinde.sim.core.graph.Point;
 import rinde.sim.core.model.pdp.Parcel;
+import rinde.sim.core.pdptw.ParcelDTO;
 import rinde.sim.pdptw.common.DefaultParcel;
-import rinde.sim.pdptw.common.ParcelDTO;
 
 import com.google.common.collect.ImmutableList;
 

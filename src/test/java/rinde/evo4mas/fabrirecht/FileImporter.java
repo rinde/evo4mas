@@ -12,7 +12,10 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
-import rinde.sim.pdptw.common.AddParcelEvent;
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
+import rinde.sim.core.pdptw.AddParcelEvent;
 import rinde.sim.pdptw.fabrirecht.FabriRechtParser;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 import rinde.sim.scenario.ScenarioBuilder;
@@ -93,8 +96,9 @@ public class FileImporter {
 					checkState(ScenarioBuilder.isTimeOrderingConsistent(scen), "bummer");
 					FabriRechtParser.toJson(scen, new FileWriter(d.getAbsolutePath() + "/" + name + ".scenario"));
 
-					final FabriRechtScenario scen2 = FabriRechtParser.fromJson(new FileReader(d.getAbsolutePath() + "/"
-							+ name + ".scenario"));
+					final FabriRechtScenario scen2 = FabriRechtParser.fromJson(
+					    Files.toString(new File(d.getAbsolutePath() + "/"
+              + name + ".scenario"), Charsets.UTF_8));
 
 					checkState(ScenarioBuilder.isTimeOrderingConsistent(scen2), "bummer2");
 					checkState(scen.equals(scen2));

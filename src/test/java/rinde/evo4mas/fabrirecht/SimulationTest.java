@@ -5,8 +5,8 @@ package rinde.evo4mas.fabrirecht;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 
 import org.junit.Before;
@@ -23,6 +23,9 @@ import rinde.sim.pdptw.common.StatisticsDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtParser;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
  * 
@@ -33,12 +36,13 @@ public class SimulationTest {
   protected GPProgram<TruckContext> dummyProgram;
 
   @Before
-  public void setup() throws FileNotFoundException {
+  public void setup() throws IOException {
 
     final String scenFile = "files/scenarios/fabri-recht/pdp100_mitAnrufzeit/lc203.scenario";
     // "../../RinSim/problem/data/test/fabri-recht/lc101.scenario"
 
-    scenario = FabriRechtParser.fromJson(new FileReader(scenFile), 10, 4);
+    scenario = FabriRechtParser.fromJson(
+        Files.toString(new File(scenFile), Charsets.UTF_8), 10, 4);
     dummyProgram = new GPProgram<TruckContext>(new GPFuncNode<TruckContext>(
         new Constant<TruckContext>(0)));
   }
