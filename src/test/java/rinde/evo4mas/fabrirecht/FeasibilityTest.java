@@ -51,8 +51,11 @@ public class FeasibilityTest {
   public void setup() {
     timeWindow = new TimeWindow(0, 500);
     depotEvent = new AddDepotEvent(0, new Point(10, 10));
-    vehicleEvent = new AddVehicleEvent(0, new VehicleDTO(new Point(10, 10), 1,
-        4, timeWindow));
+    vehicleEvent = new AddVehicleEvent(0, VehicleDTO.builder()
+        .startPosition(new Point(10, 10))
+        .speed(1d).capacity(4)
+        .availabilityTimeWindow(timeWindow)
+        .build());
 
     parcelEvent1 = new AddParcelEvent(new ParcelDTO(new Point(10, 0),
         new Point(10, 5), new TimeWindow(5, 21), new TimeWindow(10, 40), 1, 5,

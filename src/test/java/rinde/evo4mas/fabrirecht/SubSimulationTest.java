@@ -48,7 +48,12 @@ public class SubSimulationTest {
         new FRFunctions().create());
 
     timeWindow = new TimeWindow(0, 500);
-    vehicleDTO = new VehicleDTO(new Point(10, 10), 1, 4, timeWindow);
+    vehicleDTO = VehicleDTO.builder()
+        .startPosition(new Point(10, 10))
+        .speed(1d)
+        .capacity(4)
+        .availabilityTimeWindow(timeWindow)
+        .build();
     final Point min = new Point(0, 0);
     final Point max = new Point(20, 20);
     final Set<Enum<?>> eventTypes = newHashSet();
