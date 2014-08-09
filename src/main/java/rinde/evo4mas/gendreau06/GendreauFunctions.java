@@ -3,8 +3,9 @@
  */
 package rinde.evo4mas.gendreau06;
 
+import com.github.rinde.rinsim.core.graph.Point;
+
 import rinde.ecj.GPFunc;
-import rinde.sim.core.graph.Point;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

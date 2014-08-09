@@ -17,19 +17,19 @@ import org.junit.Test;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
 import rinde.evo4mas.common.TruckContext;
-import rinde.sim.core.Simulator;
-import rinde.sim.core.graph.Point;
-import rinde.sim.core.model.pdp.PDPScenarioEvent;
-import rinde.sim.core.pdptw.ParcelDTO;
-import rinde.sim.core.pdptw.VehicleDTO;
 import rinde.sim.pdptw.common.DynamicPDPTWProblem;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
-import rinde.sim.scenario.AddDepotEvent;
-import rinde.sim.scenario.AddParcelEvent;
-import rinde.sim.scenario.AddVehicleEvent;
-import rinde.sim.scenario.TimedEvent;
-import rinde.sim.util.TimeWindow;
 
+import com.github.rinde.rinsim.core.Simulator;
+import com.github.rinde.rinsim.core.graph.Point;
+import com.github.rinde.rinsim.core.model.pdp.PDPScenarioEvent;
+import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
+import com.github.rinde.rinsim.core.pdptw.VehicleDTO;
+import com.github.rinde.rinsim.scenario.AddDepotEvent;
+import com.github.rinde.rinsim.scenario.AddParcelEvent;
+import com.github.rinde.rinsim.scenario.AddVehicleEvent;
+import com.github.rinde.rinsim.scenario.TimedEvent;
+import com.github.rinde.rinsim.util.TimeWindow;
 import com.google.common.base.Predicate;
 
 /**

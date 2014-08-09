@@ -16,17 +16,18 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.github.rinde.rinsim.core.graph.Point;
+import com.github.rinde.rinsim.core.model.pdp.PDPScenarioEvent;
+import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
+import com.github.rinde.rinsim.core.pdptw.VehicleDTO;
+import com.github.rinde.rinsim.scenario.TimedEvent;
+import com.github.rinde.rinsim.util.TimeWindow;
+
 import rinde.ecj.GPProgram;
 import rinde.ecj.GPProgramParser;
 import rinde.evo4mas.common.TruckContext;
-import rinde.sim.core.graph.Point;
-import rinde.sim.core.model.pdp.PDPScenarioEvent;
-import rinde.sim.core.pdptw.ParcelDTO;
-import rinde.sim.core.pdptw.VehicleDTO;
 import rinde.sim.pdptw.common.StatisticsDTO;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
-import rinde.sim.scenario.TimedEvent;
-import rinde.sim.util.TimeWindow;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

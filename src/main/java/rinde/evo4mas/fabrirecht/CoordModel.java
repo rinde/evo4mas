@@ -12,15 +12,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import rinde.sim.core.model.Model;
-import rinde.sim.core.model.ModelProvider;
-import rinde.sim.core.model.ModelReceiver;
-import rinde.sim.core.model.pdp.DefaultPDPModel;
-import rinde.sim.core.model.pdp.PDPModel.PDPModelEventType;
-import rinde.sim.core.model.pdp.PDPModelEvent;
-import rinde.sim.core.pdptw.ParcelDTO;
-import rinde.sim.event.Event;
-import rinde.sim.event.Listener;
+import com.github.rinde.rinsim.core.model.Model;
+import com.github.rinde.rinsim.core.model.ModelProvider;
+import com.github.rinde.rinsim.core.model.ModelReceiver;
+import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
+import com.github.rinde.rinsim.core.model.pdp.PDPModelEvent;
+import com.github.rinde.rinsim.core.model.pdp.PDPModel.PDPModelEventType;
+import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
+import com.github.rinde.rinsim.event.Event;
+import com.github.rinde.rinsim.event.Listener;
+
 import rinde.sim.pdptw.common.DefaultParcel;
 
 /**

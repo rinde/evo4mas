@@ -34,11 +34,11 @@ import rinde.evo4mas.gendreau06.GendreauFunctions.IsInCargo;
 import rinde.evo4mas.gendreau06.GendreauFunctions.Madc;
 import rinde.evo4mas.gendreau06.GendreauFunctions.Midc;
 import rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
-import rinde.sim.core.graph.Point;
-import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.core.pdptw.ParcelDTO;
 import rinde.sim.pdptw.common.DefaultParcel;
 
+import com.github.rinde.rinsim.core.graph.Point;
+import com.github.rinde.rinsim.core.model.pdp.Parcel;
+import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
 import com.google.common.collect.ImmutableList;
 
 /**
@@ -219,7 +219,7 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
    * available time.
    * <p>
    * <b>Definition of overlapping load</b> A new parcel can have overlapping
-   * {@link rinde.sim.util.TimeWindow}s with its currently assigned set. We
+   * {@link com.github.rinde.rinsim.util.TimeWindow}s with its currently assigned set. We
    * compute the total load (a sum of all intersections) in the interval defined
    * by the time window of the new parcel.
    * 

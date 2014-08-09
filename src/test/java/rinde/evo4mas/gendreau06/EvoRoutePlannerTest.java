@@ -10,6 +10,8 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import com.github.rinde.rinsim.util.StochasticSupplier;
+
 import rinde.ecj.GPFuncNode;
 import rinde.ecj.GPProgram;
 import rinde.ecj.GenericFunctions;
@@ -17,7 +19,6 @@ import rinde.ecj.Heuristic;
 import rinde.evo4mas.gendreau06.route.EvoHeuristicRoutePlanner;
 import rinde.logistics.pdptw.mas.route.RoutePlanner;
 import rinde.logistics.pdptw.mas.route.RoutePlannerTest;
-import rinde.sim.util.StochasticSupplier;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

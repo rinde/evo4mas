@@ -5,9 +5,10 @@ package rinde.evo4mas.fabrirecht;
 
 import org.eclipse.swt.graphics.GC;
 
-import rinde.sim.core.model.ModelProvider;
-import rinde.sim.core.model.ModelReceiver;
-import rinde.sim.core.model.road.RoadModel;
+import com.github.rinde.rinsim.core.model.ModelProvider;
+import com.github.rinde.rinsim.core.model.ModelReceiver;
+import com.github.rinde.rinsim.core.model.road.RoadModel;
+
 import rinde.sim.ui.renderers.CanvasRenderer;
 import rinde.sim.ui.renderers.ViewPort;
 import rinde.sim.ui.renderers.ViewRect;

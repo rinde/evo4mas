@@ -11,12 +11,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import rinde.sim.core.graph.Point;
-import rinde.sim.core.model.pdp.PDPModel;
-import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.core.model.pdp.Vehicle;
-import rinde.sim.core.model.road.RoadModel;
-import rinde.sim.core.pdptw.ParcelDTO;
+import com.github.rinde.rinsim.core.graph.Point;
+import com.github.rinde.rinsim.core.model.pdp.PDPModel;
+import com.github.rinde.rinsim.core.model.pdp.Parcel;
+import com.github.rinde.rinsim.core.model.pdp.Vehicle;
+import com.github.rinde.rinsim.core.model.road.RoadModel;
+import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
+
 import rinde.sim.pdptw.common.DefaultParcel;
 import rinde.sim.pdptw.common.DefaultVehicle;
 

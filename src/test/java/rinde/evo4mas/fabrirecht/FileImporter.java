@@ -16,11 +16,11 @@ import java.util.List;
 
 import rinde.sim.pdptw.fabrirecht.FabriRechtParser;
 import rinde.sim.pdptw.fabrirecht.FabriRechtScenario;
-import rinde.sim.scenario.AddParcelEvent;
-import rinde.sim.scenario.Scenario;
-import rinde.sim.scenario.TimedEvent;
-import rinde.sim.scenario.TimedEvent.TimeComparator;
 
+import com.github.rinde.rinsim.scenario.AddParcelEvent;
+import com.github.rinde.rinsim.scenario.Scenario;
+import com.github.rinde.rinsim.scenario.TimedEvent;
+import com.github.rinde.rinsim.scenario.TimedEvent.TimeComparator;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 

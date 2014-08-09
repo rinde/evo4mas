@@ -17,9 +17,10 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
+import com.github.rinde.rinsim.core.graph.Point;
+import com.github.rinde.rinsim.util.TimeWindow;
+
 import rinde.evo4mas.common.TimeWindowLoadUtil.TimeWindowLoad;
-import rinde.sim.core.graph.Point;
-import rinde.sim.util.TimeWindow;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

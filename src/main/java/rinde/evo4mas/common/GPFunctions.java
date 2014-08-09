@@ -8,9 +8,10 @@ import static java.lang.Math.min;
 
 import java.util.Collection;
 
+import com.github.rinde.rinsim.core.graph.Point;
+import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
+
 import rinde.ecj.GPFunc;
-import rinde.sim.core.graph.Point;
-import rinde.sim.core.pdptw.ParcelDTO;
 
 /**
  * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>

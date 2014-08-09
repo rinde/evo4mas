@@ -3,8 +3,8 @@
  */
 package rinde.evo4mas.fabrirecht;
 
-import rinde.sim.core.model.pdp.Parcel;
-import rinde.sim.core.pdptw.ParcelDTO;
+import com.github.rinde.rinsim.core.model.pdp.Parcel;
+import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
 
 /**
  * 
