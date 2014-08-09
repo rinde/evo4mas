@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 import com.github.rinde.evo4mas.common.TimeWindowLoadUtil.TimeWindowLoad;
-import com.github.rinde.rinsim.core.graph.Point;
+import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 
 /**

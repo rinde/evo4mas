@@ -8,8 +8,8 @@ import static java.lang.Math.min;
 
 import java.util.Collection;
 
-import com.github.rinde.rinsim.core.graph.Point;
 import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
+import com.github.rinde.rinsim.geom.Point;
 
 import rinde.ecj.GPFunc;
 

@@ -9,13 +9,13 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import com.github.rinde.rinsim.core.Simulator;
-import com.github.rinde.rinsim.core.graph.Point;
 import com.github.rinde.rinsim.core.model.pdp.DefaultPDPModel;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel.ParcelState;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
+import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.pdptw.common.DefaultParcel;
 import com.github.rinde.rinsim.pdptw.common.DynamicPDPTWProblem;
 import com.github.rinde.rinsim.pdptw.common.DynamicPDPTWProblem.StopConditions;

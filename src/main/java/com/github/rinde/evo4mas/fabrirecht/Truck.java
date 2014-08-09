@@ -10,7 +10,6 @@ import java.util.Set;
 
 import com.github.rinde.evo4mas.common.TruckContext;
 import com.github.rinde.rinsim.core.TimeLapse;
-import com.github.rinde.rinsim.core.graph.Point;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.pdp.PDPModel.ParcelState;
@@ -18,6 +17,7 @@ import com.github.rinde.rinsim.core.model.pdp.PDPModel.VehicleState;
 import com.github.rinde.rinsim.core.model.road.RoadModel;
 import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
 import com.github.rinde.rinsim.core.pdptw.VehicleDTO;
+import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.pdptw.common.DefaultParcel;
 import com.github.rinde.rinsim.pdptw.common.DefaultVehicle;
 import com.github.rinde.rinsim.pdptw.common.StatisticsDTO;

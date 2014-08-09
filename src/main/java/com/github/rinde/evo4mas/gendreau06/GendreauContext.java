@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Set;
 
 import com.github.rinde.evo4mas.common.TruckContext;
-import com.github.rinde.rinsim.core.graph.Point;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
 import com.github.rinde.rinsim.core.pdptw.VehicleDTO;
+import com.github.rinde.rinsim.geom.Point;
 
 /**
  * Context object used in GP.

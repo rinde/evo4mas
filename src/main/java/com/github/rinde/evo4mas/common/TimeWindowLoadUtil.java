@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
-import com.github.rinde.rinsim.core.graph.Point;
+import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.util.TimeWindow;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;

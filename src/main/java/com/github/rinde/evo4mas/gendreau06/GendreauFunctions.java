@@ -3,7 +3,7 @@
  */
 package com.github.rinde.evo4mas.gendreau06;
 
-import com.github.rinde.rinsim.core.graph.Point;
+import com.github.rinde.rinsim.geom.Point;
 
 import rinde.ecj.GPFunc;
 

@@ -35,9 +35,9 @@ import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.IsInCargo;
 import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.Madc;
 import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.Midc;
 import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
-import com.github.rinde.rinsim.core.graph.Point;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
+import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.pdptw.common.DefaultParcel;
 import com.google.common.collect.ImmutableList;
 
