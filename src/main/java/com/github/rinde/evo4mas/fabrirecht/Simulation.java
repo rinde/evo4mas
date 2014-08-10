@@ -7,7 +7,7 @@ import rinde.ecj.Heuristic;
 
 import com.github.rinde.evo4mas.common.TruckContext;
 import com.github.rinde.rinsim.core.Simulator;
-import com.github.rinde.rinsim.pdptw.common.DefaultParcel;
+import com.github.rinde.rinsim.core.pdptw.DefaultParcel;
 import com.github.rinde.rinsim.pdptw.common.DynamicPDPTWProblem;
 import com.github.rinde.rinsim.pdptw.common.StatisticsDTO;
 import com.github.rinde.rinsim.pdptw.common.DynamicPDPTWProblem.Creator;

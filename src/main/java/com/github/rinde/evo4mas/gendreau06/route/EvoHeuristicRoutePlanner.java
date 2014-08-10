@@ -16,7 +16,7 @@ import com.github.rinde.evo4mas.gendreau06.GendreauContext;
 import com.github.rinde.evo4mas.gendreau06.GendreauContextBuilder;
 import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
 import com.github.rinde.logistics.pdptw.mas.route.AbstractRoutePlanner;
-import com.github.rinde.rinsim.pdptw.common.DefaultParcel;
+import com.github.rinde.rinsim.core.pdptw.DefaultParcel;
 import com.github.rinde.rinsim.util.StochasticSupplier;
 import com.github.rinde.rinsim.util.StochasticSuppliers.AbstractStochasticSupplier;
 import com.google.common.base.Optional;

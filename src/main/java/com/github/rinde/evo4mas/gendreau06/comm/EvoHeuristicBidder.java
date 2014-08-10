@@ -10,7 +10,7 @@ import com.github.rinde.evo4mas.gendreau06.GendreauContext;
 import com.github.rinde.evo4mas.gendreau06.GendreauContextBuilder;
 import com.github.rinde.logistics.pdptw.mas.comm.AbstractBidder;
 import com.github.rinde.logistics.pdptw.mas.comm.Bidder;
-import com.github.rinde.rinsim.pdptw.common.DefaultParcel;
+import com.github.rinde.rinsim.core.pdptw.DefaultParcel;
 import com.github.rinde.rinsim.util.StochasticSupplier;
 import com.github.rinde.rinsim.util.StochasticSuppliers.AbstractStochasticSupplier;
 import com.google.common.base.Optional;
