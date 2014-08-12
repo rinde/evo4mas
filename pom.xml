@@ -93,6 +93,13 @@
 		</dependency>
 		<dependency>
 			<groupId>com.github.rinde</groupId>
+			<artifactId>rinsim-experiment</artifactId>
+			<version>${rinsim.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.github.rinde</groupId>
 			<artifactId>rinsim-core</artifactId>
 			<version>${rinsim.version}</version>
 			<type>test-jar</type>
