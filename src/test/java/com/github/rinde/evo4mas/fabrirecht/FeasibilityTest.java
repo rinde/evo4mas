@@ -36,7 +36,7 @@ import com.github.rinde.rinsim.util.TimeWindow;
 import com.google.common.base.Predicate;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public class FeasibilityTest {

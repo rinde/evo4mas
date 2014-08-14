@@ -19,7 +19,7 @@ import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public class Simulation {
@@ -79,7 +79,7 @@ public class Simulation {
         /**
          * Terminate very bad solutions, stops when more than 10% of the time
          * has elapsed without one pickup.
-         * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+         * @author Rinde van Lon 
          */
         new Predicate<Simulator>() {
           @Override

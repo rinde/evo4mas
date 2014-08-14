@@ -24,7 +24,7 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public class FileImporter {

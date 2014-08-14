@@ -18,7 +18,7 @@ import com.google.common.base.Optional;
 /**
  * This is a {@link Bidder} implementation that uses an evolved heuristic to
  * compute its bids.
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  */
 public final class EvoHeuristicBidder extends AbstractBidder {
 

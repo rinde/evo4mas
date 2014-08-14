@@ -14,7 +14,7 @@ import com.github.rinde.rinsim.pdptw.fabrirecht.FabriRechtScenario;
 import rinde.ecj.Heuristic;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public class SubTruck extends Truck {

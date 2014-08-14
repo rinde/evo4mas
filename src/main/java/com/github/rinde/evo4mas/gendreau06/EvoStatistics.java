@@ -28,7 +28,7 @@ import ec.gp.GPIndividual;
 import ec.util.Parameter;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public class EvoStatistics extends GPStats {

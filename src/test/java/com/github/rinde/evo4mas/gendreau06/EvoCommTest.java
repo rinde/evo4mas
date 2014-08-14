@@ -26,7 +26,7 @@ import com.github.rinde.rinsim.pdptw.experiment.MASConfiguration;
 import com.google.common.collect.ImmutableList;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 @RunWith(Parameterized.class)

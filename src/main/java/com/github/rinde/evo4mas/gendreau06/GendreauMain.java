@@ -6,7 +6,7 @@ package com.github.rinde.evo4mas.gendreau06;
 import ec.Evolve;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public class GendreauMain {

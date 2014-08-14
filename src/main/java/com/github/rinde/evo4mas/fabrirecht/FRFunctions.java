@@ -27,7 +27,7 @@ import rinde.ecj.GenericFunctions.Pow;
 import rinde.ecj.GenericFunctions.Sub;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public class FRFunctions extends GPFuncSet<TruckContext> {

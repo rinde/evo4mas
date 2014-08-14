@@ -22,7 +22,7 @@ import rinde.ecj.GenericFunctions;
 import rinde.ecj.Heuristic;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 @RunWith(Parameterized.class)

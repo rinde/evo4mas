@@ -26,7 +26,7 @@ import com.google.common.collect.ImmutableSet;
  * A {@link com.github.rinde.logistics.pdptw.mas.route.RoutePlanner} implementation that
  * uses a (evolved) {@link Heuristic} for determining its route. The route is
  * build incrementally, one hop at a time.
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  */
 public final class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
 

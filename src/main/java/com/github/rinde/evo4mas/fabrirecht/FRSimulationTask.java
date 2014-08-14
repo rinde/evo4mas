@@ -15,7 +15,7 @@ import rinde.ecj.Heuristic;
 import rinde.jppf.ComputationTask;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public class FRSimulationTask extends

@@ -9,7 +9,7 @@ import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
 /**
  * 
  * 
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public interface CoordAgent {

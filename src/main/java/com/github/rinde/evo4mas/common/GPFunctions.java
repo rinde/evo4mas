@@ -14,7 +14,7 @@ import com.github.rinde.rinsim.geom.Point;
 import rinde.ecj.GPFunc;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public class GPFunctions {
@@ -137,7 +137,7 @@ public class GPFunctions {
 	 * As defined by Beham et al. 'is the earliest start time in the form of the
 	 * difference to the current time that a new order is available at the
 	 * service point'.
-	 * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+	 * @author Rinde van Lon 
 	 * 
 	 * @param <T> The type of context that is used.
 	 */

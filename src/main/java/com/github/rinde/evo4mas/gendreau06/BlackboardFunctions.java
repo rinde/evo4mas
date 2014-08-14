@@ -31,7 +31,7 @@ import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
 import com.google.common.collect.ImmutableList;
 
 /**
- * @author Rinde van Lon <rinde.vanlon@cs.kuleuven.be>
+ * @author Rinde van Lon 
  * 
  */
 public class BlackboardFunctions extends GPFuncSet<GendreauContext> {
