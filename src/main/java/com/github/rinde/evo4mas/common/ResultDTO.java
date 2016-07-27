@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.github.rinde.evo4mas.common;
 
@@ -7,13 +7,12 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
+import com.github.rinde.jppf.GPComputationResult;
 import com.github.rinde.rinsim.pdptw.common.StatisticsDTO;
 
-import rinde.jppf.GPComputationResult;
-
 /**
- * @author Rinde van Lon 
- * 
+ * @author Rinde van Lon
+ *
  */
 public class ResultDTO implements GPComputationResult, Serializable {
 
@@ -23,7 +22,8 @@ public class ResultDTO implements GPComputationResult, Serializable {
   public final float fitness;
   public final String taskDataId;
 
-  public ResultDTO(String scenario, String taskId, StatisticsDTO stat, float fit) {
+  public ResultDTO(String scenario, String taskId, StatisticsDTO stat,
+      float fit) {
     scenarioKey = scenario;
     taskDataId = taskId;
     stats = stat;
