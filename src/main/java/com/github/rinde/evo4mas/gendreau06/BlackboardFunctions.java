@@ -1,20 +1,19 @@
 /**
- * 
+ *
  */
 package com.github.rinde.evo4mas.gendreau06;
 
 import java.util.Collection;
 
-import rinde.ecj.GPFunc;
-import rinde.ecj.GPFuncSet;
-import rinde.ecj.GenericFunctions.Add;
-import rinde.ecj.GenericFunctions.Constant;
-import rinde.ecj.GenericFunctions.Div;
-import rinde.ecj.GenericFunctions.If4;
-import rinde.ecj.GenericFunctions.Mul;
-import rinde.ecj.GenericFunctions.Pow;
-import rinde.ecj.GenericFunctions.Sub;
-
+import com.github.rinde.ecj.GPFunc;
+import com.github.rinde.ecj.GPFuncSet;
+import com.github.rinde.ecj.GenericFunctions.Add;
+import com.github.rinde.ecj.GenericFunctions.Constant;
+import com.github.rinde.ecj.GenericFunctions.Div;
+import com.github.rinde.ecj.GenericFunctions.If4;
+import com.github.rinde.ecj.GenericFunctions.Mul;
+import com.github.rinde.ecj.GenericFunctions.Pow;
+import com.github.rinde.ecj.GenericFunctions.Sub;
 import com.github.rinde.evo4mas.common.GPFunctions.Ado;
 import com.github.rinde.evo4mas.common.GPFunctions.Dist;
 import com.github.rinde.evo4mas.common.GPFunctions.Est;
@@ -31,8 +30,8 @@ import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
 import com.google.common.collect.ImmutableList;
 
 /**
- * @author Rinde van Lon 
- * 
+ * @author Rinde van Lon
+ *
  */
 public class BlackboardFunctions extends GPFuncSet<GendreauContext> {
 
@@ -66,8 +65,7 @@ public class BlackboardFunctions extends GPFuncSet<GendreauContext> {
           new Ttl<GendreauContext>(),
           new Adc<GendreauContext>(),
           new Midc<GendreauContext>(),
-          new Madc<GendreauContext>()
-      );
+          new Madc<GendreauContext>());
 
   private static final long serialVersionUID = 8699393992638706414L;
 

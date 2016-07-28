@@ -32,7 +32,7 @@ public class EvoRoutePlannerTest extends RoutePlannerTest {
     super(rp);
   }
 
-  static Heuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(
+  static PriorityHeuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(
       new GPFuncNode<GendreauContext>(
           new GenericFunctions.Constant<GendreauContext>(0d)));
 

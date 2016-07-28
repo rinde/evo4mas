@@ -30,7 +30,7 @@ import com.google.common.collect.ImmutableSet;
  */
 public final class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
 
-  private final Heuristic<GendreauContext> heuristic;
+  private final PriorityHeuristic<GendreauContext> heuristic;
   private final TimeUntilAvailable<GendreauContext> tua;
   private Optional<DefaultParcel> current;
   private Optional<GendreauContextBuilder> gendreauContextBuilder;

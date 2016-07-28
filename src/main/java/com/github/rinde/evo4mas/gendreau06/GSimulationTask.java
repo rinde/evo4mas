@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.github.rinde.evo4mas.gendreau06;
 
@@ -7,36 +7,34 @@ import java.io.ByteArrayInputStream;
 
 import org.jppf.task.storage.DataProvider;
 
-import rinde.ecj.Heuristic;
-import rinde.jppf.ComputationTask;
-
+import com.github.rinde.ecj.PriorityHeuristic;
 import com.github.rinde.evo4mas.common.ResultDTO;
 import com.github.rinde.evo4mas.gendreau06.route.EvoHeuristicRoutePlanner;
-import com.github.rinde.logistics.pdptw.mas.TruckConfiguration;
+import com.github.rinde.jppf.ComputationTask;
 import com.github.rinde.logistics.pdptw.mas.comm.BlackboardCommModel;
 import com.github.rinde.logistics.pdptw.mas.comm.BlackboardUser;
+import com.github.rinde.rinsim.experiment.Experiment;
+import com.github.rinde.rinsim.experiment.MASConfiguration;
 import com.github.rinde.rinsim.pdptw.common.ObjectiveFunction;
 import com.github.rinde.rinsim.pdptw.common.StatisticsDTO;
-import com.github.rinde.rinsim.pdptw.experiment.Experiment;
-import com.github.rinde.rinsim.pdptw.experiment.MASConfiguration;
-import com.github.rinde.rinsim.pdptw.gendreau06.Gendreau06ObjectiveFunction;
-import com.github.rinde.rinsim.pdptw.gendreau06.Gendreau06Parser;
-import com.github.rinde.rinsim.pdptw.gendreau06.Gendreau06Scenario;
+import com.github.rinde.rinsim.scenario.gendreau06.Gendreau06ObjectiveFunction;
+import com.github.rinde.rinsim.scenario.gendreau06.Gendreau06Parser;
+import com.github.rinde.rinsim.scenario.gendreau06.Gendreau06Scenario;
 import com.google.common.collect.ImmutableList;
 
 /**
  * FIXME refactor
- * @author Rinde van Lon 
- * 
+ * @author Rinde van Lon
+ *
  */
 public class GSimulationTask extends
-    ComputationTask<ResultDTO, Heuristic<GendreauContext>> {
+    ComputationTask<ResultDTO, PriorityHeuristic<GendreauContext>> {
   private static final long serialVersionUID = 3936679021433997897L;
   protected final String scenarioKey;
   protected final int numVehicles;
   protected final MASConfiguration configuration;
 
-  public GSimulationTask(String scenario, Heuristic<GendreauContext> data,
+  public GSimulationTask(String scenario, PriorityHeuristic<GendreauContext> data,
       int vehicles, MASConfiguration conf) {
     super(data);
     scenarioKey = scenario;
@@ -54,7 +52,8 @@ public class GSimulationTask extends
       scenario = Gendreau06Parser
           .parser()
           .addFile(new ByteArrayInputStream(scenarioString.getBytes()),
-              scenarioKey).setNumVehicles(numVehicles).parse().get(0);
+              scenarioKey)
+          .setNumVehicles(numVehicles).parse().get(0);
     } catch (final Exception e) {
       throw new RuntimeException("Failed loading scenario for task: "
           + taskData + " " + scenarioKey, e);

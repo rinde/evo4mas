@@ -9,9 +9,11 @@ runs/
 *.points
 *.pdf
 *.Rhistory
+.DS_Store
 files/scenarios/gendreau06/train/
 /target
 *.pdf
 *.load
 files/results/gend*
 org.sonar.ide.eclipse.core.prefs
+/.apt_generated/

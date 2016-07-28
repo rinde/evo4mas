@@ -30,7 +30,7 @@ class Truck extends DefaultVehicle implements CoordAgent {
   protected final Set<ParcelDTO> todoSet;
   protected final Map<ParcelDTO, Parcel> parcelMap;
 
-  protected final Heuristic<TruckContext> program;
+  protected final PriorityHeuristic<TruckContext> program;
 
   protected boolean hasChanged = true;
   protected Parcel currentTarget;
@@ -240,7 +240,7 @@ class Truck extends DefaultVehicle implements CoordAgent {
         p.orderAnnounceTime, false));
   }
 
-  public Heuristic<TruckContext> getProgram() {
+  public PriorityHeuristic<TruckContext> getProgram() {
     return program;
   }
 

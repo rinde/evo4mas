@@ -22,7 +22,7 @@ import com.google.common.base.Optional;
  */
 public final class EvoHeuristicBidder extends AbstractBidder {
 
-  private final Heuristic<GendreauContext> heuristic;
+  private final PriorityHeuristic<GendreauContext> heuristic;
   private Optional<GendreauContextBuilder> gendreauContextBuilder;
 
   /**

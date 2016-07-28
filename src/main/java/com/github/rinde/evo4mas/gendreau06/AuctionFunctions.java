@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.github.rinde.evo4mas.gendreau06;
 
@@ -10,17 +10,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import rinde.ecj.GPFunc;
-import rinde.ecj.GPFuncSet;
-import rinde.ecj.GenericFunctions.Add;
-import rinde.ecj.GenericFunctions.Constant;
-import rinde.ecj.GenericFunctions.Div;
-import rinde.ecj.GenericFunctions.If4;
-import rinde.ecj.GenericFunctions.Mul;
-import rinde.ecj.GenericFunctions.Pow;
-import rinde.ecj.GenericFunctions.Sub;
-
-import com.github.rinde.evo4mas.common.TimeWindowLoadUtil;
+import com.github.rinde.ecj.GPFunc;
+import com.github.rinde.ecj.GPFuncSet;
+import com.github.rinde.ecj.GenericFunctions.Add;
+import com.github.rinde.ecj.GenericFunctions.Constant;
+import com.github.rinde.ecj.GenericFunctions.Div;
+import com.github.rinde.ecj.GenericFunctions.If4;
+import com.github.rinde.ecj.GenericFunctions.Mul;
+import com.github.rinde.ecj.GenericFunctions.Pow;
+import com.github.rinde.ecj.GenericFunctions.Sub;
 import com.github.rinde.evo4mas.common.GPFunctions.Ado;
 import com.github.rinde.evo4mas.common.GPFunctions.Dist;
 import com.github.rinde.evo4mas.common.GPFunctions.Est;
@@ -28,6 +26,7 @@ import com.github.rinde.evo4mas.common.GPFunctions.Mado;
 import com.github.rinde.evo4mas.common.GPFunctions.Mido;
 import com.github.rinde.evo4mas.common.GPFunctions.Ttl;
 import com.github.rinde.evo4mas.common.GPFunctions.Urge;
+import com.github.rinde.evo4mas.common.TimeWindowLoadUtil;
 import com.github.rinde.evo4mas.common.TimeWindowLoadUtil.TimeWindowLoad;
 import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.Adc;
 import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.CargoSize;
@@ -36,14 +35,13 @@ import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.Madc;
 import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.Midc;
 import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
-import com.github.rinde.rinsim.core.pdptw.DefaultParcel;
-import com.github.rinde.rinsim.core.pdptw.ParcelDTO;
+import com.github.rinde.rinsim.core.model.pdp.ParcelDTO;
 import com.github.rinde.rinsim.geom.Point;
 import com.google.common.collect.ImmutableList;
 
 /**
- * @author Rinde van Lon 
- * 
+ * @author Rinde van Lon
+ *
  */
 public class AuctionFunctions extends GPFuncSet<GendreauContext> {
 
@@ -85,8 +83,7 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
           new TotalTimeWindowOverlapLoad(),
           new MaxTimeWindowOverlapLoad(),
           new MinTimeWindowOverlapLoad(),
-          new MinDistToServicePoints()
-      );
+          new MinDistToServicePoints());
 
   @Override
   public Collection<GPFunc<GendreauContext>> create() {
@@ -97,8 +94,9 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
    * Computes the diameter of the current todo set. 'The diameter of a graph is
    * the maximum eccentricity of any vertex in the graph' and 'The eccentricity
    * <code>e</code> of a vertex <code>v</code> is the greatest geodesic distance
-   * between <code>v</code> and any other vertex' definition from <a
-   * href="http://en.wikipedia.org/wiki/Distance_(graph_theory)">Wikipedia</a>
+   * between <code>v</code> and any other vertex' definition from
+   * <a href="http://en.wikipedia.org/wiki/Distance_(graph_theory)">Wikipedia
+   * </a>
    */
   public static class Diameter extends GPFunc<GendreauContext> {
     private static final long serialVersionUID = -2612484686166148770L;
@@ -113,8 +111,9 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
    * Computes the radius of the current todo set. 'The radius of a graph is the
    * minimum eccentricity of any vertex.' and 'The eccentricity <code>e</code>
    * of a vertex <code>v</code> is the greatest geodesic distance between
-   * <code>v</code> and any other vertex' definition from <a
-   * href="http://en.wikipedia.org/wiki/Distance_(graph_theory)">Wikipedia</a>
+   * <code>v</code> and any other vertex' definition from
+   * <a href="http://en.wikipedia.org/wiki/Distance_(graph_theory)">Wikipedia
+   * </a>
    */
   public static class Radius extends GPFunc<GendreauContext> {
     private static final long serialVersionUID = 1901950830355444441L;
@@ -142,12 +141,12 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
       final List<Point> points = gatherListOfPointsToBeVisited(context);
       final double diameter = Collections.max(distances(points));
 
-      final double destEcc = eccentricity(context.parcel.deliveryLocation,
+      final double destEcc = eccentricity(context.parcel.getDeliveryLocation(),
           points);
       if (context.isInCargo) {
         return destEcc / diameter;
       }
-      final double originEcc = eccentricity(context.parcel.pickupLocation,
+      final double originEcc = eccentricity(context.parcel.getPickupLocation(),
           points);
       if (destEcc > originEcc) {
         return destEcc / diameter;
@@ -160,16 +159,16 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
       GendreauContext context) {
     final List<Point> points = newArrayList();
     for (final ParcelDTO dto : context.truckContents) {
-      points.add(dto.deliveryLocation);
+      points.add(dto.getDeliveryLocation());
     }
 
     for (final Parcel p : context.todoList) {
-      points.add(((DefaultParcel) p).dto.pickupLocation);
-      points.add(((DefaultParcel) p).dto.deliveryLocation);
+      points.add(p.getPickupLocation());
+      points.add(p.getDeliveryLocation());
     }
 
     points.add(context.truckPosition);
-    points.add(context.vehicleDTO.startPosition);
+    points.add(context.vehicleDTO.getStartPosition());
     return points;
   }
 
@@ -186,8 +185,9 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
   /**
    * 'The eccentricity <code>e</code> of a vertex <code>v</code> is the greatest
    * geodesic distance between <code>v</code> and any other vertex' definition
-   * from <a
-   * href="http://en.wikipedia.org/wiki/Distance_(graph_theory)">Wikipedia</a>
+   * from
+   * <a href="http://en.wikipedia.org/wiki/Distance_(graph_theory)">Wikipedia
+   * </a>
    */
   protected static double eccentricity(Point p, List<Point> points) {
     if (points.isEmpty()) {
@@ -219,10 +219,10 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
    * available time.
    * <p>
    * <b>Definition of overlapping load</b> A new parcel can have overlapping
-   * {@link com.github.rinde.rinsim.util.TimeWindow}s with its currently assigned set. We
-   * compute the total load (a sum of all intersections) in the interval defined
-   * by the time window of the new parcel.
-   * 
+   * {@link com.github.rinde.rinsim.util.TimeWindow}s with its currently
+   * assigned set. We compute the total load (a sum of all intersections) in the
+   * interval defined by the time window of the new parcel.
+   *
    */
   public static class TotalTimeWindowOverlapLoad extends
       GPFunc<GendreauContext> {
@@ -235,8 +235,8 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
       }
       final List<TimeWindowLoad> timeWindows = gatherTimeWindowLoads(context);
       final TimeWindowLoad deliveryTWL = new TimeWindowLoad(
-          context.parcel.deliveryTimeWindow,
-          context.parcel.deliveryDuration);
+          context.parcel.getDeliveryTimeWindow(),
+          context.parcel.getDeliveryDuration());
       final double deliveryLoad = TimeWindowLoadUtil.getOverlapLoad(
           deliveryTWL, timeWindows);
 
@@ -244,8 +244,8 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
         return deliveryLoad;
       }
       final TimeWindowLoad pickupTWL = new TimeWindowLoad(
-          context.parcel.pickupTimeWindow,
-          context.parcel.pickupDuration);
+          context.parcel.getPickupTimeWindow(),
+          context.parcel.getPickupDuration());
       final double pickupLoad = TimeWindowLoadUtil.getOverlapLoad(pickupTWL,
           timeWindows);
 
@@ -264,8 +264,8 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
 
       final List<TimeWindowLoad> timeWindows = gatherTimeWindowLoads(context);
       final TimeWindowLoad deliveryTWL = new TimeWindowLoad(
-          context.parcel.deliveryTimeWindow,
-          context.parcel.deliveryDuration);
+          context.parcel.getDeliveryTimeWindow(),
+          context.parcel.getDeliveryDuration());
       final double maxDeliveryLoad = TimeWindowLoadUtil.getMaxOverlapLoad(
           deliveryTWL, timeWindows);
 
@@ -273,8 +273,8 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
         return maxDeliveryLoad;
       }
       final TimeWindowLoad pickupTWL = new TimeWindowLoad(
-          context.parcel.pickupTimeWindow,
-          context.parcel.pickupDuration);
+          context.parcel.getPickupTimeWindow(),
+          context.parcel.getPickupDuration());
       final double maxPickupLoad = TimeWindowLoadUtil.getMaxOverlapLoad(
           pickupTWL, timeWindows);
 
@@ -293,8 +293,8 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
 
       final List<TimeWindowLoad> timeWindows = gatherTimeWindowLoads(context);
       final TimeWindowLoad deliveryTWL = new TimeWindowLoad(
-          context.parcel.deliveryTimeWindow,
-          context.parcel.deliveryDuration);
+          context.parcel.getDeliveryTimeWindow(),
+          context.parcel.getDeliveryDuration());
       final double minDeliveryLoad = TimeWindowLoadUtil.getMinOverlapLoad(
           deliveryTWL, timeWindows);
 
@@ -302,8 +302,8 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
         return minDeliveryLoad;
       }
       final TimeWindowLoad pickupTWL = new TimeWindowLoad(
-          context.parcel.pickupTimeWindow,
-          context.parcel.pickupDuration);
+          context.parcel.getPickupTimeWindow(),
+          context.parcel.getPickupDuration());
       final double minPickupLoad = TimeWindowLoadUtil.getMinOverlapLoad(
           pickupTWL, timeWindows);
 
@@ -327,23 +327,23 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
       if (context.isAssignedToVehicle) {
         return 0d;
       }
-      return closest(context.parcel.deliveryLocation, context)
-          + closest(context.parcel.pickupLocation, context);
+      return closest(context.parcel.getDeliveryLocation(), context)
+          + closest(context.parcel.getPickupLocation(), context);
     }
 
     static double closest(Point ref, GendreauContext context) {
       double closestDist = Point
-          .distance(ref, context.vehicleDTO.startPosition);
+          .distance(ref, context.vehicleDTO.getStartPosition());
       for (final Parcel p : context.todoList) {
         closestDist = Math.min(closestDist,
-            Point.distance(ref, p.getDestination()));
+            Point.distance(ref, p.getDeliveryLocation()));
         closestDist = Math.min(closestDist,
-            Point.distance(ref, ((DefaultParcel) p).dto.pickupLocation));
+            Point.distance(ref, p.getPickupLocation()));
       }
 
       for (final ParcelDTO p : context.truckContents) {
         closestDist = Math.min(closestDist,
-            Point.distance(ref, p.deliveryLocation));
+            Point.distance(ref, p.getDeliveryLocation()));
       }
       return closestDist;
     }
@@ -353,9 +353,9 @@ public class AuctionFunctions extends GPFuncSet<GendreauContext> {
   static List<TimeWindowLoad> gatherTimeWindowLoads(GendreauContext context) {
     final List<TimeWindowLoad> timeWindows = newArrayList();
     for (final ParcelDTO dto : context.truckContents) {
-      timeWindows.add(new TimeWindowLoad(dto.deliveryTimeWindow,
-          dto.deliveryDuration
-              / dto.deliveryTimeWindow.length()));
+      timeWindows.add(new TimeWindowLoad(dto.getDeliveryTimeWindow(),
+          dto.getDeliveryDuration()
+              / dto.getDeliveryTimeWindow().length()));
     }
     for (final Parcel p : context.todoList) {
       timeWindows.add(new TimeWindowLoad(p.getDeliveryTimeWindow(), p

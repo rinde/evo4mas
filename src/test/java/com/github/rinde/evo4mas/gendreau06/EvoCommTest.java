@@ -32,7 +32,7 @@ import com.google.common.collect.ImmutableList;
 @RunWith(Parameterized.class)
 public class EvoCommTest extends CommunicationIntegrationTest {
 
-  static Heuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(
+  static PriorityHeuristic<GendreauContext> DUMMY_HEURISTIC = new GPProgram<GendreauContext>(
       new GPFuncNode<GendreauContext>(
           new GenericFunctions.Constant<GendreauContext>(0d)));
 

@@ -24,7 +24,7 @@ import com.google.common.base.Predicates;
  */
 public class Simulation {
 
-  protected final Heuristic<TruckContext> program;
+  protected final PriorityHeuristic<TruckContext> program;
   protected final boolean useGui;
   protected final DynamicPDPTWProblem problemInstance;
 
