@@ -103,6 +103,8 @@ public class PriorityHeuristicSolverTest {
     // assertThat(route).containsAllIn(asList(A, A, B, B)).inOrder();
 
     // TODO compare with simulation
+    // how? we need intermediary steps from sim
+    // possibly from within vehicle?
 
     System.out.println(Joiner.on("\n").join(lph.contexts));
   }
