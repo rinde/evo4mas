@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package com.github.rinde.evo4mas.gendreau06.route;
 
@@ -10,39 +10,39 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 
-import rinde.ecj.Heuristic;
-
+import com.github.rinde.ecj.PriorityHeuristic;
 import com.github.rinde.evo4mas.gendreau06.GendreauContext;
 import com.github.rinde.evo4mas.gendreau06.GendreauContextBuilder;
 import com.github.rinde.evo4mas.gendreau06.GendreauFunctions.TimeUntilAvailable;
 import com.github.rinde.logistics.pdptw.mas.route.AbstractRoutePlanner;
-import com.github.rinde.rinsim.core.pdptw.DefaultParcel;
+import com.github.rinde.rinsim.core.model.pdp.Parcel;
+import com.github.rinde.rinsim.geom.Graphs.Heuristic;
 import com.github.rinde.rinsim.util.StochasticSupplier;
 import com.github.rinde.rinsim.util.StochasticSuppliers.AbstractStochasticSupplier;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * A {@link com.github.rinde.logistics.pdptw.mas.route.RoutePlanner} implementation that
- * uses a (evolved) {@link Heuristic} for determining its route. The route is
- * build incrementally, one hop at a time.
- * @author Rinde van Lon 
+ * A {@link com.github.rinde.logistics.pdptw.mas.route.RoutePlanner}
+ * implementation that uses a (evolved) {@link Heuristic} for determining its
+ * route. The route is build incrementally, one hop at a time.
+ * @author Rinde van Lon
  */
 public final class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
 
   private final PriorityHeuristic<GendreauContext> heuristic;
   private final TimeUntilAvailable<GendreauContext> tua;
-  private Optional<DefaultParcel> current;
+  private Optional<Parcel> current;
   private Optional<GendreauContextBuilder> gendreauContextBuilder;
 
-  private Set<DefaultParcel> onMapSet;
-  private Set<DefaultParcel> inCargoSet;
+  private Set<Parcel> onMapSet;
+  private Set<Parcel> inCargoSet;
 
   /**
    * Create a new route planner using the specified {@link Heuristic}.
    * @param h The heuristic to use for planning routes.
    */
-  public EvoHeuristicRoutePlanner(Heuristic<GendreauContext> h) {
+  public EvoHeuristicRoutePlanner(PriorityHeuristic<GendreauContext> h) {
     heuristic = h;
     tua = new TimeUntilAvailable<GendreauContext>();
     onMapSet = newHashSet();
@@ -52,33 +52,30 @@ public final class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
   }
 
   @Override
-  protected void doUpdate(Collection<DefaultParcel> onMap, long time) {
+  protected void doUpdate(Set<Parcel> onMap, long time) {
     onMapSet = newHashSet(onMap);
-    // this is safe because the code actually checks the type
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    final Collection<DefaultParcel> checked = Collections.checkedCollection(
-        (Collection) pdpModel.get().getContents(vehicle.get()),
-        DefaultParcel.class);
+    final Collection<Parcel> checked = Collections.checkedCollection(
+        pdpModel.get().getContents(vehicle.get()), Parcel.class);
     inCargoSet = newHashSet(checked);
     computeCurrent(time);
   }
 
   protected void computeCurrent(long time) {
-    final Set<DefaultParcel> claimed = ImmutableSet.of();
+    final Set<Parcel> claimed = ImmutableSet.of();
     current = nextLoop(onMapSet, claimed, inCargoSet, time);
   }
 
-  protected Optional<DefaultParcel> nextLoop(Collection<DefaultParcel> todo,
-      Set<DefaultParcel> alreadyClaimed, Collection<DefaultParcel> contents,
+  protected Optional<Parcel> nextLoop(Collection<Parcel> todo,
+      Set<Parcel> alreadyClaimed, Collection<Parcel> contents,
       long time) {
-    Optional<DefaultParcel> best = Optional.absent();
+    Optional<Parcel> best = Optional.absent();
     double bestValue = Double.POSITIVE_INFINITY;
 
     final GendreauContextBuilder gcb = gendreauContextBuilder.get();
     gcb.initRepeatedUsage(time);
 
     final StringBuilder sb = new StringBuilder();
-    for (final DefaultParcel p : todo) {
+    for (final Parcel p : todo) {
       // filter out the already claimed parcels
       if (!alreadyClaimed.contains(p)) {
         final GendreauContext gc = gcb.buildInRepetition(p, false, false);
@@ -91,14 +88,15 @@ public final class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
 
           sb.append(p).append(" ").append(v).append("\n");
           if (v < bestValue
-              || ((Double.isInfinite(v) || Double.isNaN(v)) && bestValue == v)) {
+              || ((Double.isInfinite(v) || Double.isNaN(v))
+                  && bestValue == v)) {
             best = Optional.of(p);
             bestValue = v;
           }
         }
       }
     }
-    for (final DefaultParcel p : contents) {
+    for (final Parcel p : contents) {
 
       final GendreauContext gc = gcb.buildInRepetition(p, true, false);
 
@@ -118,7 +116,7 @@ public final class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
   }
 
   @Override
-  public Optional<DefaultParcel> current() {
+  public Optional<Parcel> current() {
     return current;
   }
 
@@ -127,7 +125,7 @@ public final class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
     if (!current().isPresent()) {
       return;
     }
-    final DefaultParcel p = current.get();
+    final Parcel p = current.get();
     // current should exist in exactly one of the sets
     checkArgument(onMapSet.contains(p) ^ inCargoSet.contains(p),
         "current: %s should exist in one of the sets", p);
@@ -147,7 +145,7 @@ public final class EvoHeuristicRoutePlanner extends AbstractRoutePlanner {
   }
 
   public static StochasticSupplier<EvoHeuristicRoutePlanner> supplier(
-      final Heuristic<GendreauContext> h) {
+      final PriorityHeuristic<GendreauContext> h) {
     return new AbstractStochasticSupplier<EvoHeuristicRoutePlanner>() {
       @Override
       public EvoHeuristicRoutePlanner get(long seed) {
