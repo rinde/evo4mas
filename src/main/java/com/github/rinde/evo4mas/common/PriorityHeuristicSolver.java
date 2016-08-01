@@ -16,7 +16,6 @@
 package com.github.rinde.evo4mas.common;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -40,7 +39,9 @@ import com.google.common.collect.ImmutableList;
 
 /**
  * Insertion heuristic {@link Solver} based on {@link PriorityHeuristic}. This
- * solver inserts all parcels in a route
+ * solver inserts all parcels in a route. Only works for a single vehicle, it
+ * will throw an {@link IllegalArgumentException} when it encounters problems
+ * that contain more than one vehicle.
  * @author Rinde van Lon
  */
 public final class PriorityHeuristicSolver implements Solver {
@@ -72,19 +73,30 @@ public final class PriorityHeuristicSolver implements Solver {
       final Parcel dest = vso.getDestination().get();
       newRoute.add(dest);
 
-      currentTime += vso.getRemainingServiceTime();
-
+      final boolean isPickup = assignablePickups.contains(dest);
       final Point newPosition;
-      if (assignablePickups.contains(dest)) {
+      if (isPickup) {
         newPosition = dest.getPickupLocation();
+        assignablePickups.remove(dest);
+        assignableDeliveries.add(dest);
       } else {
         newPosition = dest.getDeliveryLocation();
+        assignableDeliveries.remove(dest);
       }
 
       final Measure<Double, Length> dist = Measure.valueOf(
           Point.distance(currentPosition, newPosition), state.getDistUnit());
-      currentTime += RoadModels.computeTravelTime(speed, dist,
-          state.getTimeUnit());
+      currentTime += Math.ceil(RoadModels.computeTravelTime(speed, dist,
+          state.getTimeUnit()));
+
+      if (isPickup) {
+        currentTime = Math.max(currentTime, dest.getPickupTimeWindow().begin());
+      } else {
+        currentTime = Math.max(currentTime,
+            dest.getDeliveryTimeWindow().begin());
+      }
+
+      currentTime += vso.getRemainingServiceTime();
       currentPosition = newPosition;
     }
 
@@ -111,26 +123,33 @@ public final class PriorityHeuristicSolver implements Solver {
         }
       }
       newRoute.add(best);
+
+      final boolean isPickup = assignablePickups.contains(best);
       Point newPosition;
-      if (assignablePickups.contains(best)) {
+      if (isPickup) {
         assignablePickups.remove(best);
         assignableDeliveries.add(best);
         newPosition = best.getPickupLocation();
-        currentTime += best.getPickupDuration();
       } else {
         assignableDeliveries.remove(best);
         newPosition = best.getDeliveryLocation();
-        currentTime += best.getDeliveryDuration();
       }
       final Measure<Double, Length> dist = Measure.valueOf(
           Point.distance(currentPosition, newPosition), state.getDistUnit());
-      currentTime += RoadModels.computeTravelTime(speed, dist,
-          state.getTimeUnit());
+      currentTime += Math.ceil(RoadModels.computeTravelTime(speed, dist,
+          state.getTimeUnit()));
+
+      if (isPickup) {
+        currentTime = Math.max(currentTime, best.getPickupTimeWindow().begin());
+        currentTime += best.getPickupDuration();
+      } else {
+        currentTime = Math.max(currentTime,
+            best.getDeliveryTimeWindow().begin());
+        currentTime += best.getDeliveryDuration();
+      }
+
       currentPosition = newPosition;
     }
-
-    checkState(newRoute.size() == state.getAvailableParcels().size() * 2
-        + vso.getContents().size());
 
     System.out.println("new route: " + newRoute);
     return ImmutableList.of(ImmutableList.copyOf(newRoute));
