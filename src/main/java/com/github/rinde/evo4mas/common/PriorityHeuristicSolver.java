@@ -54,7 +54,9 @@ public final class PriorityHeuristicSolver implements Solver {
   @Override
   public ImmutableList<ImmutableList<Parcel>> solve(GlobalStateObject state)
       throws InterruptedException {
-    checkArgument(state.getVehicles().size() == 1);
+    checkArgument(state.getVehicles().size() == 1,
+        "Expected exactly 1 vehicle, found %s vehicles.",
+        state.getVehicles().size());
 
     final VehicleStateObject vso = state.getVehicles().get(0);
     final Measure<Double, Velocity> speed = Measure
