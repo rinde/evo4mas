@@ -152,8 +152,6 @@ public final class PriorityHeuristicSolver implements Solver {
 
       currentPosition = newPosition;
     }
-
-    System.out.println("new route: " + newRoute);
     return ImmutableList.of(ImmutableList.copyOf(newRoute));
   }
 
