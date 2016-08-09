@@ -22,26 +22,24 @@ import com.google.common.collect.Collections2;
  */
 public final class TimeWindowLoadUtil {
 
+  private static final Comparator<Point> LOAD_COMPARATOR =
+    new Comparator<Point>() {
+      @Override
+      public int compare(Point o1, Point o2) {
+        return Double.compare(o1.y, o2.y);
+      }
+    };
+
   private TimeWindowLoadUtil() {}
-
-  public static class TimeWindowLoad {
-    public final TimeWindow timeWindow;
-    public final double load;
-
-    public TimeWindowLoad(TimeWindow tw, double l) {
-      timeWindow = tw;
-      load = l;
-    }
-  }
 
   static long getOverlap(TimeWindow tw1, TimeWindow tw2) {
     return Math.max(0L,
-        Math.min(tw1.end(), tw2.end()) - Math.max(tw1.begin(), tw2.begin()));
+      Math.min(tw1.end(), tw2.end()) - Math.max(tw1.begin(), tw2.begin()));
   }
 
   static boolean hasOverlap(TimeWindow tw1, TimeWindow tw2) {
     return Math.min(tw1.end(), tw2.end())
-        - Math.max(tw1.begin(), tw2.begin()) > 0;
+      - Math.max(tw1.begin(), tw2.begin()) > 0;
   }
 
   static TimeWindow getOverlapInterval(TimeWindow tw1, TimeWindow tw2) {
@@ -71,7 +69,7 @@ public final class TimeWindowLoadUtil {
     }
     final List<Point> loads = getLoads(twl, list);
     final Collection<Point> intersection = Collections2.filter(loads,
-        new LoadInTWPredicate(twl.timeWindow));
+      new LoadInTWPredicate(twl.timeWindow));
     if (intersection.isEmpty()) {
       return twl.load;
     }
@@ -85,7 +83,7 @@ public final class TimeWindowLoadUtil {
     }
     final List<Point> loads = getLoads(twl, list);
     final Collection<Point> intersection = Collections2.filter(loads,
-        new LoadInTWPredicate(twl.timeWindow));
+      new LoadInTWPredicate(twl.timeWindow));
     if (intersection.isEmpty()) {
       return twl.load;
     }
@@ -97,29 +95,9 @@ public final class TimeWindowLoadUtil {
 
     // merge points with same x
     final List<Point> mergedDifferentials = mergePointsWithSameX(
-        overlappingTWs);
+      overlappingTWs);
     // convert to actual loads
     return convertDifferentialsToLoads(mergedDifferentials);
-  }
-
-  private static final Comparator<Point> LOAD_COMPARATOR = new Comparator<Point>() {
-    @Override
-    public int compare(Point o1, Point o2) {
-      return Double.compare(o1.y, o2.y);
-    }
-  };
-
-  private static class LoadInTWPredicate implements Predicate<Point> {
-    protected final TimeWindow timeWindow;
-
-    public LoadInTWPredicate(TimeWindow tw) {
-      timeWindow = tw;
-    }
-
-    @Override
-    public boolean apply(Point input) {
-      return input.x >= timeWindow.begin() && input.x < timeWindow.end();
-    }
   }
 
   static List<Point> gatherOverlappingTimeWindows(TimeWindowLoad twl,
@@ -198,5 +176,28 @@ public final class TimeWindowLoadUtil {
     }
     merged.add(cur);
     return merged;
+  }
+
+  public static class TimeWindowLoad {
+    public final TimeWindow timeWindow;
+    public final double load;
+
+    public TimeWindowLoad(TimeWindow tw, double l) {
+      timeWindow = tw;
+      load = l;
+    }
+  }
+
+  private static class LoadInTWPredicate implements Predicate<Point> {
+    protected final TimeWindow timeWindow;
+
+    LoadInTWPredicate(TimeWindow tw) {
+      timeWindow = tw;
+    }
+
+    @Override
+    public boolean apply(Point input) {
+      return input.x >= timeWindow.begin() && input.x < timeWindow.end();
+    }
   }
 }

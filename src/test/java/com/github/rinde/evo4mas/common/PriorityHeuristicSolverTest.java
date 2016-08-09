@@ -72,73 +72,73 @@ import com.google.common.collect.ImmutableList;
 public class PriorityHeuristicSolverTest {
 
   ParcelDTO A = Parcel.builder(new Point(0, 0), new Point(2, 2))
-      .serviceDuration(6 * 1000)
-      .pickupTimeWindow(TimeWindow.create(2000, 8000))
-      .deliveryTimeWindow(TimeWindow.create(10000, 90000))
-      .toString("A")
-      .buildDTO();
+    .serviceDuration(6 * 1000)
+    .pickupTimeWindow(TimeWindow.create(2000, 8000))
+    .deliveryTimeWindow(TimeWindow.create(10000, 90000))
+    .toString("A")
+    .buildDTO();
   ParcelDTO B = Parcel.builder(new Point(3, 0), new Point(2, 3))
-      .toString("B")
-      .buildDTO();
+    .toString("B")
+    .buildDTO();
   ParcelDTO C = Parcel.builder(new Point(4, 0), new Point(6, 3))
-      .toString("C")
-      .pickupTimeWindow(TimeWindow.create(30 * 60 * 1000, 35 * 60 * 1000))
-      .deliveryTimeWindow(TimeWindow.create(60 * 60 * 1000, 65 * 60 * 1000))
-      .serviceDuration(5)
-      .buildDTO();
+    .toString("C")
+    .pickupTimeWindow(TimeWindow.create(30 * 60 * 1000, 35 * 60 * 1000))
+    .deliveryTimeWindow(TimeWindow.create(60 * 60 * 1000, 65 * 60 * 1000))
+    .serviceDuration(5)
+    .buildDTO();
   ParcelDTO D = Parcel.builder(new Point(5, 3), new Point(1, 2))
-      .toString("D")
-      .orderAnnounceTime(3000)
-      .pickupTimeWindow(TimeWindow.create(3000, 12000))
-      .pickupDuration(7000)
-      .deliveryDuration(9000)
-      .buildDTO();
+    .toString("D")
+    .orderAnnounceTime(3000)
+    .pickupTimeWindow(TimeWindow.create(3000, 12000))
+    .pickupDuration(7000)
+    .deliveryDuration(9000)
+    .buildDTO();
   ParcelDTO E = Parcel.builder(new Point(3, 3), new Point(1, 0))
-      .pickupTimeWindow(TimeWindow.create(863928, 863929))
-      .toString("E")
-      .buildDTO();
+    .pickupTimeWindow(TimeWindow.create(863928, 863929))
+    .toString("E")
+    .buildDTO();
 
   @Test
   public void test() throws InterruptedException {
     final ListPriorityHeuristic lph = new ListPriorityHeuristic(A, B, C, E, D);
 
     final ExperimentResults res = Experiment.builder()
-        .addScenario(Scenario.builder()
-            .addEvent(AddDepotEvent.create(-1, new Point(0, 0)))
-            .addEvent(AddVehicleEvent.create(-1, VehicleDTO.builder()
-                .availabilityTimeWindow(TimeWindow.create(0, 60 * 60 * 1000L))
-                .build()))
-            .addEvent(AddParcelEvent.create(A))
-            .addEvent(AddParcelEvent.create(B))
-            .addEvent(AddParcelEvent.create(C))
-            .addEvent(AddParcelEvent.create(D))
-            .addEvent(AddParcelEvent.create(E))
-            .addEvent(TimeOutEvent.create(30 * 60 * 1000L))
-            .addModel(PDPRoadModel.builder(RoadModelBuilders.plane()))
-            .addModel(DefaultPDPModel.builder())
-            .addModel(DebugModel.builder())
-            .setStopCondition(StatsStopConditions.vehiclesDoneAndBackAtDepot())
-            .build())
-        .addConfiguration(
-            MASConfiguration.builder(
-                Central.solverConfiguration(
-                    SolverValidator
-                        .wrap(PriorityHeuristicSolver.supplier(lph))))
-                .addEventHandler(AddParcelEvent.class,
-                    AddParcelEvent.namedHandler())
-                .build())
-        .withThreads(1)
-        .usePostProcessor(new DebugPostProcessor())
-        .showGui(View.builder()
-            .with(PlaneRoadModelRenderer.builder())
-            .with(RoadUserRenderer.builder())
-            .withAutoPlay())
-        .showGui(false)
+      .addScenario(Scenario.builder()
+        .addEvent(AddDepotEvent.create(-1, new Point(0, 0)))
+        .addEvent(AddVehicleEvent.create(-1, VehicleDTO.builder()
+          .availabilityTimeWindow(TimeWindow.create(0, 60 * 60 * 1000L))
+          .build()))
+        .addEvent(AddParcelEvent.create(A))
+        .addEvent(AddParcelEvent.create(B))
+        .addEvent(AddParcelEvent.create(C))
+        .addEvent(AddParcelEvent.create(D))
+        .addEvent(AddParcelEvent.create(E))
+        .addEvent(TimeOutEvent.create(30 * 60 * 1000L))
+        .addModel(PDPRoadModel.builder(RoadModelBuilders.plane()))
+        .addModel(DefaultPDPModel.builder())
+        .addModel(DebugModel.builder())
+        .setStopCondition(StatsStopConditions.vehiclesDoneAndBackAtDepot())
+        .build())
+      .addConfiguration(
+        MASConfiguration.builder(
+          Central.solverConfiguration(
+            SolverValidator
+              .wrap(PriorityHeuristicSolver.supplier(lph))))
+          .addEventHandler(AddParcelEvent.class,
+            AddParcelEvent.namedHandler())
+          .build())
+      .withThreads(1)
+      .usePostProcessor(new DebugPostProcessor())
+      .showGui(View.builder()
+        .with(PlaneRoadModelRenderer.builder())
+        .with(RoadUserRenderer.builder())
+        .withAutoPlay())
+      .showGui(false)
 
-        .perform();
+      .perform();
 
     final DebugResultObject result = ((DebugResultObject) res.getResults()
-        .iterator().next().getResultObject());
+      .iterator().next().getResultObject());
 
     final List<PosTime> resultPosList = new ArrayList<>(result.posTimeList());
     resultPosList.remove(resultPosList.size() - 1);
@@ -147,7 +147,7 @@ public class PriorityHeuristicSolverTest {
     final Set<PosTime> heuristicPosTimes = new LinkedHashSet<>();
     for (final VehicleParcelContext context : lph.contexts) {
       heuristicPosTimes
-          .add(PosTime.create(context.vehiclePosition(), context.time()));
+        .add(PosTime.create(context.vehiclePosition(), context.time()));
     }
 
     final Iterator<PosTime> hpt = heuristicPosTimes.iterator();
@@ -158,7 +158,7 @@ public class PriorityHeuristicSolverTest {
     }
 
     assertThat(heuristicPosTimes).containsExactlyElementsIn(resultPosList)
-        .inOrder();
+      .inOrder();
 
   }
 
@@ -170,7 +170,7 @@ public class PriorityHeuristicSolverTest {
 
     static DebugResultObject create(List<PosTime> list, StatisticsDTO stats) {
       return new AutoValue_PriorityHeuristicSolverTest_DebugResultObject(
-          ImmutableList.copyOf(list), stats);
+        ImmutableList.copyOf(list), stats);
     }
   }
 
@@ -179,10 +179,10 @@ public class PriorityHeuristicSolverTest {
     @Override
     public DebugResultObject collectResults(Simulator sim, SimArgs args) {
       final StatisticsDTO stats = sim.getModelProvider()
-          .getModel(StatsTracker.class).getStatistics();
+        .getModel(StatsTracker.class).getStatistics();
       Gendreau06ObjectiveFunction.instance().isValidResult(stats);
       final List<PosTime> list = sim.getModelProvider()
-          .getModel(DebugModel.class).posTimeList;
+        .getModel(DebugModel.class).posTimeList;
       return DebugResultObject.create(list, stats);
     }
 

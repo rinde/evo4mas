@@ -23,11 +23,20 @@ import com.github.rinde.rinsim.geom.Point;
  *
  * @author Rinde van Lon
  */
-public class VehicleParcelContextFunctions {
+public final class VehicleParcelContextFunctions {
+
+  private static final double SEC_IN_M = 60d;
 
   private VehicleParcelContextFunctions() {}
 
+  static double computeTravelTime(VehicleDTO v, Point p1, Point p2) {
+    return (Point.distance(p1, p2) / v.getSpeed()) / SEC_IN_M;
+  }
+
   public static class Urgency extends GPFunc<VehicleParcelContext> {
+
+    public Urgency() {}
+
     @Override
     public double execute(double[] input, VehicleParcelContext context) {
       if (context.isPickup()) {
@@ -38,18 +47,16 @@ public class VehicleParcelContextFunctions {
   }
 
   public static class TravelTime extends GPFunc<VehicleParcelContext> {
+
+    public TravelTime() {}
+
     @Override
     public double execute(double[] input, VehicleParcelContext context) {
       final Point parcelLoc = context.isPickup()
-          ? context.parcel().getPickupLocation()
-          : context.parcel().getDeliveryLocation();
+        ? context.parcel().getPickupLocation()
+        : context.parcel().getDeliveryLocation();
       return computeTravelTime(context.vehicle(), context.vehiclePosition(),
-          parcelLoc);
+        parcelLoc);
     }
   }
-
-  static double computeTravelTime(VehicleDTO v, Point p1, Point p2) {
-    return (Point.distance(p1, p2) / v.getSpeed()) / 60d;
-  }
-
 }

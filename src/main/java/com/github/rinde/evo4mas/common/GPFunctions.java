@@ -16,7 +16,9 @@ import com.github.rinde.rinsim.geom.Point;
  * @author Rinde van Lon
  *
  */
-public class GPFunctions {
+public final class GPFunctions {
+
+  private GPFunctions() {}
 
   /**
    * Average distance of current parcel pickup/delivery point to destinations of
@@ -33,10 +35,12 @@ public class GPFunctions {
   public static class Ado<T extends TruckContext> extends GPFunc<T> {
     private static final long serialVersionUID = -4497905419697638750L;
 
+    public Ado() {}
+
     @Override
     public double execute(double[] input, T context) {
       final Point poi = context.isInCargo ? context.parcel.getDeliveryLocation()
-          : context.parcel.getPickupLocation();
+        : context.parcel.getPickupLocation();
       final Collection<ParcelDTO> contents = context.truckContents;
       if (contents.isEmpty()) {
         return 0d;
@@ -56,10 +60,12 @@ public class GPFunctions {
   public static class Mido<T extends TruckContext> extends GPFunc<T> {
     private static final long serialVersionUID = 2314969955830030083L;
 
+    public Mido() {}
+
     @Override
     public double execute(double[] input, T context) {
       final Point poi = context.isInCargo ? context.parcel.getDeliveryLocation()
-          : context.parcel.getPickupLocation();
+        : context.parcel.getPickupLocation();
       final Collection<ParcelDTO> contents = context.truckContents;
       if (contents.isEmpty()) {
         return 0d;
@@ -67,7 +73,7 @@ public class GPFunctions {
       double minDistance = Double.POSITIVE_INFINITY;
       for (final ParcelDTO p : contents) {
         minDistance = min(minDistance,
-            Point.distance(poi, p.getDeliveryLocation()));
+          Point.distance(poi, p.getDeliveryLocation()));
       }
       return minDistance;
     }
@@ -80,10 +86,12 @@ public class GPFunctions {
   public static class Mado<T extends TruckContext> extends GPFunc<T> {
     private static final long serialVersionUID = -3969582933786406570L;
 
+    public Mado() {}
+
     @Override
     public double execute(double[] input, T context) {
       final Point poi = context.isInCargo ? context.parcel.getDeliveryLocation()
-          : context.parcel.getPickupLocation();
+        : context.parcel.getPickupLocation();
       final Collection<ParcelDTO> contents = context.truckContents;
       if (contents.isEmpty()) {
         return 0d;
@@ -91,7 +99,7 @@ public class GPFunctions {
       double maxDistance = Double.NEGATIVE_INFINITY;
       for (final ParcelDTO p : contents) {
         maxDistance = max(maxDistance,
-            Point.distance(poi, p.getDeliveryLocation()));
+          Point.distance(poi, p.getDeliveryLocation()));
       }
       return maxDistance;
     }
@@ -105,14 +113,16 @@ public class GPFunctions {
   public static class Dist<T extends TruckContext> extends GPFunc<T> {
     private static final long serialVersionUID = 2713253095353499761L;
 
+    public Dist() {}
+
     @Override
     public double execute(double[] input, T context) {
       if (context.isInCargo) {
         return Point.distance(context.truckPosition,
-            context.parcel.getDeliveryLocation());
+          context.parcel.getDeliveryLocation());
       } else {
         return Point.distance(context.truckPosition,
-            context.parcel.getPickupLocation());
+          context.parcel.getPickupLocation());
       }
     }
   }
@@ -126,6 +136,8 @@ public class GPFunctions {
    */
   public static class Urge<T extends TruckContext> extends GPFunc<T> {
     private static final long serialVersionUID = -1608855921866707712L;
+
+    public Urge() {}
 
     @Override
     public double execute(double[] input, T context) {
@@ -149,6 +161,8 @@ public class GPFunctions {
   public static class Est<T extends TruckContext> extends GPFunc<T> {
     private static final long serialVersionUID = -3811389876518540528L;
 
+    public Est() {}
+
     @Override
     public double execute(double[] input, T context) {
       if (context.isInCargo) {
@@ -167,10 +181,12 @@ public class GPFunctions {
   public static class Ttl<T extends TruckContext> extends GPFunc<T> {
     private static final long serialVersionUID = -8186643123286080644L;
 
+    public Ttl() {}
+
     @Override
     public double execute(double[] input, T context) {
       return context.vehicleDTO.getAvailabilityTimeWindow().end()
-          - context.time;
+        - context.time;
     }
   }
 

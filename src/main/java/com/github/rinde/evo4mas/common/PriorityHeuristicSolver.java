@@ -55,17 +55,17 @@ public final class PriorityHeuristicSolver implements Solver {
   public ImmutableList<ImmutableList<Parcel>> solve(GlobalStateObject state)
       throws InterruptedException {
     checkArgument(state.getVehicles().size() == 1,
-        "Expected exactly 1 vehicle, found %s vehicles.",
-        state.getVehicles().size());
+      "Expected exactly 1 vehicle, found %s vehicles.",
+      state.getVehicles().size());
 
     final VehicleStateObject vso = state.getVehicles().get(0);
     final Measure<Double, Velocity> speed = Measure
-        .valueOf(vso.getDto().getSpeed(), state.getSpeedUnit());
+      .valueOf(vso.getDto().getSpeed(), state.getSpeedUnit());
 
     final Set<Parcel> assignablePickups = new LinkedHashSet<>(
-        state.getAvailableParcels());
+      state.getAvailableParcels());
     final Set<Parcel> assignableDeliveries = new LinkedHashSet<>(
-        vso.getContents());
+      vso.getContents());
 
     final List<Parcel> newRoute = new ArrayList<>();
     Point currentPosition = vso.getLocation();
@@ -87,15 +87,15 @@ public final class PriorityHeuristicSolver implements Solver {
       }
 
       final Measure<Double, Length> dist = Measure.valueOf(
-          Point.distance(currentPosition, newPosition), state.getDistUnit());
+        Point.distance(currentPosition, newPosition), state.getDistUnit());
       currentTime += Math.ceil(RoadModels.computeTravelTime(speed, dist,
-          state.getTimeUnit()));
+        state.getTimeUnit()));
 
       if (isPickup) {
         currentTime = Math.max(currentTime, dest.getPickupTimeWindow().begin());
       } else {
         currentTime = Math.max(currentTime,
-            dest.getDeliveryTimeWindow().begin());
+          dest.getDeliveryTimeWindow().begin());
       }
 
       currentTime += vso.getRemainingServiceTime();
@@ -108,8 +108,8 @@ public final class PriorityHeuristicSolver implements Solver {
 
       for (final Parcel p : assignablePickups) {
         final double priorityScore = heuristic.compute(
-            VehicleParcelContext.create(currentTime, currentPosition,
-                vso.getDto(), p, true));
+          VehicleParcelContext.create(currentTime, currentPosition,
+            vso.getDto(), p, true));
         if (priorityScore > mx) {
           mx = priorityScore;
           best = p;
@@ -117,8 +117,8 @@ public final class PriorityHeuristicSolver implements Solver {
       }
       for (final Parcel p : assignableDeliveries) {
         final double priorityScore = heuristic.compute(
-            VehicleParcelContext.create(currentTime, currentPosition,
-                vso.getDto(), p, false));
+          VehicleParcelContext.create(currentTime, currentPosition,
+            vso.getDto(), p, false));
         if (priorityScore > mx) {
           mx = priorityScore;
           best = p;
@@ -137,16 +137,16 @@ public final class PriorityHeuristicSolver implements Solver {
         newPosition = best.getDeliveryLocation();
       }
       final Measure<Double, Length> dist = Measure.valueOf(
-          Point.distance(currentPosition, newPosition), state.getDistUnit());
+        Point.distance(currentPosition, newPosition), state.getDistUnit());
       currentTime += Math.ceil(RoadModels.computeTravelTime(speed, dist,
-          state.getTimeUnit()));
+        state.getTimeUnit()));
 
       if (isPickup) {
         currentTime = Math.max(currentTime, best.getPickupTimeWindow().begin());
         currentTime += best.getPickupDuration();
       } else {
         currentTime = Math.max(currentTime,
-            best.getDeliveryTimeWindow().begin());
+          best.getDeliveryTimeWindow().begin());
         currentTime += best.getDeliveryDuration();
       }
 

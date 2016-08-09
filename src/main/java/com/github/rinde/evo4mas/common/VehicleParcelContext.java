@@ -43,7 +43,7 @@ public abstract class VehicleParcelContext {
   static VehicleParcelContext create(long time, Point vehiclePosition,
       VehicleDTO vehicle, Parcel p, boolean pickup) {
     return new AutoValue_VehicleParcelContext(time, vehiclePosition, vehicle, p,
-        pickup);
+      pickup);
   }
 
 }

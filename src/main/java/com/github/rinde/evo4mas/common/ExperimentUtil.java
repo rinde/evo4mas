@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.github.rinde.evo4mas.common;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -22,10 +19,12 @@ import org.apache.commons.math3.random.RandomGenerator;
 import com.google.common.collect.ImmutableList;
 
 /**
- * @author Rinde van Lon 
- * 
+ * @author Rinde van Lon
+ *
  */
-public class ExperimentUtil {
+public final class ExperimentUtil {
+
+  private ExperimentUtil() {}
 
   public static List<String> getFilesFromDir(String dir, final String suffix) {
     final File directory = new File(dir);
@@ -59,7 +58,8 @@ public class ExperimentUtil {
     return fs;
   }
 
-  public static List<String> createTrainSet(List<List<String>> fds, int testFold) {
+  public static List<String> createTrainSet(List<List<String>> fds,
+      int testFold) {
     final List<String> set = newArrayList();
     for (int i = 0; i < fds.size(); i++) {
       if (testFold != i) {

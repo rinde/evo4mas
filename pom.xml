@@ -78,11 +78,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-            <groupId>com.google.auto.value</groupId>
-            <artifactId>auto-value</artifactId>
-            <version>1.2</version>
-            <scope>provided</scope>
-        </dependency>
+			<groupId>com.google.auto.value</groupId>
+			<artifactId>auto-value</artifactId>
+			<version>1.2</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- TEST DEPENDENCIES -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -91,11 +91,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-            <groupId>com.google.truth</groupId>
-            <artifactId>truth</artifactId>
-            <version>0.28</version>
-            <scope>test</scope>
-        </dependency>
+			<groupId>com.google.truth</groupId>
+			<artifactId>truth</artifactId>
+			<version>0.28</version>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.github.rinde</groupId>
 			<artifactId>rinsim-pdptw</artifactId>
@@ -118,12 +118,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-            <groupId>com.github.rinde</groupId>
-            <artifactId>rinsim-central</artifactId>
-            <version>${rinsim.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
+			<groupId>com.github.rinde</groupId>
+			<artifactId>rinsim-central</artifactId>
+			<version>${rinsim.version}</version>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
 		<dependency>
 			<groupId>com.github.rinde</groupId>
 			<artifactId>rinlog</artifactId>
@@ -163,7 +163,7 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
@@ -195,7 +195,8 @@
 					</execution>
 				</executions>
 			</plugin>
-			
+
+
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
@@ -241,7 +242,37 @@
 		</plugins>
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<!-- checkstyle -->
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-checkstyle-plugin</artifactId>
+					<version>2.17</version>
+					<dependencies>
+						<dependency>
+							<groupId>com.puppycrawl.tools</groupId>
+							<artifactId>checkstyle</artifactId>
+							<version>6.13</version>
+						</dependency>
+					</dependencies>
+					<configuration>
+						<consoleOutput>true</consoleOutput>
+						<configLocation>checkstyle.xml</configLocation>
+						<failOnViolation>true</failOnViolation>
+						<excludes>**/AutoValue_*</excludes>
+					</configuration>
+					<executions>
+						<execution>
+							<id>verify-style</id>
+							<phase>process-classes</phase>
+							<goals>
+								<goal>check</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+
+
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -266,6 +297,21 @@
 										<ignore></ignore>
 									</action>
 								</pluginExecution>
+								<pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.maven.plugins</groupId>
+                                        <artifactId>maven-checkstyle-plugin</artifactId>
+                                        <versionRange>
+                                            [2.17,)
+                                        </versionRange>
+                                        <goals>
+                                            <goal>check</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
 							</pluginExecutions>
 						</lifecycleMappingMetadata>
 					</configuration>
@@ -273,7 +319,7 @@
 			</plugins>
 		</pluginManagement>
 	</build>
-	
+
 	<profiles>
 		<profile>
 			<id>release-sign-artifacts</id>
