@@ -124,6 +124,17 @@ public final class PriorityHeuristicSolver implements Solver {
           best = p;
         }
       }
+
+      // if no best has been found, we just assign the first pickup (or delivery
+      // if there are no pickups).
+      if (best == null) {
+        if (!assignablePickups.isEmpty()) {
+          best = assignablePickups.iterator().next();
+        } else {
+          best = assignableDeliveries.iterator().next();
+        }
+      }
+
       newRoute.add(best);
 
       final boolean isPickup = assignablePickups.contains(best);
