@@ -18,7 +18,6 @@ package com.github.rinde.evo4mas.common;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nullable;
 
 import com.github.rinde.ecj.PriorityHeuristic;
+import com.github.rinde.evo4mas.common.GlobalStateObjectFunctions.GpGlobal;
 import com.github.rinde.logistics.pdptw.mas.Truck;
 import com.github.rinde.logistics.pdptw.mas.comm.AbstractBidder;
 import com.github.rinde.logistics.pdptw.mas.comm.Auctioneer;
@@ -42,8 +42,6 @@ import com.github.rinde.logistics.pdptw.mas.comm.DoubleBid;
 import com.github.rinde.logistics.pdptw.mas.comm.ForwardingBidder;
 import com.github.rinde.logistics.pdptw.mas.comm.SetFactories;
 import com.github.rinde.rinsim.central.GlobalStateObject;
-import com.github.rinde.rinsim.central.GlobalStateObject.VehicleStateObject;
-import com.github.rinde.rinsim.central.GlobalStateObjects;
 import com.github.rinde.rinsim.central.SimSolverBuilder;
 import com.github.rinde.rinsim.central.Solver;
 import com.github.rinde.rinsim.central.SolverUser;
@@ -107,7 +105,7 @@ public class EvoBidder
   private final long reauctionCooldownPeriod;
 
   EvoBidder(ObjectiveFunction objFunc,
-      PriorityHeuristic<VehicleParcelContext> h, long cooldown) {
+      PriorityHeuristic<GpGlobal> h, long cooldown) {
     super(SetFactories.synchronizedFactory(SetFactories.linkedHashSet()));
     objectiveFunction = objFunc;
     heuristic = new SolverAdapter(h);
@@ -214,15 +212,17 @@ public class EvoBidder
     checkState(!cfb.getAuctioneer().hasWinner());
     checkState(!computing.getAndSet(true));
     LOGGER.trace("{} Start computing bid {}", decorator, cfb);
-    final Set<Parcel> parcels = newLinkedHashSet(assignedParcels);
+    final Set<Parcel> parcels = new LinkedHashSet<>(assignedParcels);
     parcels.add(cfb.getParcel());
     final ImmutableList<Parcel> currentRoute =
       ImmutableList.copyOf(((Truck) vehicle.get()).getRoute());
 
+    System.out.println("current route: " + currentRoute);
+
     final GlobalStateObject state = solverHandle.get().getCurrentState(
       SolveArgs.create()
         .useCurrentRoutes(ImmutableList.of(currentRoute))
-        .fixRoutes()
+        // .fixRoutes()
         .useParcels(parcels));
 
     final EventAPI ev = solverHandle.get().getEventAPI();
@@ -253,7 +253,7 @@ public class EvoBidder
           }
 
           final double bidValue = heuristic.get(state);
-          LOGGER.trace("{} Computed new bid: {}", bidValue);
+          LOGGER.trace("{} Computed new bid: {}", decorator, bidValue);
 
           cfb.getAuctioneer().submit(DoubleBid.create(
             cfb.getTime(), bidder, cfb.getParcel(), bidValue));
@@ -300,7 +300,9 @@ public class EvoBidder
     final ImmutableList<Parcel> currentRoute =
       ImmutableList.copyOf(((Truck) vehicle.get()).getRoute());
     final GlobalStateObject state = solverHandle.get().getCurrentState(
-      SolveArgs.create().noCurrentRoutes().useParcels(assignedParcels));
+      SolveArgs.create()
+        .noCurrentRoutes()
+        .useParcels(assignedParcels));
     final StatisticsDTO stats =
       Solvers.computeStats(state, ImmutableList.of(currentRoute));
 
@@ -361,13 +363,17 @@ public class EvoBidder
         reauctioning.set(true);
         LOGGER.trace("Found most expensive parcel for reauction: {}.", toSwap);
 
-        final VehicleParcelContext vpc =
-          VehicleParcelContext.create(state.getTime(),
-            state.getVehicles().get(0).getLocation(),
-            state.getVehicles().get(0).getDto(), toSwap, true);
+        final List<Parcel> routeWithout = new ArrayList<>(currentRoute);
+        routeWithout.removeAll(Collections.singleton(toSwap));
 
-        final double bidValue = heuristic.heuristic.compute(vpc);
+        final GlobalStateObject state2 = solverHandle.get().getCurrentState(
+          SolveArgs.create()
+            .useCurrentRoutes(
+              ImmutableList.of(ImmutableList.copyOf(routeWithout)))
+            .useParcels(assignedParcels));
 
+        final double bidValue =
+          heuristic.heuristic.compute(GpGlobal.create(state2));
         final DoubleBid initialBid =
           DoubleBid.create(state.getTime(), decorator, toSwap, bidValue);
 
@@ -422,13 +428,13 @@ public class EvoBidder
   }
 
   public static Builder realtimeBuilder(
-      PriorityHeuristic<VehicleParcelContext> heuristic,
+      PriorityHeuristic<GpGlobal> heuristic,
       ObjectiveFunction objFunc) {
     return Builder.createRt(heuristic, objFunc);
   }
 
   public static Builder simulatedTimeBuilder(
-      PriorityHeuristic<VehicleParcelContext> heuristic,
+      PriorityHeuristic<GpGlobal> heuristic,
       ObjectiveFunction objFunc) {
     return Builder.createSt(heuristic, objFunc);
   }
@@ -457,7 +463,7 @@ public class EvoBidder
 
     Builder() {}
 
-    abstract PriorityHeuristic<VehicleParcelContext> getPriorityHeuristic();
+    abstract PriorityHeuristic<GpGlobal> getPriorityHeuristic();
 
     abstract boolean isRealtime();
 
@@ -493,17 +499,17 @@ public class EvoBidder
         + (isRealtime() ? ".realtimeBuilder()" : ".simulatedTimeBuilder()");
     }
 
-    static Builder createRt(PriorityHeuristic<VehicleParcelContext> heuristic,
+    static Builder createRt(PriorityHeuristic<GpGlobal> heuristic,
         ObjectiveFunction objFunc) {
       return create(heuristic, true, objFunc, DEFAULT_COOLDOWN_VALUE);
     }
 
-    static Builder createSt(PriorityHeuristic<VehicleParcelContext> heuristic,
+    static Builder createSt(PriorityHeuristic<GpGlobal> heuristic,
         ObjectiveFunction objFunc) {
       return create(heuristic, false, objFunc, DEFAULT_COOLDOWN_VALUE);
     }
 
-    static Builder create(PriorityHeuristic<VehicleParcelContext> heuristic,
+    static Builder create(PriorityHeuristic<GpGlobal> heuristic,
         boolean realtime,
         ObjectiveFunction objectiveFunction,
         long reauctionCooldownPeriod) {
@@ -553,10 +559,10 @@ public class EvoBidder
   }
 
   static class SolverAdapter implements Solver {
-    final PriorityHeuristic<VehicleParcelContext> heuristic;
+    final PriorityHeuristic<GpGlobal> heuristic;
     private final Map<GlobalStateObject, Double> results;
 
-    SolverAdapter(PriorityHeuristic<VehicleParcelContext> h) {
+    SolverAdapter(PriorityHeuristic<GpGlobal> h) {
       heuristic = h;
       results = Collections.synchronizedMap(
         new LinkedHashMap<GlobalStateObject, Double>());
@@ -569,19 +575,9 @@ public class EvoBidder
     @Override
     public ImmutableList<ImmutableList<Parcel>> solve(GlobalStateObject state)
         throws InterruptedException {
-      checkArgument(state.getVehicles().size() == 1,
-        "Expected exactly 1 vehicle, found %s vehicles.",
-        state.getVehicles().size());
-      final Set<Parcel> unassigned =
-        GlobalStateObjects.unassignedParcels(state);
-      checkState(unassigned.size() == 1);
-      final VehicleStateObject vso = state.getVehicles().get(0);
+      final GpGlobal gpg = GpGlobal.create(state);
 
-      final VehicleParcelContext vpc = VehicleParcelContext.create(
-        state.getTime(), vso.getLocation(), vso.getDto(),
-        unassigned.iterator().next(), true);
-
-      results.put(state, heuristic.compute(vpc));
+      results.put(state, heuristic.compute(gpg));
       return ImmutableList.of();
     }
   }
