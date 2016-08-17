@@ -64,7 +64,6 @@ public final class GlobalStateObjectFunctions {
     public abstract double insertionOverTime();
 
     public static GpGlobal create(GlobalStateObject state) {
-      System.out.println(state);
       checkArgument(state.getVehicles().size() == 1,
         "Expected exactly 1 vehicle, found %s vehicles.",
         state.getVehicles().size());

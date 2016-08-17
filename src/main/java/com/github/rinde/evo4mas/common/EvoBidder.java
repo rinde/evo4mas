@@ -217,8 +217,6 @@ public class EvoBidder
     final ImmutableList<Parcel> currentRoute =
       ImmutableList.copyOf(((Truck) vehicle.get()).getRoute());
 
-    System.out.println("current route: " + currentRoute);
-
     final GlobalStateObject state = solverHandle.get().getCurrentState(
       SolveArgs.create()
         .useCurrentRoutes(ImmutableList.of(currentRoute))
