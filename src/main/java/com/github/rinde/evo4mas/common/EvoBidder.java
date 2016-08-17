@@ -165,7 +165,7 @@ public class EvoBidder
         if (computing.get()) {
           // if current computation is about this auction -> cancel it
           if (endedAuction.equals(cfbQueue.peek())) {
-            LOGGER.trace("{} cancel computation", decorator);
+            LOGGER.info("{} cancel computation", decorator);
 
             computing.set(false);
             final EventAPI ev = solverHandle.get().getEventAPI();
@@ -198,7 +198,7 @@ public class EvoBidder
       if (!cfbQueue.isEmpty() && !computing.get()) {
         while (!cfbQueue.isEmpty()
           && cfbQueue.peek().getAuctioneer().hasWinner()) {
-          // remove all call for bids which have already finished
+          // remove all calls for bids which have already finished
           cfbQueue.remove();
         }
         if (!cfbQueue.isEmpty()) {

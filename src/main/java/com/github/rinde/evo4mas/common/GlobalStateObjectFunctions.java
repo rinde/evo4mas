@@ -99,7 +99,8 @@ public final class GlobalStateObjectFunctions {
           insertionTardiness, insertionOverTime);
 
       } catch (final InterruptedException e) {
-        throw new IllegalStateException();
+        // this should not be interrupted
+        throw new IllegalStateException(e);
       }
     }
 
