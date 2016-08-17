@@ -16,9 +16,16 @@
 package com.github.rinde.evo4mas.common;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.Sets.newHashSet;
 
+import java.math.RoundingMode;
 import java.util.LinkedHashSet;
+import java.util.ListIterator;
 import java.util.Set;
+
+import javax.measure.Measure;
+import javax.measure.quantity.Length;
+import javax.measure.quantity.Velocity;
 
 import com.github.rinde.ecj.GPFunc;
 import com.github.rinde.logistics.pdptw.solver.CheapestInsertionHeuristic;
@@ -27,11 +34,16 @@ import com.github.rinde.rinsim.central.GlobalStateObject.VehicleStateObject;
 import com.github.rinde.rinsim.central.GlobalStateObjects;
 import com.github.rinde.rinsim.central.Solvers;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
+import com.github.rinde.rinsim.core.model.road.RoadModels;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.pdptw.common.StatisticsDTO;
 import com.github.rinde.rinsim.scenario.gendreau06.Gendreau06ObjectiveFunction;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
+import com.google.common.math.DoubleMath;
+
+import it.unimi.dsi.fastutil.longs.LongArrayList;
+import it.unimi.dsi.fastutil.longs.LongList;
 
 /**
  * These functions consider {@link VehicleParcelContext} as a pair of pickup and
@@ -45,6 +57,173 @@ public final class GlobalStateObjectFunctions {
     Gendreau06ObjectiveFunction.instance(50d);
 
   private GlobalStateObjectFunctions() {}
+
+  static LongList computeLatestArrivalTimes(GlobalStateObject gso,
+      ImmutableList<Parcel> route, LongList earliestArrivalTimes) {
+    final ListIterator<Parcel> iterator = route.listIterator(route.size());
+    final Set<Parcel> seenSet = new LinkedHashSet<>();
+
+    final LongList arrivalTimes = new LongArrayList();
+
+    // TODO also consider depot
+
+    final VehicleStateObject vehicle = gso.getVehicles().get(0);
+
+    Point curLoc = vehicle.getDto().getStartPosition();
+    long curTWend = vehicle.getDto().getAvailabilityTimeWindow().end();
+    while (iterator.hasPrevious()) {
+      final Parcel prev = iterator.previous();
+
+      Point prevLoc;
+      final long prevTWend;
+      if (seenSet.contains(prev)) {
+        prevLoc = prev.getPickupLocation();
+        prevTWend = prev.getPickupTimeWindow().end();
+      } else {
+        prevLoc = prev.getDeliveryLocation();
+        prevTWend = prev.getDeliveryTimeWindow().end();
+      }
+      seenSet.add(prev);
+
+      // TODO compute latest possible arrival time that is allowed while
+      // respecting time windows. It should be checked relative to the
+      // earliestArrivalTime
+
+      curLoc = prevLoc;
+      curTWend = prevTWend;
+    }
+    return null;
+  }
+
+  static LongList computeEarliestArrivalTimes(GlobalStateObject gso,
+      ImmutableList<Parcel> route) {
+
+    final long startTime = gso.getTime();
+    final Set<Parcel> parcels = newHashSet();
+
+    final VehicleStateObject vso = gso.getVehicles().get(0);
+
+    final LongList arrivalTimesList = new LongArrayList();
+    arrivalTimesList.add(startTime);
+
+    parcels.addAll(route);
+
+    long time = startTime;
+    Point vehicleLocation = vso.getLocation();
+    final Measure<Double, Velocity> speed = Measure.valueOf(
+      vso.getDto().getSpeed(), gso.getSpeedUnit());
+    final Set<Parcel> seen = newHashSet();
+    for (int j = 0; j < route.size(); j++) {
+      final Parcel cur = route.get(j);
+      final boolean inCargo = vso.getContents().contains(cur)
+        || seen.contains(cur);
+      seen.add(cur);
+      if (vso.getDestination().isPresent() && j == 0) {
+        checkArgument(
+          vso.getDestination().asSet().contains(cur),
+          "If a vehicle has a destination, the first position in the route "
+            + "must equal this. Expected %s, is %s.",
+          vso.getDestination().get(), cur);
+      }
+
+      boolean firstAndServicing = false;
+      if (j == 0 && vso.getRemainingServiceTime() > 0) {
+        // we are already at the service location
+        firstAndServicing = true;
+        arrivalTimesList.add(time);
+        time += vso.getRemainingServiceTime();
+      } else {
+        // vehicle is not there yet, go there first, then service
+        final Point nextLoc = inCargo ? cur.getDeliveryLocation()
+          : cur.getPickupLocation();
+        final Measure<Double, Length> distance = Measure.valueOf(
+          Point.distance(vehicleLocation, nextLoc), gso.getDistUnit());
+        vehicleLocation = nextLoc;
+        final long tt = DoubleMath.roundToLong(
+          RoadModels.computeTravelTime(speed, distance, gso.getTimeUnit()),
+          RoundingMode.CEILING);
+        time += tt;
+      }
+      if (inCargo) {
+        // check if we are early
+        if (cur.getDeliveryTimeWindow().isBeforeStart(time)) {
+          time = cur.getDeliveryTimeWindow().begin();
+        }
+
+        if (!firstAndServicing) {
+          arrivalTimesList.add(time);
+          time += cur.getDeliveryDuration();
+        }
+      } else {
+        // check if we are early
+        if (cur.getPickupTimeWindow().isBeforeStart(time)) {
+          time = cur.getPickupTimeWindow().begin();
+        }
+        if (!firstAndServicing) {
+          arrivalTimesList.add(time);
+          time += cur.getPickupDuration();
+        }
+      }
+    }
+
+    // go to depot
+    final Measure<Double, Length> distance = Measure.valueOf(
+      Point.distance(vehicleLocation, vso.getDto().getStartPosition()),
+      gso.getDistUnit());
+    final long tt = DoubleMath.roundToLong(
+      RoadModels.computeTravelTime(speed, distance, gso.getTimeUnit()),
+      RoundingMode.CEILING);
+    time += tt;
+
+    arrivalTimesList.add(time);
+    return arrivalTimesList;
+  }
+
+  static long computeFlexibility(
+      long currentTime,
+      VehicleStateObject vehicle,
+      ImmutableList<Parcel> route) {
+
+    if (route.isEmpty()) {
+      return vehicle.getDto().getAvailabilityTimeWindow().end() - currentTime
+        + vehicle.getRemainingServiceTime();
+    }
+
+    final ListIterator<Parcel> iterator = route.listIterator(route.size());
+
+    final Set<Parcel> seenSet = new LinkedHashSet<>();
+
+    while (iterator.hasPrevious()) {
+      final Parcel cur = iterator.previous();
+      final boolean isCurPickup = seenSet.contains(cur);
+      seenSet.add(cur);
+
+      if (iterator.hasPrevious()) {
+        final Parcel prev = route.get(iterator.previousIndex());
+
+        // latest departure time from prev parcel to be just in time for
+        // servicing cur parcel
+        final Point prevLoc;
+        long prevTWend;
+        if (seenSet.contains(prev)) {
+          // pickup
+          prevLoc = cur.getDeliveryLocation();
+          prevTWend = cur.getDeliveryTimeWindow().end();
+        } else {
+          // delivery
+          prevLoc = cur.getPickupLocation();
+          prevTWend = cur.getPickupTimeWindow().end();
+        }
+
+      }
+    }
+
+    final long firstStartTime = currentTime + vehicle.getRemainingServiceTime();
+
+    // final long lastStartTime =
+
+    return 0L;
+  }
 
   @AutoValue
   public abstract static class GpGlobal {
