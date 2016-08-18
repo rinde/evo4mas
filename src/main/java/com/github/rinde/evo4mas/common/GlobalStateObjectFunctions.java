@@ -58,54 +58,76 @@ public final class GlobalStateObjectFunctions {
 
   private GlobalStateObjectFunctions() {}
 
+  static long computeFlexibility(GlobalStateObject gso,
+      ImmutableList<Parcel> route) {
+    final LongList earliest = computeEarliestArrivalTimes(gso, route);
+    final LongList latest = computeLatestArrivalTimes(gso, route, earliest);
+
+    long sum = 0;
+    for (int i = 0; i < earliest.size(); i++) {
+      sum += latest.getLong(i) - earliest.getLong(i);
+    }
+    return sum;
+  }
+
   static LongList computeLatestArrivalTimes(GlobalStateObject gso,
       ImmutableList<Parcel> route, LongList earliestArrivalTimes) {
     final ListIterator<Parcel> iterator = route.listIterator(route.size());
     final Set<Parcel> seenSet = new LinkedHashSet<>();
-
-    final LongList arrivalTimes = new LongArrayList();
-
-    // TODO also consider depot
-
     final VehicleStateObject vehicle = gso.getVehicles().get(0);
+    final Measure<Double, Velocity> speed = Measure.valueOf(
+      vehicle.getDto().getSpeed(), gso.getSpeedUnit());
+
+    final LongList arrivalTimes = new LongArrayList(route.size() + 1);
 
     Point curLoc = vehicle.getDto().getStartPosition();
     long curTWend = vehicle.getDto().getAvailabilityTimeWindow().end();
+
+    arrivalTimes.add(0,
+      Math.max(curTWend, earliestArrivalTimes.getLong(route.size())));
+
     while (iterator.hasPrevious()) {
+      final int index = iterator.previousIndex();
       final Parcel prev = iterator.previous();
 
       Point prevLoc;
       final long prevTWend;
+      long prevDur;
       if (seenSet.contains(prev)) {
         prevLoc = prev.getPickupLocation();
         prevTWend = prev.getPickupTimeWindow().end();
+        prevDur = prev.getPickupDuration();
       } else {
         prevLoc = prev.getDeliveryLocation();
         prevTWend = prev.getDeliveryTimeWindow().end();
+        prevDur = prev.getDeliveryDuration();
       }
       seenSet.add(prev);
 
-      // TODO compute latest possible arrival time that is allowed while
-      // respecting time windows. It should be checked relative to the
-      // earliestArrivalTime
+      final Measure<Double, Length> distance = Measure.valueOf(
+        Point.distance(prevLoc, curLoc), gso.getDistUnit());
+      final long tt = DoubleMath.roundToLong(
+        RoadModels.computeTravelTime(speed, distance, gso.getTimeUnit()),
+        RoundingMode.CEILING);
+
+      final long latestTimeToLeave =
+        Math.min(curTWend, arrivalTimes.getLong(0) - tt - prevDur);
+
+      arrivalTimes.add(0,
+        Math.max(latestTimeToLeave, earliestArrivalTimes.getLong(index)));
 
       curLoc = prevLoc;
       curTWend = prevTWend;
     }
-    return null;
+    return arrivalTimes;
   }
 
   static LongList computeEarliestArrivalTimes(GlobalStateObject gso,
       ImmutableList<Parcel> route) {
-
     final long startTime = gso.getTime();
     final Set<Parcel> parcels = newHashSet();
-
     final VehicleStateObject vso = gso.getVehicles().get(0);
-
     final LongList arrivalTimesList = new LongArrayList();
-    arrivalTimesList.add(startTime);
-
     parcels.addAll(route);
 
     long time = startTime;
@@ -179,52 +201,6 @@ public final class GlobalStateObjectFunctions {
     return arrivalTimesList;
   }
 
-  static long computeFlexibility(
-      long currentTime,
-      VehicleStateObject vehicle,
-      ImmutableList<Parcel> route) {
-
-    if (route.isEmpty()) {
-      return vehicle.getDto().getAvailabilityTimeWindow().end() - currentTime
-        + vehicle.getRemainingServiceTime();
-    }
-
-    final ListIterator<Parcel> iterator = route.listIterator(route.size());
-
-    final Set<Parcel> seenSet = new LinkedHashSet<>();
-
-    while (iterator.hasPrevious()) {
-      final Parcel cur = iterator.previous();
-      final boolean isCurPickup = seenSet.contains(cur);
-      seenSet.add(cur);
-
-      if (iterator.hasPrevious()) {
-        final Parcel prev = route.get(iterator.previousIndex());
-
-        // latest departure time from prev parcel to be just in time for
-        // servicing cur parcel
-        final Point prevLoc;
-        long prevTWend;
-        if (seenSet.contains(prev)) {
-          // pickup
-          prevLoc = cur.getDeliveryLocation();
-          prevTWend = cur.getDeliveryTimeWindow().end();
-        } else {
-          // delivery
-          prevLoc = cur.getPickupLocation();
-          prevTWend = cur.getPickupTimeWindow().end();
-        }
-
-      }
-    }
-
-    final long firstStartTime = currentTime + vehicle.getRemainingServiceTime();
-
-    // final long lastStartTime =
-
-    return 0L;
-  }
-
   @AutoValue
   public abstract static class GpGlobal {
 
@@ -242,6 +218,8 @@ public final class GlobalStateObjectFunctions {
 
     public abstract double insertionOverTime();
 
+    public abstract double insertionFlexibility();
+
     public static GpGlobal create(GlobalStateObject state) {
       checkArgument(state.getVehicles().size() == 1,
         "Expected exactly 1 vehicle, found %s vehicles.",
@@ -254,6 +232,9 @@ public final class GlobalStateObjectFunctions {
       final StatisticsDTO baseline = Solvers.computeStats(
         state,
         ImmutableList.of(state.getVehicles().get(0).getRoute().get()));
+
+      final long baselineFlexibility =
+        computeFlexibility(state, state.getVehicles().get(0).getRoute().get());
 
       final ImmutableList<ImmutableList<Parcel>> newRoute;
       try {
@@ -273,9 +254,12 @@ public final class GlobalStateObjectFunctions {
         final double insertionOverTime =
           OBJ_FUNC.overTime(insertionStats) - OBJ_FUNC.overTime(baseline);
 
+        final long insertedFlex = computeFlexibility(state, newRoute.get(0));
+        final double insertionFlexibility = insertedFlex - baselineFlexibility;
+
         return new AutoValue_GlobalStateObjectFunctions_GpGlobal(state,
           ps.iterator().next(), insertionCost, insertionTravelTime,
-          insertionTardiness, insertionOverTime);
+          insertionTardiness, insertionOverTime, insertionFlexibility);
 
       } catch (final InterruptedException e) {
         // this should not be interrupted
@@ -283,6 +267,15 @@ public final class GlobalStateObjectFunctions {
       }
     }
 
+  }
+
+  public static class InsertionFlexibility extends GPFunc<GpGlobal> {
+    public InsertionFlexibility() {}
+
+    @Override
+    public double execute(double[] input, GpGlobal context) {
+      return context.insertionFlexibility();
+    }
   }
 
   public static class InsertionCost extends GPFunc<GpGlobal> {
@@ -345,12 +338,16 @@ public final class GlobalStateObjectFunctions {
 
   // returns the utilization of the vehicle in minutes (i.e. the accumulative
   // time it will take the vehicle to complete it's current route)
-  public static class Utilization extends GPFunc<GpGlobal> {
-    public Utilization() {}
+  public static class Slack extends GPFunc<GpGlobal> {
+    public Slack() {}
 
     @Override
     public double execute(double[] input, GpGlobal context) {
-      final VehicleStateObject vso = context.state().getVehicles().get(0);
+      final GlobalStateObject state = context.state();
+      final long currentTime = state.getTime();
+
+      final VehicleStateObject vso = state.getVehicles().get(0);
+
       final Point currentLocation = vso.getLocation();
       final Set<Parcel> inCargo = new LinkedHashSet<>(vso.getContents());
 
@@ -368,7 +365,12 @@ public final class GlobalStateObjectFunctions {
         utilization += VehicleParcelContextFunctions.computeTravelTime(
           vso.getDto(), currentLocation, loc);
       }
-      return utilization / MS_IN_M;
+
+      // slack/idle time
+      final double slack = vso.getDto().getAvailabilityTimeWindow().end()
+        - currentTime - utilization;
+
+      return slack / MS_IN_M;
     }
   }
 
