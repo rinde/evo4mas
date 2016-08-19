@@ -19,6 +19,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -454,10 +455,15 @@ public class EvoBidder
     }
   }
 
+  /**
+   *
+   * @author Rinde van Lon
+   */
   @AutoValue
   public abstract static class Builder
-      implements StochasticSupplier<Bidder<DoubleBid>> {
+      implements StochasticSupplier<Bidder<DoubleBid>>, Serializable {
     static final long DEFAULT_COOLDOWN_VALUE = -1L;
+    private static final long serialVersionUID = 117918742255072246L;
 
     Builder() {}
 
