@@ -213,10 +213,12 @@ public class EvoBidder
     checkState(!cfb.getAuctioneer().hasWinner());
     checkState(!computing.getAndSet(true));
     LOGGER.trace("{} Start computing bid {}", decorator, cfb);
-    final Set<Parcel> parcels = new LinkedHashSet<>(assignedParcels);
-    parcels.add(cfb.getParcel());
+
     final ImmutableList<Parcel> currentRoute =
       ImmutableList.copyOf(((Truck) vehicle.get()).getRoute());
+
+    final Set<Parcel> parcels = new LinkedHashSet<>(currentRoute);
+    parcels.add(cfb.getParcel());
 
     final GlobalStateObject state = solverHandle.get().getCurrentState(
       SolveArgs.create()
