@@ -406,6 +406,7 @@ public class EvoBidder
         truck.setRoute(original);
         return false;
       }
+      LOGGER.trace(" > new route: {}", truck.getRoute());
     }
     return super.releaseParcel(p);
   }
