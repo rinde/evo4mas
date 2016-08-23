@@ -371,7 +371,7 @@ public class EvoBidder
           SolveArgs.create()
             .useCurrentRoutes(
               ImmutableList.of(ImmutableList.copyOf(routeWithout)))
-            .useParcels(assignedParcels));
+            .useParcels(currentRoute));
 
         final double bidValue =
           heuristic.heuristic.compute(GpGlobal.create(state2));
