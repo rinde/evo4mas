@@ -17,6 +17,7 @@ package com.github.rinde.evo4mas.common;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.math.RoundingMode;
 import java.util.LinkedHashSet;
@@ -31,7 +32,6 @@ import com.github.rinde.ecj.GPFunc;
 import com.github.rinde.logistics.pdptw.solver.CheapestInsertionHeuristic;
 import com.github.rinde.rinsim.central.GlobalStateObject;
 import com.github.rinde.rinsim.central.GlobalStateObject.VehicleStateObject;
-import com.github.rinde.rinsim.central.GlobalStateObjects;
 import com.github.rinde.rinsim.central.Solvers;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.road.RoadModels;
@@ -220,14 +220,23 @@ public final class GlobalStateObjectFunctions {
 
     public abstract double insertionFlexibility();
 
+    // public static GpGlobal create(GlobalStateObject state) {
+    // return create(state, state.getVehicles().get(0).getRoute().get());
+    // }
+
     public static GpGlobal create(GlobalStateObject state) {
       checkArgument(state.getVehicles().size() == 1,
         "Expected exactly 1 vehicle, found %s vehicles.",
         state.getVehicles().size());
-      final Set<Parcel> ps = GlobalStateObjects.unassignedParcels(state);
-      checkArgument(ps.size() == 1,
+      // final Set<Parcel> ps = GlobalStateObjects.unassignedParcels(state);
+
+      final Set<Parcel> unassigned =
+        newLinkedHashSet(state.getAvailableParcels());
+      unassigned.removeAll(state.getVehicles().get(0).getRoute().get());
+
+      checkArgument(unassigned.size() == 1,
         "Expected axactly 1 unassigned parcel, found %s unassigned parcels.",
-        ps.size());
+        unassigned.size());
 
       final StatisticsDTO baseline = Solvers.computeStats(
         state,
@@ -236,9 +245,9 @@ public final class GlobalStateObjectFunctions {
       final long baselineFlexibility =
         computeFlexibility(state, state.getVehicles().get(0).getRoute().get());
 
-      final ImmutableList<ImmutableList<Parcel>> newRoute;
       try {
-        newRoute = CheapestInsertionHeuristic.solve(state, OBJ_FUNC);
+        final ImmutableList<ImmutableList<Parcel>> newRoute =
+          CheapestInsertionHeuristic.solve(state, OBJ_FUNC);
         final StatisticsDTO insertionStats =
           Solvers.computeStats(state, newRoute);
 
@@ -258,7 +267,7 @@ public final class GlobalStateObjectFunctions {
         final double insertionFlexibility = insertedFlex - baselineFlexibility;
 
         return new AutoValue_GlobalStateObjectFunctions_GpGlobal(state,
-          ps.iterator().next(), insertionCost, insertionTravelTime,
+          unassigned.iterator().next(), insertionCost, insertionTravelTime,
           insertionTardiness, insertionOverTime, insertionFlexibility);
 
       } catch (final InterruptedException e) {

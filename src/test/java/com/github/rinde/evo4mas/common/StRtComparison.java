@@ -48,7 +48,6 @@ import com.github.rinde.rinsim.experiment.Experiment;
 import com.github.rinde.rinsim.experiment.ExperimentResults;
 import com.github.rinde.rinsim.experiment.MASConfiguration;
 import com.github.rinde.rinsim.experiment.PostProcessors;
-import com.github.rinde.rinsim.io.FileProvider;
 import com.github.rinde.rinsim.pdptw.common.AddParcelEvent;
 import com.github.rinde.rinsim.pdptw.common.AddVehicleEvent;
 import com.github.rinde.rinsim.pdptw.common.ObjectiveFunction;
@@ -104,10 +103,6 @@ public class StRtComparison {
     final Scenario rtScenario = getScenario();
     final Scenario stScenario =
       ScenarioConverters.toSimulatedtime().apply(rtScenario);
-
-    final FileProvider.Builder fileProviderBuilder = FileProvider.builder()
-      .add(Paths.get("files/scenarios/vanLonHolvoet15"))
-      .filter("glob:**.scen");
 
     final View.Builder gui = View.builder()
       .withAutoPlay()

@@ -42,6 +42,7 @@ import com.github.rinde.logistics.pdptw.mas.comm.Bidder;
 import com.github.rinde.logistics.pdptw.mas.comm.DoubleBid;
 import com.github.rinde.logistics.pdptw.mas.comm.ForwardingBidder;
 import com.github.rinde.logistics.pdptw.mas.comm.SetFactories;
+import com.github.rinde.logistics.pdptw.solver.CheapestInsertionHeuristic;
 import com.github.rinde.rinsim.central.GlobalStateObject;
 import com.github.rinde.rinsim.central.SimSolverBuilder;
 import com.github.rinde.rinsim.central.Solver;
@@ -102,11 +103,13 @@ public class EvoBidder
   Bidder<DoubleBid> decorator;
   final SolverAdapter heuristic;
   private final RealtimeSolver solver;
-
+  private final ParcelSwapSelector parcelSwapSelector;
   private final long reauctionCooldownPeriod;
 
   EvoBidder(ObjectiveFunction objFunc,
-      PriorityHeuristic<GpGlobal> h, long cooldown) {
+      PriorityHeuristic<GpGlobal> h,
+      long cooldown,
+      ParcelSwapSelectorType selector) {
     super(SetFactories.synchronizedFactory(SetFactories.linkedHashSet()));
     objectiveFunction = objFunc;
     heuristic = new SolverAdapter(h);
@@ -117,6 +120,11 @@ public class EvoBidder
     reauctioning = new AtomicBoolean();
     computing = new AtomicBoolean();
     reauctionCooldownPeriod = cooldown;
+    if (selector == ParcelSwapSelectorType.OBJ_FUNC) {
+      parcelSwapSelector = new ObjFuncSelector(objFunc);
+    } else {
+      parcelSwapSelector = new PriorityHeuristicSelector(heuristic.heuristic);
+    }
   }
 
   @Override
@@ -303,9 +311,7 @@ public class EvoBidder
     final GlobalStateObject state = solverHandle.get().getCurrentState(
       SolveArgs.create()
         .noCurrentRoutes()
-        .useParcels(assignedParcels));
-    final StatisticsDTO stats =
-      Solvers.computeStats(state, ImmutableList.of(currentRoute));
+        .useParcels(currentRoute));
 
     final Parcel lastReceivedParcel = Iterables.getLast(assignedParcels);
 
@@ -327,24 +333,9 @@ public class EvoBidder
         }
       }
 
-      final double baseline = objectiveFunction.computeCost(stats);
-      double lowestCost = baseline;
       @Nullable
-      Parcel toSwap = null;
-
-      LOGGER.trace("Compute cost of swapping");
-      for (final Parcel sp : swappableParcels) {
-        final List<Parcel> newRoute = new ArrayList<>();
-        newRoute.addAll(currentRoute);
-        newRoute.removeAll(Collections.singleton(sp));
-        final double cost = objectiveFunction.computeCost(
-          Solvers.computeStats(state,
-            ImmutableList.of(ImmutableList.copyOf(newRoute))));
-        if (cost < lowestCost) {
-          lowestCost = cost;
-          toSwap = sp;
-        }
-      }
+      final Parcel toSwap =
+        parcelSwapSelector.select(state, currentRoute, swappableParcels);
 
       // we have found the most expensive parcel in the route, that is, removing
       // this parcel from the route will yield the greatest cost reduction.
@@ -466,6 +457,8 @@ public class EvoBidder
   public abstract static class Builder
       implements StochasticSupplier<Bidder<DoubleBid>>, Serializable {
     static final long DEFAULT_COOLDOWN_VALUE = -1L;
+    static final ParcelSwapSelectorType DEFAULT_PARCEL_SWAP_SELECTOR_TYPE =
+      ParcelSwapSelectorType.OBJ_FUNC;
     private static final long serialVersionUID = 117918742255072246L;
 
     Builder() {}
@@ -480,23 +473,58 @@ public class EvoBidder
     // of time to wait before a new reauction may be started for the same parcel
     abstract long getReauctionCooldownPeriod();
 
+    /**
+     * Indicates whether the {@link #getPriorityHeuristic()} or
+     * {@link CheapestInsertionHeuristic} should be used for choosing the parcel
+     * for a reauction.
+     * @return <code>true</code> indicates {@link CheapestInsertionHeuristic},
+     *         <code>false</code> indicates {@link #getPriorityHeuristic()}.
+     *         Default value: <code>false</code>.
+     */
+    abstract ParcelSwapSelectorType getParcelSwapSelectorType();
+
     public Builder withReauctionCooldownPeriod(long periodMs) {
       return create(
         getPriorityHeuristic(),
         isRealtime(),
         getObjectiveFunction(),
-        periodMs);
+        periodMs,
+        getParcelSwapSelectorType());
+    }
+
+    // TODO validate options by testing output with PrioHeur: "(insertioncost)"
+
+    public Builder withCheapestInsertionHeuristicForReauction() {
+      return create(
+        getPriorityHeuristic(),
+        isRealtime(),
+        getObjectiveFunction(),
+        getReauctionCooldownPeriod(),
+        ParcelSwapSelectorType.OBJ_FUNC);
+    }
+
+    public Builder withPriorityHeuristicForReauction() {
+      return create(
+        getPriorityHeuristic(),
+        isRealtime(),
+        getObjectiveFunction(),
+        getReauctionCooldownPeriod(),
+        ParcelSwapSelectorType.PRIO_HEUR);
     }
 
     @Override
     public Bidder<DoubleBid> get(long seed) {
       if (isRealtime()) {
-        return new EvoBidder(getObjectiveFunction(), getPriorityHeuristic(),
-          getReauctionCooldownPeriod());
+        return new EvoBidder(getObjectiveFunction(),
+          getPriorityHeuristic(),
+          getReauctionCooldownPeriod(),
+          getParcelSwapSelectorType());
       } else {
         return new StEvoBidder(
-          new EvoBidder(getObjectiveFunction(), getPriorityHeuristic(),
-            getReauctionCooldownPeriod()));
+          new EvoBidder(getObjectiveFunction(),
+            getPriorityHeuristic(),
+            getReauctionCooldownPeriod(),
+            getParcelSwapSelectorType()));
       }
     }
 
@@ -508,21 +536,27 @@ public class EvoBidder
 
     static Builder createRt(PriorityHeuristic<GpGlobal> heuristic,
         ObjectiveFunction objFunc) {
-      return create(heuristic, true, objFunc, DEFAULT_COOLDOWN_VALUE);
+      return create(heuristic, true, objFunc, DEFAULT_COOLDOWN_VALUE,
+        DEFAULT_PARCEL_SWAP_SELECTOR_TYPE);
     }
 
     static Builder createSt(PriorityHeuristic<GpGlobal> heuristic,
         ObjectiveFunction objFunc) {
-      return create(heuristic, false, objFunc, DEFAULT_COOLDOWN_VALUE);
+      return create(heuristic, false, objFunc, DEFAULT_COOLDOWN_VALUE,
+        DEFAULT_PARCEL_SWAP_SELECTOR_TYPE);
     }
 
     static Builder create(PriorityHeuristic<GpGlobal> heuristic,
         boolean realtime,
         ObjectiveFunction objectiveFunction,
-        long reauctionCooldownPeriod) {
-      return new AutoValue_EvoBidder_Builder(heuristic, realtime,
+        long reauctionCooldownPeriod,
+        ParcelSwapSelectorType type) {
+      return new AutoValue_EvoBidder_Builder(
+        heuristic,
+        realtime,
         objectiveFunction,
-        reauctionCooldownPeriod);
+        reauctionCooldownPeriod,
+        type);
     }
   }
 
@@ -588,4 +622,91 @@ public class EvoBidder
       return ImmutableList.of();
     }
   }
+
+  enum ParcelSwapSelectorType {
+    OBJ_FUNC, PRIO_HEUR;
+  }
+
+  interface ParcelSwapSelector {
+    @Nullable
+    Parcel select(GlobalStateObject state,
+        ImmutableList<Parcel> currentRoute, Iterable<Parcel> swappableParcels);
+  }
+
+  static class PriorityHeuristicSelector implements ParcelSwapSelector {
+    final PriorityHeuristic<GpGlobal> priorityHeuristic;
+
+    PriorityHeuristicSelector(PriorityHeuristic<GpGlobal> heuristic) {
+      priorityHeuristic = heuristic;
+    }
+
+    @Nullable
+    @Override
+    public Parcel select(GlobalStateObject state,
+        ImmutableList<Parcel> currentRoute, Iterable<Parcel> swappableParcels) {
+      @Nullable
+      Parcel toSwap = null;
+      double highestCost = Double.MIN_VALUE;
+      for (final Parcel sp : swappableParcels) {
+        final List<Parcel> newRoute = new ArrayList<>();
+        newRoute.addAll(currentRoute);
+        newRoute.removeAll(Collections.singleton(sp));
+
+        // compute the cost of adding parcel 'sp' to the current route
+        final double cost = priorityHeuristic
+          .compute(GpGlobal.create(state
+            .withRoutes(ImmutableList.of(ImmutableList.copyOf(newRoute)))));
+
+        // the parcel with the highest cost will be selected to see if we can
+        // reauction it
+        if (cost > highestCost) {
+          highestCost = cost;
+          toSwap = sp;
+        }
+      }
+      return toSwap;
+    }
+  }
+
+  static class ObjFuncSelector implements ParcelSwapSelector {
+    final ObjectiveFunction objectiveFunction;
+
+    ObjFuncSelector(ObjectiveFunction objFunc) {
+      objectiveFunction = objFunc;
+    }
+
+    @Nullable
+    @Override
+    public Parcel select(GlobalStateObject state,
+        ImmutableList<Parcel> currentRoute, Iterable<Parcel> swappableParcels) {
+      final StatisticsDTO stats =
+        Solvers.computeStats(state, ImmutableList.of(currentRoute));
+
+      final double baseline = objectiveFunction.computeCost(stats);
+      double lowestCost = baseline;
+      @Nullable
+      Parcel toSwap = null;
+
+      LOGGER.trace("Compute cost of swapping");
+      for (final Parcel sp : swappableParcels) {
+        final List<Parcel> newRoute = new ArrayList<>();
+        newRoute.addAll(currentRoute);
+        newRoute.removeAll(Collections.singleton(sp));
+
+        // costComputer.compute(state, sp)
+
+        final double cost = objectiveFunction.computeCost(
+          Solvers.computeStats(state,
+            ImmutableList.of(ImmutableList.copyOf(newRoute))));
+        // we select the lowest cost here because that means the biggest cost
+        // reduction
+        if (cost < lowestCost) {
+          lowestCost = cost;
+          toSwap = sp;
+        }
+      }
+      return toSwap;
+    }
+  }
+
 }
