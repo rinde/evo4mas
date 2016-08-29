@@ -324,11 +324,14 @@ public class EvoBidder
         LinkedHashMultiset.create(currentRoute);
       final Set<Parcel> swappableParcels = new LinkedHashSet<>();
       for (final Parcel ap : assignedParcels) {
+        final Auctioneer<DoubleBid> auct = parcelAuctioneers.get(ap);
         if (!pdpModel.get().getParcelState(ap).isPickedUp()
           && !pdpModel.get().getParcelState(ap).isTransitionState()
           && !state.getVehicles().get(0).getDestination().asSet()
             .contains(ap)
-          && !ap.equals(lastReceivedParcel)) {
+          && !ap.equals(lastReceivedParcel)
+          && state.getTime()
+            - auct.getLastAttemptTime() <= reauctionCooldownPeriod) {
           swappableParcels.add(ap);
         }
       }
