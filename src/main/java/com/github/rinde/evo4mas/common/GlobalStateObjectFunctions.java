@@ -17,7 +17,6 @@ package com.github.rinde.evo4mas.common;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.google.common.collect.Sets.newLinkedHashSet;
 
 import java.math.RoundingMode;
 import java.util.LinkedHashSet;
@@ -29,16 +28,12 @@ import javax.measure.quantity.Length;
 import javax.measure.quantity.Velocity;
 
 import com.github.rinde.ecj.GPFunc;
-import com.github.rinde.logistics.pdptw.solver.CheapestInsertionHeuristic;
 import com.github.rinde.rinsim.central.GlobalStateObject;
 import com.github.rinde.rinsim.central.GlobalStateObject.VehicleStateObject;
-import com.github.rinde.rinsim.central.Solvers;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.road.RoadModels;
 import com.github.rinde.rinsim.geom.Point;
-import com.github.rinde.rinsim.pdptw.common.StatisticsDTO;
 import com.github.rinde.rinsim.scenario.gendreau06.Gendreau06ObjectiveFunction;
-import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.math.DoubleMath;
 
@@ -201,83 +196,6 @@ public final class GlobalStateObjectFunctions {
     return arrivalTimesList;
   }
 
-  @AutoValue
-  public abstract static class GpGlobal {
-
-    GpGlobal() {}
-
-    public abstract GlobalStateObject state();
-
-    public abstract Parcel unassignedParcel();
-
-    public abstract double insertionCost();
-
-    public abstract double insertionTravelTime();
-
-    public abstract double insertionTardiness();
-
-    public abstract double insertionOverTime();
-
-    public abstract double insertionFlexibility();
-
-    // public static GpGlobal create(GlobalStateObject state) {
-    // return create(state, state.getVehicles().get(0).getRoute().get());
-    // }
-
-    public static GpGlobal create(GlobalStateObject state) {
-      checkArgument(state.getVehicles().size() == 1,
-        "Expected exactly 1 vehicle, found %s vehicles.",
-        state.getVehicles().size());
-      // final Set<Parcel> ps = GlobalStateObjects.unassignedParcels(state);
-
-      final Set<Parcel> unassigned =
-        newLinkedHashSet(state.getAvailableParcels());
-      unassigned.removeAll(state.getVehicles().get(0).getRoute().get());
-
-      checkArgument(unassigned.size() == 1,
-        "Expected axactly 1 unassigned parcel, found %s unassigned parcels.",
-        unassigned.size());
-
-      final StatisticsDTO baseline = Solvers.computeStats(
-        state,
-        ImmutableList.of(state.getVehicles().get(0).getRoute().get()));
-
-      final long baselineFlexibility =
-        computeFlexibility(state, state.getVehicles().get(0).getRoute().get());
-
-      try {
-        final ImmutableList<ImmutableList<Parcel>> newRoute =
-          CheapestInsertionHeuristic.solve(state, OBJ_FUNC);
-        final StatisticsDTO insertionStats =
-          Solvers.computeStats(state, newRoute);
-
-        final double insertionCost =
-          OBJ_FUNC.computeCost(insertionStats) - OBJ_FUNC.computeCost(baseline);
-
-        final double insertionTravelTime =
-          OBJ_FUNC.travelTime(insertionStats) - OBJ_FUNC.travelTime(baseline);
-
-        final double insertionTardiness =
-          OBJ_FUNC.tardiness(insertionStats) - OBJ_FUNC.tardiness(baseline);
-
-        final double insertionOverTime =
-          OBJ_FUNC.overTime(insertionStats) - OBJ_FUNC.overTime(baseline);
-
-        final long insertedFlex = computeFlexibility(state, newRoute.get(0));
-        final double insertionFlexibility = insertedFlex - baselineFlexibility;
-
-        return new AutoValue_GlobalStateObjectFunctions_GpGlobal(state,
-          unassigned.iterator().next(), insertionCost, insertionTravelTime,
-          insertionTardiness, insertionOverTime, insertionFlexibility);
-
-      } catch (final InterruptedException e) {
-        // this should not be interrupted
-        throw new IllegalStateException(e);
-      }
-    }
-
-  }
-
   public static class InsertionFlexibility extends GPFunc<GpGlobal> {
     public InsertionFlexibility() {}
 
@@ -380,6 +298,72 @@ public final class GlobalStateObjectFunctions {
         - currentTime - utilization;
 
       return slack / MS_IN_M;
+    }
+  }
+
+  /**
+   * Average distance of unassigned parcel pickup AND delivery point to all
+   * locations in the vehicle's current route. This is an adaptation of Ado by
+   * Beham et al.
+   *
+   * @author Rinde van Lon
+   */
+  public static class Ado extends GPFunc<GpGlobal> {
+    private static final long serialVersionUID = 2722583906726554580L;
+
+    public Ado() {}
+
+    @Override
+    public double execute(double[] input, GpGlobal context) {
+      return context.ado();
+    }
+  }
+
+  public static class Mido extends GPFunc<GpGlobal> {
+
+    public Mido() {}
+
+    @Override
+    public double execute(double[] input, GpGlobal context) {
+      return context.mido();
+    }
+  }
+
+  public static class Mado extends GPFunc<GpGlobal> {
+    public Mado() {}
+
+    @Override
+    public double execute(double[] input, GpGlobal context) {
+      return context.mado();
+    }
+  }
+
+  public static class RouteLength extends GPFunc<GpGlobal> {
+    public RouteLength() {}
+
+    @Override
+    public double execute(double[] input, GpGlobal context) {
+      return context.vehicle().getRoute().get().size();
+    }
+  }
+
+  public static class PickupUrgency extends GPFunc<GpGlobal> {
+    public PickupUrgency() {}
+
+    @Override
+    public double execute(double[] input, GpGlobal context) {
+      return context.parcel().getPickupTimeWindow().end()
+        - context.state().getTime();
+    }
+  }
+
+  public static class DeliveryUrgency extends GPFunc<GpGlobal> {
+    public DeliveryUrgency() {}
+
+    @Override
+    public double execute(double[] input, GpGlobal context) {
+      return context.parcel().getDeliveryTimeWindow().end()
+        - context.state().getTime();
     }
   }
 

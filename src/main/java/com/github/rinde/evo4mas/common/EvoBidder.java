@@ -34,7 +34,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nullable;
 
 import com.github.rinde.ecj.PriorityHeuristic;
-import com.github.rinde.evo4mas.common.GlobalStateObjectFunctions.GpGlobal;
 import com.github.rinde.logistics.pdptw.mas.Truck;
 import com.github.rinde.logistics.pdptw.mas.comm.AbstractBidder;
 import com.github.rinde.logistics.pdptw.mas.comm.Auctioneer;

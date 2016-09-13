@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import com.github.rinde.ecj.GPProgram;
 import com.github.rinde.ecj.GPProgramParser;
-import com.github.rinde.evo4mas.common.GlobalStateObjectFunctions.GpGlobal;
 import com.github.rinde.evo4mas.common.GlobalStateObjectFunctions.InsertionCost;
 import com.github.rinde.logistics.pdptw.mas.TruckFactory.DefaultTruckFactory;
 import com.github.rinde.logistics.pdptw.mas.comm.AuctionCommModel;

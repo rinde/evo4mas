@@ -117,4 +117,35 @@ public class GlobalStateObjectFunctionsTest {
 
   }
 
+  @Test
+  public void testAdo() {
+    final Parcel a = Parcel.builder(new Point(0, 0), new Point(1, 0))
+      .serviceDuration(10)
+      .build();
+    final Parcel b = Parcel.builder(new Point(1, 1), new Point(1, 1))
+      .pickupTimeWindow(TimeWindow.create(1800, 1800))
+      .serviceDuration(0)
+      .build();
+
+    final GlobalStateObject gso = GlobalStateObjectBuilder.globalBuilder()
+      .addAvailableParcel(a)
+      .addVehicle(GlobalStateObjectBuilder.vehicleBuilder()
+        .setVehicleDTO(VehicleDTO.builder()
+          .availabilityTimeWindow(TimeWindow.create(0, 1900))
+          .speed(50)
+          .build())
+        .setLocation(new Point(0, 0))
+        .setRoute(ImmutableList.of(b, b))
+        .setRemainingServiceTime(10)
+        .build())
+      .build();
+
+    final GpGlobal gg = GpGlobal.create(gso);
+
+    final double min = gg.mido();
+    final double max = gg.mado();
+
+    assertThat(gg.ado()).isWithin(.01).of((min + max) / 2);
+  }
+
 }
