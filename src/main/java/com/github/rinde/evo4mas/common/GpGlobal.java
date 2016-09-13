@@ -63,41 +63,42 @@ public abstract class GpGlobal {
   public abstract Parcel parcel();
 
   public double insertionCost() {
-    if (isInsertComputed) {
+    if (!isInsertComputed) {
       computeInsert();
     }
     return insertCost;
   }
 
   public double insertionTravelTime() {
-    if (isInsertComputed) {
+    if (!isInsertComputed) {
       computeInsert();
     }
     return insertTravelTime;
   }
 
   public double insertionTardiness() {
-    if (isInsertComputed) {
+    if (!isInsertComputed) {
       computeInsert();
     }
     return insertTardiness;
   }
 
   public double insertionOverTime() {
-    if (isInsertComputed) {
+    if (!isInsertComputed) {
       computeInsert();
     }
     return insertOverTime;
   }
 
   public double insertionFlexibility() {
-    if (isInsertComputed) {
+    if (!isInsertComputed) {
       computeInsert();
     }
     return insertFlexibility;
   }
 
   void computeInsert() {
+    isInsertComputed = true;
     final StatisticsDTO baseline = Solvers.computeStats(
       state(),
       ImmutableList.of(vehicle().getRoute().get()));
