@@ -33,7 +33,6 @@ import com.github.rinde.rinsim.central.GlobalStateObject.VehicleStateObject;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.road.RoadModels;
 import com.github.rinde.rinsim.geom.Point;
-import com.github.rinde.rinsim.scenario.gendreau06.Gendreau06ObjectiveFunction;
 import com.google.common.collect.ImmutableList;
 import com.google.common.math.DoubleMath;
 
@@ -48,8 +47,6 @@ import it.unimi.dsi.fastutil.longs.LongList;
  */
 public final class GlobalStateObjectFunctions {
   static final double MS_IN_M = 60000;
-  static final Gendreau06ObjectiveFunction OBJ_FUNC =
-    Gendreau06ObjectiveFunction.instance(50d);
 
   private GlobalStateObjectFunctions() {}
 

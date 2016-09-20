@@ -140,7 +140,7 @@ public class GlobalStateObjectFunctionsTest {
         .build())
       .build();
 
-    final GpGlobal gg = GpGlobal.create(gso);
+    final GpGlobal gg = GpGlobal.create(gso, EvoBidderTest.OBJ_FUNC);
 
     final double min = gg.mido();
     final double max = gg.mado();

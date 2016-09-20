@@ -64,6 +64,7 @@ import com.github.rinde.rinsim.event.EventAPI;
 import com.github.rinde.rinsim.event.Listener;
 import com.github.rinde.rinsim.pdptw.common.ObjectiveFunction;
 import com.github.rinde.rinsim.pdptw.common.StatisticsDTO;
+import com.github.rinde.rinsim.scenario.gendreau06.Gendreau06ObjectiveFunction;
 import com.github.rinde.rinsim.util.StochasticSupplier;
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Optional;
@@ -84,7 +85,7 @@ public class EvoBidder
   // 5 minutes
   private static final long MAX_LOSING_TIME = 5 * 60 * 1000;
 
-  final ObjectiveFunction objectiveFunction;
+  final Gendreau06ObjectiveFunction objectiveFunction;
   Optional<RtSimSolver> solverHandle;
   final Queue<CallForBids> cfbQueue;
   Listener currentListener;
@@ -105,13 +106,13 @@ public class EvoBidder
   private final ParcelSwapSelector parcelSwapSelector;
   private final long reauctionCooldownPeriod;
 
-  EvoBidder(ObjectiveFunction objFunc,
+  EvoBidder(Gendreau06ObjectiveFunction objFunc,
       PriorityHeuristic<GpGlobal> h,
       long cooldown,
       ParcelSwapSelectorType selector) {
     super(SetFactories.synchronizedFactory(SetFactories.linkedHashSet()));
     objectiveFunction = objFunc;
-    heuristic = new SolverAdapter(h);
+    heuristic = new SolverAdapter(h, objectiveFunction);
     solver = RtStAdapters.toRealtime(heuristic);
     solverHandle = Optional.absent();
     cfbQueue = Queues.synchronizedQueue(new LinkedList<CallForBids>());
@@ -122,7 +123,8 @@ public class EvoBidder
     if (selector == ParcelSwapSelectorType.OBJ_FUNC) {
       parcelSwapSelector = new ObjFuncSelector(objFunc);
     } else {
-      parcelSwapSelector = new PriorityHeuristicSelector(heuristic.heuristic);
+      parcelSwapSelector =
+        new PriorityHeuristicSelector(objectiveFunction, heuristic.heuristic);
     }
   }
 
@@ -367,7 +369,8 @@ public class EvoBidder
             .useParcels(currentRoute));
 
         final double bidValue =
-          heuristic.heuristic.compute(GpGlobal.create(state2));
+          heuristic.heuristic
+            .compute(GpGlobal.create(state2, objectiveFunction));
         final DoubleBid initialBid =
           DoubleBid.create(state.getTime(), decorator, toSwap, bidValue);
 
@@ -424,13 +427,13 @@ public class EvoBidder
 
   public static Builder realtimeBuilder(
       PriorityHeuristic<GpGlobal> heuristic,
-      ObjectiveFunction objFunc) {
+      Gendreau06ObjectiveFunction objFunc) {
     return Builder.createRt(heuristic, objFunc);
   }
 
   public static Builder simulatedTimeBuilder(
       PriorityHeuristic<GpGlobal> heuristic,
-      ObjectiveFunction objFunc) {
+      Gendreau06ObjectiveFunction objFunc) {
     return Builder.createSt(heuristic, objFunc);
   }
 
@@ -469,7 +472,7 @@ public class EvoBidder
 
     abstract boolean isRealtime();
 
-    abstract ObjectiveFunction getObjectiveFunction();
+    abstract Gendreau06ObjectiveFunction getObjectiveFunction();
 
     // after an unsuccessful reauction, this period indicates the minimum amount
     // of time to wait before a new reauction may be started for the same parcel
@@ -537,20 +540,20 @@ public class EvoBidder
     }
 
     static Builder createRt(PriorityHeuristic<GpGlobal> heuristic,
-        ObjectiveFunction objFunc) {
+        Gendreau06ObjectiveFunction objFunc) {
       return create(heuristic, true, objFunc, DEFAULT_COOLDOWN_VALUE,
         DEFAULT_PARCEL_SWAP_SELECTOR_TYPE);
     }
 
     static Builder createSt(PriorityHeuristic<GpGlobal> heuristic,
-        ObjectiveFunction objFunc) {
+        Gendreau06ObjectiveFunction objFunc) {
       return create(heuristic, false, objFunc, DEFAULT_COOLDOWN_VALUE,
         DEFAULT_PARCEL_SWAP_SELECTOR_TYPE);
     }
 
     static Builder create(PriorityHeuristic<GpGlobal> heuristic,
         boolean realtime,
-        ObjectiveFunction objectiveFunction,
+        Gendreau06ObjectiveFunction objectiveFunction,
         long reauctionCooldownPeriod,
         ParcelSwapSelectorType type) {
       return new AutoValue_EvoBidder_Builder(
@@ -604,9 +607,12 @@ public class EvoBidder
   static class SolverAdapter implements Solver {
     final PriorityHeuristic<GpGlobal> heuristic;
     private final Map<GlobalStateObject, Double> results;
+    private final Gendreau06ObjectiveFunction objectiveFunction;
 
-    SolverAdapter(PriorityHeuristic<GpGlobal> h) {
+    SolverAdapter(PriorityHeuristic<GpGlobal> h,
+        Gendreau06ObjectiveFunction objFunc) {
       heuristic = h;
+      objectiveFunction = objFunc;
       results = Collections.synchronizedMap(
         new LinkedHashMap<GlobalStateObject, Double>());
     }
@@ -618,7 +624,7 @@ public class EvoBidder
     @Override
     public ImmutableList<ImmutableList<Parcel>> solve(GlobalStateObject state)
         throws InterruptedException {
-      final GpGlobal gpg = GpGlobal.create(state);
+      final GpGlobal gpg = GpGlobal.create(state, objectiveFunction);
 
       results.put(state, heuristic.compute(gpg));
       return ImmutableList.of();
@@ -637,9 +643,12 @@ public class EvoBidder
 
   static class PriorityHeuristicSelector implements ParcelSwapSelector {
     final PriorityHeuristic<GpGlobal> priorityHeuristic;
+    final Gendreau06ObjectiveFunction objectiveFunction;
 
-    PriorityHeuristicSelector(PriorityHeuristic<GpGlobal> heuristic) {
+    PriorityHeuristicSelector(Gendreau06ObjectiveFunction objFunc,
+        PriorityHeuristic<GpGlobal> heuristic) {
       priorityHeuristic = heuristic;
+      objectiveFunction = objFunc;
     }
 
     @Nullable
@@ -657,7 +666,8 @@ public class EvoBidder
         // compute the cost of adding parcel 'sp' to the current route
         final double cost = priorityHeuristic
           .compute(GpGlobal.create(state
-            .withRoutes(ImmutableList.of(ImmutableList.copyOf(newRoute)))));
+            .withRoutes(ImmutableList.of(ImmutableList.copyOf(newRoute))),
+            objectiveFunction));
 
         // the parcel with the highest cost will be selected to see if we can
         // reauction it

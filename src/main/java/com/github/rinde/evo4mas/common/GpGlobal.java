@@ -36,6 +36,7 @@ import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.road.RoadModels;
 import com.github.rinde.rinsim.geom.Point;
 import com.github.rinde.rinsim.pdptw.common.StatisticsDTO;
+import com.github.rinde.rinsim.scenario.gendreau06.Gendreau06ObjectiveFunction;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Doubles;
@@ -61,6 +62,8 @@ public abstract class GpGlobal {
   public abstract VehicleStateObject vehicle();
 
   public abstract Parcel parcel();
+
+  public abstract Gendreau06ObjectiveFunction objFunc();
 
   public double insertionCost() {
     if (!isInsertComputed) {
@@ -109,26 +112,21 @@ public abstract class GpGlobal {
 
     try {
       final ImmutableList<ImmutableList<Parcel>> newRoute =
-        CheapestInsertionHeuristic.solve(state(),
-          GlobalStateObjectFunctions.OBJ_FUNC);
+        CheapestInsertionHeuristic.solve(state(), objFunc());
       final StatisticsDTO insertionStats =
         Solvers.computeStats(state(), newRoute);
 
       insertCost =
-        GlobalStateObjectFunctions.OBJ_FUNC.computeCost(insertionStats)
-          - GlobalStateObjectFunctions.OBJ_FUNC.computeCost(baseline);
+        objFunc().computeCost(insertionStats) - objFunc().computeCost(baseline);
 
       insertTravelTime =
-        GlobalStateObjectFunctions.OBJ_FUNC.travelTime(insertionStats)
-          - GlobalStateObjectFunctions.OBJ_FUNC.travelTime(baseline);
+        objFunc().travelTime(insertionStats) - objFunc().travelTime(baseline);
 
       insertTardiness =
-        GlobalStateObjectFunctions.OBJ_FUNC.tardiness(insertionStats)
-          - GlobalStateObjectFunctions.OBJ_FUNC.tardiness(baseline);
+        objFunc().tardiness(insertionStats) - objFunc().tardiness(baseline);
 
       insertOverTime =
-        GlobalStateObjectFunctions.OBJ_FUNC.overTime(insertionStats)
-          - GlobalStateObjectFunctions.OBJ_FUNC.overTime(baseline);
+        objFunc().overTime(insertionStats) - objFunc().overTime(baseline);
 
       final long insertedFlex =
         GlobalStateObjectFunctions.computeFlexibility(state(), newRoute.get(0));
@@ -205,7 +203,8 @@ public abstract class GpGlobal {
     return RoadModels.computeTravelTime(velocity, distance, NonSI.MINUTE);
   }
 
-  public static GpGlobal create(GlobalStateObject state) {
+  public static GpGlobal create(GlobalStateObject state,
+      Gendreau06ObjectiveFunction objFunc) {
     checkArgument(state.getVehicles().size() == 1,
       "Expected exactly 1 vehicle, found %s vehicles.",
       state.getVehicles().size());
@@ -220,6 +219,7 @@ public abstract class GpGlobal {
       "Expected axactly 1 unassigned parcel, found %s unassigned parcels.",
       unassigned.size());
 
-    return new AutoValue_GpGlobal(state, vehicle, unassigned.iterator().next());
+    return new AutoValue_GpGlobal(state, vehicle, unassigned.iterator().next(),
+      objFunc);
   }
 }

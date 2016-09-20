@@ -43,7 +43,6 @@ import com.github.rinde.rinsim.experiment.MASConfiguration;
 import com.github.rinde.rinsim.experiment.PostProcessors;
 import com.github.rinde.rinsim.pdptw.common.AddParcelEvent;
 import com.github.rinde.rinsim.pdptw.common.AddVehicleEvent;
-import com.github.rinde.rinsim.pdptw.common.ObjectiveFunction;
 import com.github.rinde.rinsim.pdptw.common.RouteFollowingVehicle;
 import com.github.rinde.rinsim.pdptw.common.RoutePanel;
 import com.github.rinde.rinsim.pdptw.common.TimeLinePanel;
@@ -60,7 +59,7 @@ import com.github.rinde.rinsim.util.StochasticSupplier;
  * @author Rinde van Lon
  */
 public class EvoBidderTest {
-  static final ObjectiveFunction OBJ_FUNC =
+  static final Gendreau06ObjectiveFunction OBJ_FUNC =
     Gendreau06ObjectiveFunction.instance(50d);
 
   // checks that obj_func insertion cost gives same result as prio heuristic
