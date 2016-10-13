@@ -47,7 +47,9 @@ import com.github.rinde.rinsim.central.SimSolverBuilder;
 import com.github.rinde.rinsim.central.Solver;
 import com.github.rinde.rinsim.central.SolverUser;
 import com.github.rinde.rinsim.central.Solvers;
+import com.github.rinde.rinsim.central.Solvers.MeasureableSolver;
 import com.github.rinde.rinsim.central.Solvers.SolveArgs;
+import com.github.rinde.rinsim.central.Solvers.SolverTimeMeasurement;
 import com.github.rinde.rinsim.central.rt.RealtimeSolver;
 import com.github.rinde.rinsim.central.rt.RtSimSolver;
 import com.github.rinde.rinsim.central.rt.RtSimSolver.EventType;
@@ -105,15 +107,25 @@ public class EvoBidder
   private final RealtimeSolver solver;
   private final ParcelSwapSelector parcelSwapSelector;
   private final long reauctionCooldownPeriod;
+  private final Optional<MeasureableSolver> measureDecorator;
 
   EvoBidder(Gendreau06ObjectiveFunction objFunc,
       PriorityHeuristic<GpGlobal> h,
       long cooldown,
-      ParcelSwapSelectorType selector) {
+      ParcelSwapSelectorType selector,
+      boolean isTimeMeasurementEnabled) {
     super(SetFactories.synchronizedFactory(SetFactories.linkedHashSet()));
     objectiveFunction = objFunc;
     heuristic = new SolverAdapter(h, objectiveFunction);
-    solver = RtStAdapters.toRealtime(heuristic);
+    if (isTimeMeasurementEnabled) {
+      measureDecorator =
+        Optional.of(Solvers.timeMeasurementDecorator(heuristic));
+      solver = RtStAdapters.toRealtime(measureDecorator.get());
+    } else {
+      measureDecorator = Optional.absent();
+      solver = RtStAdapters.toRealtime(heuristic);
+    }
+
     solverHandle = Optional.absent();
     cfbQueue = Queues.synchronizedQueue(new LinkedList<CallForBids>());
     parcelAuctioneers = new LinkedHashMap<>();
@@ -126,6 +138,12 @@ public class EvoBidder
       parcelSwapSelector =
         new PriorityHeuristicSelector(objectiveFunction, heuristic.heuristic);
     }
+  }
+
+  // throws IllegalStateException if the option is not enabled
+  public List<SolverTimeMeasurement> getTimeMeasurements() {
+    checkState(measureDecorator.isPresent());
+    return measureDecorator.get().getTimeMeasurements();
   }
 
   @Override
@@ -488,13 +506,16 @@ public class EvoBidder
      */
     abstract ParcelSwapSelectorType getParcelSwapSelectorType();
 
+    abstract boolean isTimeMeasurementEnabled();
+
     public Builder withReauctionCooldownPeriod(long periodMs) {
       return create(
         getPriorityHeuristic(),
         isRealtime(),
         getObjectiveFunction(),
         periodMs,
-        getParcelSwapSelectorType());
+        getParcelSwapSelectorType(),
+        isTimeMeasurementEnabled());
     }
 
     // TODO validate options by testing output with PrioHeur: "(insertioncost)"
@@ -505,7 +526,8 @@ public class EvoBidder
         isRealtime(),
         getObjectiveFunction(),
         getReauctionCooldownPeriod(),
-        ParcelSwapSelectorType.OBJ_FUNC);
+        ParcelSwapSelectorType.OBJ_FUNC,
+        isTimeMeasurementEnabled());
     }
 
     public Builder withPriorityHeuristicForReauction() {
@@ -514,7 +536,18 @@ public class EvoBidder
         isRealtime(),
         getObjectiveFunction(),
         getReauctionCooldownPeriod(),
-        ParcelSwapSelectorType.PRIO_HEUR);
+        ParcelSwapSelectorType.PRIO_HEUR,
+        isTimeMeasurementEnabled());
+    }
+
+    public Builder withTimeMeasurement(boolean enable) {
+      return create(
+        getPriorityHeuristic(),
+        isRealtime(),
+        getObjectiveFunction(),
+        getReauctionCooldownPeriod(),
+        getParcelSwapSelectorType(),
+        enable);
     }
 
     @Override
@@ -523,13 +556,15 @@ public class EvoBidder
         return new EvoBidder(getObjectiveFunction(),
           getPriorityHeuristic(),
           getReauctionCooldownPeriod(),
-          getParcelSwapSelectorType());
+          getParcelSwapSelectorType(),
+          isTimeMeasurementEnabled());
       } else {
         return new StEvoBidder(
           new EvoBidder(getObjectiveFunction(),
             getPriorityHeuristic(),
             getReauctionCooldownPeriod(),
-            getParcelSwapSelectorType()));
+            getParcelSwapSelectorType(),
+            isTimeMeasurementEnabled()));
       }
     }
 
@@ -542,26 +577,28 @@ public class EvoBidder
     static Builder createRt(PriorityHeuristic<GpGlobal> heuristic,
         Gendreau06ObjectiveFunction objFunc) {
       return create(heuristic, true, objFunc, DEFAULT_COOLDOWN_VALUE,
-        DEFAULT_PARCEL_SWAP_SELECTOR_TYPE);
+        DEFAULT_PARCEL_SWAP_SELECTOR_TYPE, false);
     }
 
     static Builder createSt(PriorityHeuristic<GpGlobal> heuristic,
         Gendreau06ObjectiveFunction objFunc) {
       return create(heuristic, false, objFunc, DEFAULT_COOLDOWN_VALUE,
-        DEFAULT_PARCEL_SWAP_SELECTOR_TYPE);
+        DEFAULT_PARCEL_SWAP_SELECTOR_TYPE, false);
     }
 
     static Builder create(PriorityHeuristic<GpGlobal> heuristic,
         boolean realtime,
         Gendreau06ObjectiveFunction objectiveFunction,
         long reauctionCooldownPeriod,
-        ParcelSwapSelectorType type) {
+        ParcelSwapSelectorType type,
+        boolean enableTimeMeasurement) {
       return new AutoValue_EvoBidder_Builder(
         heuristic,
         realtime,
         objectiveFunction,
         reauctionCooldownPeriod,
-        type);
+        type,
+        enableTimeMeasurement);
     }
   }
 
