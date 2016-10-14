@@ -58,6 +58,7 @@ import com.github.rinde.rinsim.central.rt.RtSimSolverBuilder;
 import com.github.rinde.rinsim.central.rt.RtSolverModel;
 import com.github.rinde.rinsim.central.rt.RtSolverUser;
 import com.github.rinde.rinsim.central.rt.RtStAdapters;
+import com.github.rinde.rinsim.central.rt.SleepySolver;
 import com.github.rinde.rinsim.core.model.pdp.Parcel;
 import com.github.rinde.rinsim.core.model.time.TickListener;
 import com.github.rinde.rinsim.core.model.time.TimeLapse;
@@ -108,23 +109,33 @@ public class EvoBidder
   private final ParcelSwapSelector parcelSwapSelector;
   private final long reauctionCooldownPeriod;
   private final Optional<MeasureableSolver> measureDecorator;
+  private final long computationDelay;
 
   EvoBidder(Gendreau06ObjectiveFunction objFunc,
       PriorityHeuristic<GpGlobal> h,
       long cooldown,
       ParcelSwapSelectorType selector,
-      boolean isTimeMeasurementEnabled) {
+      boolean isTimeMeasurementEnabled,
+      long compDelay) {
     super(SetFactories.synchronizedFactory(SetFactories.linkedHashSet()));
     objectiveFunction = objFunc;
     heuristic = new SolverAdapter(h, objectiveFunction);
+
+    // decorator galore! ;-)
+    Solver deco = heuristic;
+    if (compDelay > 0L) {
+      deco = SleepySolver.create(compDelay, heuristic);
+    }
+
     if (isTimeMeasurementEnabled) {
       measureDecorator =
-        Optional.of(Solvers.timeMeasurementDecorator(heuristic));
+        Optional.of(Solvers.timeMeasurementDecorator(deco));
       solver = RtStAdapters.toRealtime(measureDecorator.get());
     } else {
       measureDecorator = Optional.absent();
-      solver = RtStAdapters.toRealtime(heuristic);
+      solver = RtStAdapters.toRealtime(deco);
     }
+    computationDelay = compDelay;
 
     solverHandle = Optional.absent();
     cfbQueue = Queues.synchronizedQueue(new LinkedList<CallForBids>());
@@ -480,6 +491,7 @@ public class EvoBidder
   public abstract static class Builder
       implements StochasticSupplier<Bidder<DoubleBid>>, Serializable {
     static final long DEFAULT_COOLDOWN_VALUE = -1L;
+    static final long DEFAULT_COMP_DELAY = 0L;
     static final ParcelSwapSelectorType DEFAULT_PARCEL_SWAP_SELECTOR_TYPE =
       ParcelSwapSelectorType.OBJ_FUNC;
     private static final long serialVersionUID = 117918742255072246L;
@@ -508,6 +520,10 @@ public class EvoBidder
 
     abstract boolean isTimeMeasurementEnabled();
 
+    // a delay > 0 means that Thread.sleep will be called before invocation of
+    // the heuristic.
+    abstract long getComputationDelay();
+
     public Builder withReauctionCooldownPeriod(long periodMs) {
       return create(
         getPriorityHeuristic(),
@@ -515,7 +531,8 @@ public class EvoBidder
         getObjectiveFunction(),
         periodMs,
         getParcelSwapSelectorType(),
-        isTimeMeasurementEnabled());
+        isTimeMeasurementEnabled(),
+        getComputationDelay());
     }
 
     // TODO validate options by testing output with PrioHeur: "(insertioncost)"
@@ -527,7 +544,9 @@ public class EvoBidder
         getObjectiveFunction(),
         getReauctionCooldownPeriod(),
         ParcelSwapSelectorType.OBJ_FUNC,
-        isTimeMeasurementEnabled());
+        isTimeMeasurementEnabled(),
+        getComputationDelay());
+
     }
 
     public Builder withPriorityHeuristicForReauction() {
@@ -537,7 +556,8 @@ public class EvoBidder
         getObjectiveFunction(),
         getReauctionCooldownPeriod(),
         ParcelSwapSelectorType.PRIO_HEUR,
-        isTimeMeasurementEnabled());
+        isTimeMeasurementEnabled(),
+        getComputationDelay());
     }
 
     public Builder withTimeMeasurement(boolean enable) {
@@ -547,7 +567,19 @@ public class EvoBidder
         getObjectiveFunction(),
         getReauctionCooldownPeriod(),
         getParcelSwapSelectorType(),
-        enable);
+        enable,
+        getComputationDelay());
+    }
+
+    public Builder withComputationDelay(long ms) {
+      return create(
+        getPriorityHeuristic(),
+        isRealtime(),
+        getObjectiveFunction(),
+        getReauctionCooldownPeriod(),
+        getParcelSwapSelectorType(),
+        isTimeMeasurementEnabled(),
+        ms);
     }
 
     @Override
@@ -557,14 +589,16 @@ public class EvoBidder
           getPriorityHeuristic(),
           getReauctionCooldownPeriod(),
           getParcelSwapSelectorType(),
-          isTimeMeasurementEnabled());
+          isTimeMeasurementEnabled(),
+          getComputationDelay());
       } else {
         return new StEvoBidder(
           new EvoBidder(getObjectiveFunction(),
             getPriorityHeuristic(),
             getReauctionCooldownPeriod(),
             getParcelSwapSelectorType(),
-            isTimeMeasurementEnabled()));
+            isTimeMeasurementEnabled(),
+            getComputationDelay()));
       }
     }
 
@@ -577,13 +611,13 @@ public class EvoBidder
     static Builder createRt(PriorityHeuristic<GpGlobal> heuristic,
         Gendreau06ObjectiveFunction objFunc) {
       return create(heuristic, true, objFunc, DEFAULT_COOLDOWN_VALUE,
-        DEFAULT_PARCEL_SWAP_SELECTOR_TYPE, false);
+        DEFAULT_PARCEL_SWAP_SELECTOR_TYPE, false, DEFAULT_COMP_DELAY);
     }
 
     static Builder createSt(PriorityHeuristic<GpGlobal> heuristic,
         Gendreau06ObjectiveFunction objFunc) {
       return create(heuristic, false, objFunc, DEFAULT_COOLDOWN_VALUE,
-        DEFAULT_PARCEL_SWAP_SELECTOR_TYPE, false);
+        DEFAULT_PARCEL_SWAP_SELECTOR_TYPE, false, DEFAULT_COMP_DELAY);
     }
 
     static Builder create(PriorityHeuristic<GpGlobal> heuristic,
@@ -591,14 +625,16 @@ public class EvoBidder
         Gendreau06ObjectiveFunction objectiveFunction,
         long reauctionCooldownPeriod,
         ParcelSwapSelectorType type,
-        boolean enableTimeMeasurement) {
+        boolean enableTimeMeasurement,
+        long computationDelay) {
       return new AutoValue_EvoBidder_Builder(
         heuristic,
         realtime,
         objectiveFunction,
         reauctionCooldownPeriod,
         type,
-        enableTimeMeasurement);
+        enableTimeMeasurement,
+        computationDelay);
     }
   }
 
