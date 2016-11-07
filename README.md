@@ -1,2 +1,3 @@
-evo4mas 0.1.1-SNAPSHOT
-=======
+# evo4mas 0.2.0
+
+Evolutionary algorithms for designing multi-agent systems for logistics.
