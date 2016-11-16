@@ -38,8 +38,8 @@
 	</developers>
 
 	<properties>
-		<rinsim.version>4.2.0</rinsim.version>
-		<rinlog.version>3.1.0</rinlog.version>
+		<rinsim.version>4.3.0-SNAPSHOT</rinsim.version>
+		<rinlog.version>3.2.0-SNAPSHOT</rinlog.version>
 		<rinecj.version>0.2.0</rinecj.version>
 		<sonar.language>java</sonar.language>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

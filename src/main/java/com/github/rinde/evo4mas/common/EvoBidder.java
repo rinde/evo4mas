@@ -43,13 +43,14 @@ import com.github.rinde.logistics.pdptw.mas.comm.ForwardingBidder;
 import com.github.rinde.logistics.pdptw.mas.comm.SetFactories;
 import com.github.rinde.logistics.pdptw.solver.CheapestInsertionHeuristic;
 import com.github.rinde.rinsim.central.GlobalStateObject;
+import com.github.rinde.rinsim.central.Measurable;
+import com.github.rinde.rinsim.central.MeasureableSolver;
 import com.github.rinde.rinsim.central.SimSolverBuilder;
 import com.github.rinde.rinsim.central.Solver;
+import com.github.rinde.rinsim.central.SolverTimeMeasurement;
 import com.github.rinde.rinsim.central.SolverUser;
 import com.github.rinde.rinsim.central.Solvers;
-import com.github.rinde.rinsim.central.Solvers.MeasureableSolver;
 import com.github.rinde.rinsim.central.Solvers.SolveArgs;
-import com.github.rinde.rinsim.central.Solvers.SolverTimeMeasurement;
 import com.github.rinde.rinsim.central.rt.RealtimeSolver;
 import com.github.rinde.rinsim.central.rt.RtSimSolver;
 import com.github.rinde.rinsim.central.rt.RtSimSolver.EventType;
@@ -83,7 +84,7 @@ import com.google.common.collect.Queues;
  */
 public class EvoBidder
     extends AbstractBidder<DoubleBid>
-    implements RtSolverUser, TickListener {
+    implements RtSolverUser, TickListener, Measurable {
 
   // 5 minutes
   private static final long MAX_LOSING_TIME = 5 * 60 * 1000;
@@ -152,6 +153,7 @@ public class EvoBidder
   }
 
   // throws IllegalStateException if the option is not enabled
+  @Override
   public List<SolverTimeMeasurement> getTimeMeasurements() {
     checkState(measureDecorator.isPresent());
     return measureDecorator.get().getTimeMeasurements();
