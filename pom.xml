@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.rinde</groupId>
 	<artifactId>evo4mas</artifactId>
-	<version>0.3.0</version>
+	<version>0.4.0-SNAPSHOT</version>
 
 	<name>Evo 4 MAS</name>
 	<description>Evolutionary algorithms for designing multi-agent systems for logistics.</description>
