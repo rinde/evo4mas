@@ -174,7 +174,7 @@ public abstract class GpGlobal {
     double maxDist = Double.NEGATIVE_INFINITY;
     while (it.hasPrevious()) {
       final Parcel cur = it.previous();
-      Point curLoc;
+      final Point curLoc;
       if (seen.contains(cur)) {
         // it is a pickup location
         curLoc = cur.getPickupLocation();

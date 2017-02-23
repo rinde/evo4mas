@@ -138,7 +138,7 @@ public final class PriorityHeuristicSolver implements Solver {
       newRoute.add(best);
 
       final boolean isPickup = assignablePickups.contains(best);
-      Point newPosition;
+      final Point newPosition;
       if (isPickup) {
         assignablePickups.remove(best);
         assignableDeliveries.add(best);

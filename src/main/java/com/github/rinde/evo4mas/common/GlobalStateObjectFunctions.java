@@ -82,9 +82,9 @@ public final class GlobalStateObjectFunctions {
       final int index = iterator.previousIndex();
       final Parcel prev = iterator.previous();
 
-      Point prevLoc;
+      final Point prevLoc;
       final long prevTWend;
-      long prevDur;
+      final long prevDur;
       if (seenSet.contains(prev)) {
         prevLoc = prev.getPickupLocation();
         prevTWend = prev.getPickupTimeWindow().end();
@@ -277,7 +277,7 @@ public final class GlobalStateObjectFunctions {
 
       double utilization = vso.getRemainingServiceTime();
       for (final Parcel p : vso.getRoute().get()) {
-        Point loc;
+        final Point loc;
         if (inCargo.contains(p)) {
           loc = p.getDeliveryLocation();
           utilization += p.getDeliveryDuration();
